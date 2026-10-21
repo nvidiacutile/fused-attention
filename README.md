@@ -14,9 +14,21 @@ Fused causal attention (FlashAttention-style forward) written in NVIDIA cuTile, 
 
 ## Environment
 
-GPU: NVIDIA A30 (Ampere, compute capability 8.0, 24 GB) rented from Jarvislabs.
-Exact versions of the driver, Python, torch, cuda-tile, nvcc and Nsight Compute are
-written to `env.txt` by `setup.sh` on every fresh instance.
+Verified on Oct 22, 2026 (recorded by `setup.sh` in `env.txt`):
+
+| Component | Version |
+|---|---|
+| GPU | NVIDIA A30 (Ampere, 24 GB), Jarvislabs |
+| Compute capability | 8.0 |
+| NVIDIA driver | 580.126.20 (supports CUDA 13.0) |
+| Python | 3.10.20 |
+| PyTorch | 2.14.1+cu130 (CUDA 13.0) |
+| cuda-tile (cuTile) | 1.6.0 |
+| nvcc (`nvidia-cuda-nvcc`) | 13.4.92 |
+| Nsight Compute | 2024.3.2.0 (build 34861637) |
+
+Full pinned package list: `requirements.txt`. `setup.sh` rewrites `env.txt` on every
+fresh instance; update this table if the versions change.
 
 ## Setup (every new instance)
 
