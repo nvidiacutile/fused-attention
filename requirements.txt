@@ -1,0 +1,5 @@
+# Pin exact versions after T1 environment setup
+torch
+numpy
+cuda-tile
+pytest
