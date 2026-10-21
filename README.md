@@ -14,20 +14,24 @@ Fused causal attention (FlashAttention-style forward) written in NVIDIA cuTile, 
 
 ## Environment
 
-Fill in after T1:
+GPU: NVIDIA A30 (Ampere, compute capability 8.0, 24 GB) rented from Jarvislabs.
+Exact versions of the driver, Python, torch, cuda-tile, nvcc and Nsight Compute are
+written to `env.txt` by `setup.sh` on every fresh instance.
 
-- GPU model:
-- Driver version:
-- CUDA Toolkit version:
-- Compute capability:
-- cuTile version:
-- Compilation mode:
+## Setup (every new instance)
 
-## Setup
+Jarvislabs instances start empty, so run this each time:
 
 ```bash
-pip install -r requirements.txt
+git clone https://github.com/nvidiacutile/fused-attention.git
+cd fused-attention
+bash setup.sh
+source .venv/bin/activate
 ```
+
+`setup.sh` creates `.venv`, installs the pinned `requirements.txt`, runs a cuTile
+smoke test (`scripts/smoke_test.py`) and records the environment to `env.txt`.
+Commit and push your work before pausing the instance.
 
 ## Usage
 
