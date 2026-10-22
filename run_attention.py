@@ -1,4 +1,4 @@
-"""Command-line interface for causal attention (Task 4, owner: Harshith).
+"""Command-line interface for causal attention.
 
     python run_attention.py --input INPUT.npz --output OUTPUT.npy --backend cutile
 
