@@ -67,10 +67,14 @@ Anything not pushed is lost when the instance is paused or destroyed. The instan
 ## Usage
 
 ```bash
-python run_attention.py --input qkv.npz --output out.npy
+python run_attention.py --input INPUT.npz --output OUTPUT.npy --backend cutile
 ```
 
-`qkv.npz` must contain FP16 arrays `q`, `k`, `v` of shape `(B, H, N, D)`. Unsupported inputs exit with a nonzero status and a clear error message.
+- **Input:** `INPUT.npz` with contiguous float16 arrays `Q` `[B, H, N, D]`, `K` `[B, H, N, D]`, `V` `[B, H, N, Dv]`.
+- **Limits:** 1 ≤ B ≤ 16, 1 ≤ H ≤ 32, 1 ≤ N ≤ 8192, D and Dv ∈ {32, 64, 128}, N divisible by `--block-m` and `--block-n` (default 64).
+- **Output:** float16 array of shape `[B, H, N, Dv]`.
+- **Backends:** `cutile` (fused kernel), `unfused` (baseline), `reference` (PyTorch), `cutedsl` (optional track, not implemented).
+- **Exit status:** 0 success, 2 unsupported input (with an error message), 1 runtime failure.
 
 ## Tests
 
