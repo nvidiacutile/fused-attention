@@ -67,7 +67,7 @@ def get_backend(name):
         return fused_attention
     if name == "unfused":
         from attention.unfused import unfused_attention
-        return lambda q, k, v, bm, bn: unfused_attention(q, k, v, tile_m=bm, tile_n=bn)
+        return lambda q, k, v, bm, bn: unfused_attention(q, k, v)  # unfused baseline takes no tile sizes
     if name == "reference":
         from attention.reference import causal_attention_reference
         return lambda q, k, v, bm, bn: causal_attention_reference(q, k, v)
