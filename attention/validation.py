@@ -1,8 +1,9 @@
-"""Input checks shared by run_attention.py, the kernels and the tests (Task 4, owner: Harshith).
+"""Input checks shared by run_attention.py, the kernels and the tests.
 
-Limits come from the project brief:
-  Q: [B, H, N, D]   K: [B, H, N, D]   V: [B, H, N, Dv]   all contiguous float16
-  1 <= B <= 16, 1 <= H <= 32, 1 <= N <= 8192, D and Dv in {32, 64, 128}
+Input requirements:
+  Q: [B, H, N, D]   K: [B, H, N, D]   V: [B, H, N, D]   all contiguous float16
+  1 <= B <= 16, 1 <= H <= 32, 1 <= N <= 8192, D in {32, 64, 128}
+  Q, K and V share the same head dim D (Dv == D)
   causal self-attention only, so Nq == Nk == N
   N must be divisible by the query tile (block_m) and key tile (block_n)
 
@@ -20,12 +21,12 @@ SUPPORTED_HEAD_DIMS = (32, 64, 128)
 class ValidationError(ValueError):
     """Raised for inputs outside the supported scope."""
 
-
+# strips and gets the dtype from numpy and torch
 def _dtype_name(x) -> str:
     # numpy: dtype('float16') -> 'float16'; torch: torch.float16 -> 'float16'
     return str(x.dtype).replace("torch.", "")
 
-
+# checks if data is in row major order in the memory with no gaps 
 def _is_contiguous(x) -> bool:
     if hasattr(x, "is_contiguous"):  # torch
         return x.is_contiguous()
@@ -37,6 +38,7 @@ def validate_qkv(q, k, v, block_m: int, block_n: int) -> None:
     """Raise ValidationError if Q, K, V are not supported for the given tile sizes."""
     tensors = {"Q": q, "K": k, "V": v}
 
+    # check dtype
     for name, t in tensors.items():
         if _dtype_name(t) != "float16":
             raise ValidationError(f"{name} has dtype {_dtype_name(t)}; only float16 is supported")
@@ -51,6 +53,7 @@ def validate_qkv(q, k, v, block_m: int, block_n: int) -> None:
     Bk, Hk, Nk, Dk = k.shape
     Bv, Hv, Nv, Dv = v.shape
 
+    # batch size, head count, sequence length and head dim mismatches
     if not (B == Bk == Bv):
         raise ValidationError(f"batch size mismatch: Q={B}, K={Bk}, V={Bv}")
     if not (H == Hk == Hv):
@@ -59,9 +62,12 @@ def validate_qkv(q, k, v, block_m: int, block_n: int) -> None:
         raise ValidationError(
             f"sequence length mismatch: Q={Nq}, K={Nk}, V={Nv}; causal self-attention needs Nq == Nk"
         )
-    if Dk != D:
-        raise ValidationError(f"K head dim {Dk} must equal Q head dim {D}")
+    if not (D == Dk == Dv):
+        raise ValidationError(
+            f"head dim mismatch: Q={D}, K={Dk}, V={Dv}; Q, K and V must share the same head dim D"
+        )
 
+    # check if B, H, N and D are within the specified bounds 
     if not 1 <= B <= MAX_BATCH:
         raise ValidationError(f"batch size B={B} out of range [1, {MAX_BATCH}]")
     if not 1 <= H <= MAX_HEADS:
@@ -70,9 +76,8 @@ def validate_qkv(q, k, v, block_m: int, block_n: int) -> None:
         raise ValidationError(f"sequence length N={Nq} out of range [1, {MAX_SEQ_LEN}]")
     if D not in SUPPORTED_HEAD_DIMS:
         raise ValidationError(f"head dim D={D} not supported; allowed {SUPPORTED_HEAD_DIMS}")
-    if Dv not in SUPPORTED_HEAD_DIMS:
-        raise ValidationError(f"value head dim Dv={Dv} not supported; allowed {SUPPORTED_HEAD_DIMS}")
 
+    # sequence length tile size divisiblity
     for label, block in (("query tile block_m", block_m), ("key tile block_n", block_n)):
         if block <= 0:
             raise ValidationError(f"{label}={block} must be positive")
