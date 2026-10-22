@@ -1,4 +1,4 @@
-"""Correctness runner: our kernel vs the FP32 PyTorch reference (Task 5, owner: Harshith).
+"""Correctness runner: our kernel vs the FP32 PyTorch reference.
 
     python tests/run_correctness.py --impl unfused
     python tests/run_correctness.py --impl fused --block-m 64 --block-n 64
