@@ -1,4 +1,4 @@
-"""Correctness test cases (Task 5, owner: Harshith).
+"""Correctness test cases.
 
 Defines the fixed list of 60 cases and builds reproducible Q, K, V for each.
 
