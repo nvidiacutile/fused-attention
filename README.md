@@ -78,6 +78,28 @@ python run_attention.py --input INPUT.npz --output OUTPUT.npy --backend cutile
 
 ## Tests
 
+### Correctness
+
+```bash
+python tests/run_correctness.py --impl unfused                 # or --impl fused
+python tests/run_correctness.py --impl fused --block-m 128 --block-n 64
+python tests/run_correctness.py --impl fused --filter N512     # subset by case id
+```
+
+Runs the chosen kernel and the FP32 PyTorch reference on 60 fixed-seed cases from
+`tests/cases.py`:
+
+- D ∈ {32, 64, 128} × N ∈ {512, 4096, 8192} × tiny/large score magnitudes × (B, H) ∈ {(1, 1), (2, 8), (3, 5)}
+- plus the maximum shape (B, H) = (16, 32) at N = 512 for each D and magnitude
+
+Tiny scores (σ = 0.03, score std ≈ 1e-3) give a near-uniform softmax; large scores
+(σ = 7, max |score| ≈ 240) overflow `exp` in FP32 unless the softmax subtracts the running max.
+A case fails on any NaN/Inf, or if any element violates `|out − ref| ≤ 2e-2 + 2e-2·|ref|`.
+Prints max absolute/relative error and PASS/FAIL per case, writes
+`results/correctness_<impl>.csv`, and exits 0 only if every case passes.
+
+### Unit tests
+
 ```bash
 pytest tests/
 ```
