@@ -1,6 +1,6 @@
 # fused-attention
 
-Fused causal attention (FlashAttention-style forward) written in NVIDIA cuTile, with an unfused cuTile baseline and a PyTorch reference.
+Causal scaled dot-product attention in NVIDIA cuTile on an A30: a fused FlashAttention-style forward kernel with online softmax, extended to grouped-query attention (GQA/MQA) and a recompute-based backward pass with PyTorch autograd support, tested and benchmarked against an unfused cuTile baseline and PyTorch SDPA.
 
 ## Status (through Oct 21)
 
