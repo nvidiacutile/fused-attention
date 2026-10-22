@@ -97,3 +97,16 @@ Tiny scores (σ = 0.03, score std ≈ 1e-3) give a near-uniform softmax; large s
 A case fails on any NaN/Inf, or if any element violates `|out − ref| ≤ 2e-2 + 2e-2·|ref|`.
 Prints max absolute/relative error and PASS/FAIL per case, writes
 `results/correctness_<impl>.csv`, and exits 0 only if every case passes.
+
+### Unfused and reference
+
+```bash
+source .venv/bin/activate
+python tests/run_correctness.py --impl reference    # harness self-check: reference vs itself
+python tests/run_correctness.py --impl unfused      # unfused cuTile baseline vs reference
+```
+
+Each runs all 60 cases and should end with `CORRECT: all 60 cases passed`, writing
+`results/correctness_reference.csv` and `results/correctness_unfused.csv`. Add
+`--filter N512` (or any part of a case id) to run a subset. The unfused baseline always
+uses 64×64 tiles, so `--block-m` / `--block-n` only affect validation for it.
