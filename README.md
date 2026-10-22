@@ -1,8 +1,8 @@
 # fused-attention
 
-Causal scaled dot-product attention in NVIDIA cuTile on an A30: a fused FlashAttention-style forward kernel with online softmax, extended to grouped-query attention (GQA/MQA) and a recompute-based backward pass with PyTorch autograd support, tested and benchmarked against an unfused cuTile baseline and PyTorch SDPA.
+Causal scaled dot-product attention in NVIDIA cuTile: a fused FlashAttention-style forward kernel with online softmax, extended to grouped-query attention (GQA/MQA) and a recompute-based backward pass with PyTorch autograd support, tested and benchmarked against an unfused cuTile baseline and PyTorch SDPA.
 
-## Status (through Oct 21)
+## Status
 
 | Task | What | Owner | File(s) |
 |---|---|---|---|
@@ -13,8 +13,6 @@ Causal scaled dot-product attention in NVIDIA cuTile on an A30: a fused FlashAtt
 | T5 | Correctness tests | Harshith | `tests/` |
 
 ## Environment
-
-Verified on Oct 22, 2026 (recorded by `setup.sh` in `env.txt`):
 
 | Component | Version |
 |---|---|
@@ -27,27 +25,13 @@ Verified on Oct 22, 2026 (recorded by `setup.sh` in `env.txt`):
 | nvcc (`nvidia-cuda-nvcc`) | 13.4.92 |
 | Nsight Compute | 2024.3.2.0 (build 34861637) |
 
-Full pinned package list: `requirements.txt`. `setup.sh` rewrites `env.txt` on every
-fresh instance; update this table if the versions change.
+## Setup
 
-## Setup (every new instance)
+Jarvislabs instances start empty, so after logging in to the A30 instance (Jarvislabs dashboard → Instances → **VS Code**, password from the **Password** button) open a terminal and do the steps below each time.
 
-Jarvislabs instances start empty, so after logging in to the A30 instance
-(Jarvislabs dashboard → Instances → **VS Code**, password from the **Password**
-button) open a terminal and do the steps below each time.
-
-### 1. GitHub access (token created once)
+### 1. GitHub access 
 
 The repo is private, so cloning and pushing need a personal access token (PAT).
-
-Create it once on github.com as `nvidiacutile`:
-
-1. **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**
-2. **Repository access:** Only select repositories → `fused-attention`
-3. **Permissions → Repository permissions → Contents:** Read and write
-4. Set the expiry after Nov 7, generate, and keep the token in a password manager (GitHub shows it only once).
-
-Never commit the token or paste it into chat.
 
 On each new instance:
 
@@ -57,9 +41,7 @@ git config --global user.email "your-email@example.com"
 git config --global credential.helper store   # remember the token until the instance is wiped
 ```
 
-Alternative if `gh` is installed (`which gh`): run `gh auth login` → GitHub.com →
-HTTPS → Login with a web browser, then enter the one-time code at
-github.com/login/device.
+Alternative if `gh` is installed (`which gh`): run `gh auth login` → GitHub.com → HTTPS → Login with a web browser, then enter the one-time code at github.com/login/device.
 
 ### 2. Clone and set up
 
@@ -72,8 +54,7 @@ bash setup.sh
 source .venv/bin/activate
 ```
 
-`setup.sh` creates `.venv`, installs the pinned `requirements.txt`, runs a cuTile
-smoke test (`scripts/smoke_test.py`) and records the environment to `env.txt`.
+`setup.sh` creates `.venv`, installs the pinned `requirements.txt`, runs a cuTilesmoke test (`scripts/smoke_test.py`) and records the  environment to `env.txt`.
 
 ### 3. Before pausing the instance
 
@@ -81,8 +62,7 @@ smoke test (`scripts/smoke_test.py`) and records the environment to `env.txt`.
 git add -A && git commit -m "..." && git push
 ```
 
-Anything not pushed is lost when the instance is paused or destroyed. The
-instance password also changes after pause/resume.
+Anything not pushed is lost when the instance is paused or destroyed. The instance password also changes after pause/resume.
 
 ## Usage
 
