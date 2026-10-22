@@ -97,9 +97,3 @@ Tiny scores (σ = 0.03, score std ≈ 1e-3) give a near-uniform softmax; large s
 A case fails on any NaN/Inf, or if any element violates `|out − ref| ≤ 2e-2 + 2e-2·|ref|`.
 Prints max absolute/relative error and PASS/FAIL per case, writes
 `results/correctness_<impl>.csv`, and exits 0 only if every case passes.
-
-### Unit tests
-
-```bash
-pytest tests/
-```
