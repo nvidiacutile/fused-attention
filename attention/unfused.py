@@ -1,4 +1,4 @@
-"""Unfused cuTile causal attention baseline (Task 3, owner: Nishitha).
+"""Unfused cuTile causal attention baseline.
 
 FP16 inputs, FP32 accumulation. Three separate kernels:
   1. masked, scaled QKᵀ  -> scores written to global memory
