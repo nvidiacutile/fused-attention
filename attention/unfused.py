@@ -15,8 +15,7 @@ ConstInt = ct.Constant[int]
 
 
 @ct.kernel
-def scores_kernel(Q, K, S, scale: float,
-                  H: ConstInt, TILE_M: ConstInt, TILE_N: ConstInt, TILE_D: ConstInt):
+def scores_kernel(Q, K, S, scale: float, H: ConstInt, TILE_M: ConstInt, TILE_N: ConstInt, TILE_D: ConstInt):
     bid_m = ct.bid(0)
     bid_n = ct.bid(1)
     bh = ct.bid(2)
@@ -24,8 +23,7 @@ def scores_kernel(Q, K, S, scale: float,
     h = bh % H
 
     q = ct.load(Q, index=(b, h, bid_m, 0), shape=(1, 1, TILE_M, TILE_D)).reshape((TILE_M, TILE_D))
-    kt = ct.load(K, index=(b, h, 0, bid_n), shape=(1, 1, TILE_D, TILE_N),
-                 order=(0, 1, 3, 2)).reshape((TILE_D, TILE_N))
+    kt = ct.load(K, index=(b, h, 0, bid_n), shape=(1, 1, TILE_D, TILE_N), order=(0, 1, 3, 2)).reshape((TILE_D, TILE_N))
 
     s = ct.full((TILE_M, TILE_N), 0.0, dtype=np.float32)
     s = ct.mma(q, kt, s)
