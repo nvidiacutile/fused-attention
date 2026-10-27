@@ -13,7 +13,7 @@ import cuda.tile as ct
 
 ConstInt = ct.Constant[int]
 
-
+# load q tile, k tile -> calculate score s -> populate S
 @ct.kernel
 def scores_kernel(Q, K, S, scale: float, H: ConstInt, TILE_M: ConstInt, TILE_N: ConstInt, TILE_D: ConstInt):
     bid_m = ct.bid(0)
