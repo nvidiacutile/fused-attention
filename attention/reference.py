@@ -1,4 +1,4 @@
-"""PyTorch reference for causal SDPA (Task 2, owner: Nishitha).
+"""PyTorch reference for causal SDPA.
 
 Takes FP16 Q, K, V of shape (B, H, N, D), computes with FP32 intermediates,
 and is the ground truth for all kernel correctness tests.
