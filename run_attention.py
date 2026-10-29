@@ -67,7 +67,7 @@ def get_backend(name):
         return fused_attention
     if name == "unfused":
         from attention.unfused import unfused_attention
-        return lambda q, k, v, bm, bn: unfused_attention(q, k, v)  
+        return lambda q, k, v, bm, bn: unfused_attention(q, k, v,bm, bn)  
     if name == "reference":
         from attention.reference import causal_attention_reference
         return lambda q, k, v, bm, bn: causal_attention_reference(q, k, v)
