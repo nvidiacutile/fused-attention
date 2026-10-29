@@ -11,6 +11,8 @@ Causal scaled dot-product attention in NVIDIA cuTile: a fused FlashAttention-sty
 | T3 | Unfused cuTile baseline (QKᵀ → softmax → PV) | Nishitha | `attention/unfused.py` |
 | T4 | `run_attention.py` CLI | Harshith | `run_attention.py`, `attention/validation.py` |
 | T5 | Correctness tests | Harshith | `tests/` |
+| T6 | Fused causal attention forward kernel (FlashAttention-2 style) | Nishitha | `attention/fused.py` |
+| T7 | Forward benchmark + analysis (fused vs unfused vs SDPA) | Nishitha | `benchmarks/bench_forward.py`, `benchmarks/benchmark_analysis.py` |
 
 ## Environment
 
@@ -110,3 +112,86 @@ Each runs all 60 cases and should end with `CORRECT: all 60 cases passed`, writi
 `results/correctness_reference.csv` and `results/correctness_unfused.csv`. Add
 `--filter N512` (or any part of a case id) to run a subset. The unfused baseline always
 uses 64×64 tiles, so `--block-m` / `--block-n` only affect validation for it.
+
+## Fused kernel
+
+`attention/fused.py` provides `fused_attention(q, k, v, tile_m=64, tile_n=64)`, used by the `cutile` backend of `run_attention.py` and by `--impl fused` in the tests.
+
+- One block per (query tile, batch·head): grid `(N / tile_m, B·H)`.
+- Each block loads its Q tile once, then loops over K/V tiles keeping the scores, the softmax tile and the output accumulator on-chip; S and P are never written to global memory.
+- Online softmax with a running row max `m` and row sum `l`; the output is divided by `l` once at the end.
+- Causal tile skipping: K/V tiles entirely in the future of the Q tile are not loaded; only the diagonal tile is masked.
+- FP16 inputs, FP32 accumulation (`ct.mma`), FP16 output.
+- Currently requires `tile_m == tile_n`.
+
+Status: passes all 60 correctness cases (`python tests/run_correctness.py --impl fused`).
+
+## Benchmarking
+
+```bash
+source .venv/bin/activate
+python -m benchmarks.bench_forward          # time fused, unfused and SDPA → results/bench_forward.csv
+python -m benchmarks.benchmark_analysis     # tables, observations, plot from that CSV
+```
+
+Run both from the repo root with `-m` so that `attention/` is importable.
+
+`bench_forward` options:
+
+| Flag | Default | Meaning |
+|---|---|---|
+| `--B`, `--H` | 2, 8 | batch size and number of heads |
+| `--tile-m`, `--tile-n` | 64, 64 | tile sizes for fused and unfused |
+| `--impls` | `fused,unfused,sdpa` | comma-separated implementations to time |
+| `--out` | `results/bench_forward.csv` | output CSV |
+
+Problem sizes: D ∈ {64, 128} × N ∈ {512, 2048, 8192}, random FP16 inputs, causal.
+
+Method: one first call timed separately (includes JIT compile), 10 untimed warm-up runs, then the median of 30 runs timed with CUDA events. Throughput uses the causal FLOP count 4·B·H·N²·D / 2. SDPA is `torch.nn.functional.scaled_dot_product_attention(q, k, v, is_causal=True)` in FP16 and has no user tile size.
+
+`benchmark_analysis` options: `--csv` (default `results/bench_forward.csv`), `--peak` (GPU FP16 peak TFLOP/s for the %-of-peak column), `--out-md`, `--out-png`. It writes:
+
+- `results/bench_forward_summary.md`: latency table, speedups, global-memory traffic avoided by fusion, first-call times, observations
+- `results/bench_forward.png`: latency vs N per implementation (needs `matplotlib`)
+
+To compare tile sizes, write each run to its own CSV:
+
+```bash
+python -m benchmarks.bench_forward --tile-m 128 --tile-n 128 --out results/bench_forward_128.csv
+python -m benchmarks.benchmark_analysis --csv results/bench_forward_128.csv \
+    --out-md results/bench_forward_128_summary.md --out-png results/bench_forward_128.png
+```
+
+### Forward results (B = 2, H = 8, 64×64 tiles)
+
+Run on 2026-10-29 at about 16:30 IST.
+
+| Component | Value |
+|---|---|
+| GPU | NVIDIA L4 (Ada Lovelace, 24 GB), Jarvislabs |
+| Compute capability | 8.9 |
+| NVIDIA driver | 580.126.20 (supports CUDA 13.0) |
+| Python | 3.10.20 |
+| PyTorch | 2.14.1+cu130 (CUDA 13.0) |
+| cuda-tile (cuTile) | 1.6.0 |
+| Inputs | random FP16, seed 0, contiguous `[B, H, N, D]` |
+| Raw data | `results/bench_forward.csv` |
+
+Fused kernel at commit `967838a`.
+
+| D | N | unfused ms | fused ms | SDPA ms | fused vs unfused | fused vs SDPA |
+|---|---|---|---|---|---|---|
+| 64 | 512 | 0.221 | 0.055 | 0.051 | 4.0× faster | 1.08× slower |
+| 64 | 2048 | 1.958 | 0.218 | 0.166 | 9.0× faster | 1.31× slower |
+| 64 | 8192 | 19.193 | 2.216 | 0.986 | 8.7× faster | 2.25× slower |
+| 128 | 512 | 0.172 | 0.056 | 0.066 | 3.1× faster | 1.16× faster |
+| 128 | 2048 | 1.597 | 0.234 | 0.193 | 6.8× faster | 1.21× slower |
+| 128 | 8192 | 21.264 | 2.629 | 1.961 | 8.1× faster | 1.34× slower |
+
+- Fusion gives 3–9× over the unfused baseline, growing with N: at N = 8192 the unfused kernels move about 6 GB of S and P through global memory.
+- The fused kernel beats SDPA at D = 128, N = 512 and is 1.08–2.25× slower elsewhere; the largest gap is D = 64, N = 8192, the first target for profiling.
+- At N = 512 all runs are around 0.05 ms, so launch overhead dominates there.
+
+## Progress log
+
+Important runs, results and commits are recorded with timestamps in [`docs/progress_log.md`](docs/progress_log.md).
