@@ -12,12 +12,16 @@ Usage (from the repo root, .venv active):
     python -m profiling.track_run --note "fused v1, no optimizations"
     python -m profiling.track_run --note "exp2 + scale Q once" --ncu
     python -m profiling.track_run --tiles 64x64,128x128 --note "tile sweep"
+    python -m profiling.track_run --kernel profiling/kernels/v3_occupancy2_heavyfirst.py --ncu \
+        --note "v3: heavy-first" --reason "..." --change "..."
     python -m profiling.track_run --ncu --note "occupancy=2" \
         --reason "Run 2 ncu: 255 registers/thread -> 1 block/SM, 12% occupancy, no warp ready 67% of cycles" \
         --change "Added occupancy=2 hint to @ct.kernel in attention/fused.py"
 
-The git diff of attention/ since the previous run on the same GPU is added automatically
-(commit your change before running).
+--kernel picks the file to measure (default attention/fused.py). Before timing, the kernel is
+checked against the FP32 reference (D 64/128, N 512/2048, normal and large scores); a failing
+kernel is not recorded. The diff between the previous run's kernel and this one is added
+automatically, and the measured file is copied to runs/run_NNN/kernel_measured.py.
 
 Record an earlier benchmark CSV (e.g. results/bench_forward.csv) as a run without re-running:
 
@@ -45,8 +49,9 @@ RUNS_MD = os.path.join(HERE, "RUNS.md")
 RUNS_DIR = os.path.join(HERE, "runs")
 IST = dt.timezone(dt.timedelta(hours=5, minutes=30))
 
-CSV_FIELDS = ["run", "timestamp", "gpu", "commit", "note", "D", "N", "B", "H",
+CSV_FIELDS = ["run", "timestamp", "gpu", "commit", "kernel", "note", "D", "N", "B", "H",
               "impl", "tile_m", "tile_n", "median_ms", "tflops"]
+DEFAULT_KERNEL = "attention/fused.py"
 
 # Nsight Compute metrics summarised in RUNS.md when --ncu is used
 NCU_METRICS = {
@@ -118,6 +123,53 @@ def next_run_number(rows):
     return max((int(r["run"]) for r in rows), default=0) + 1
 
 
+# --------------------------------------------------------------------------- kernel under test
+def load_fused(kernel_path):
+    """Return fused_attention() from a kernel file (default: attention/fused.py)."""
+    if kernel_path in (None, "", DEFAULT_KERNEL):
+        from attention.fused import fused_attention
+        return fused_attention
+    import importlib.util
+    path = os.path.abspath(kernel_path)
+    name = "kernel_" + os.path.splitext(os.path.basename(path))[0].replace("-", "_").replace("+", "_")
+    spec = importlib.util.spec_from_file_location(name, path)
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[name] = mod
+    spec.loader.exec_module(mod)
+    return mod.fused_attention
+
+
+def check_correctness(fused_attention, tiles, B=2, H=8):
+    """Quick check against the FP32 PyTorch reference before timing (same tolerance as tests/)."""
+    import torch
+    from attention.reference import causal_attention_reference
+    ok = True
+    torch.manual_seed(1)
+    for D in (64, 128):
+        for N in (512, 2048):
+            for sigma in (1.0, 7.0):          # normal and large scores (needs max-subtraction)
+                q, k, v = (torch.randn(B, H, N, D, device="cuda") .mul(s_).to(torch.float16)
+                           for s_ in (sigma, sigma, 1.0))
+                ref = causal_attention_reference(q, k, v).float()
+                for tm, tn in tiles:
+                    if N % tm or N % tn:
+                        continue
+                    try:
+                        out = fused_attention(q, k, v, tm, tn).float()
+                        err = (out - ref).abs()
+                        bad = (err > 2e-2 + 2e-2 * ref.abs()).any().item() or not torch.isfinite(out).all().item()
+                    except Exception as e:
+                        print(f"[check] D={D} N={N} sigma={sigma} tile {tm}x{tn}: ERROR {type(e).__name__}: {e}")
+                        ok = False
+                        continue
+                    status = "FAIL" if bad else "ok"
+                    if bad:
+                        ok = False
+                    print(f"[check] D={D:<4} N={N:<5} sigma={sigma:<4} tile {tm}x{tn}: {status} "
+                          f"(max abs err {err.max().item():.2e})")
+    return ok
+
+
 # --------------------------------------------------------------------------- measuring
 def time_fn(fn, warmup=10, reps=30):
     import torch
@@ -140,7 +192,7 @@ def time_fn(fn, warmup=10, reps=30):
 def measure(args, impls, tiles):
     import torch
     import torch.nn.functional as F
-    from attention.fused import fused_attention
+    fused_attention = load_fused(args.kernel)
     unfused_attention = None
     if "unfused" in impls:
         from attention.unfused import unfused_attention
@@ -197,7 +249,7 @@ def import_rows(path):
 def ncu_profile_target(args):
     """Internal mode: run fused once to warm up, then once more for ncu to capture."""
     import torch
-    from attention.fused import fused_attention
+    fused_attention = load_fused(args.kernel)
     D, N = parse_list(args.ncu_size)
     tm, tn = parse_tiles(args.ncu_tile)[0]
     torch.manual_seed(0)
@@ -213,7 +265,8 @@ def run_ncu(args, run_dir):
     name = f"fused_d{D}_n{N}_{args.ncu_tile}"
     rep = os.path.join(run_dir, name)
     target = (f"{sys.executable} -m profiling.track_run --_ncu-target "
-              f"--ncu-size {args.ncu_size} --ncu-tile {args.ncu_tile} --B {args.B} --H {args.H}")
+              f"--ncu-size {args.ncu_size} --ncu-tile {args.ncu_tile} --B {args.B} --H {args.H} "
+              f"--kernel '{args.kernel}'")
     cmd = (f"ncu --set full -k regex:{args.ncu_kernel} --launch-skip 1 --launch-count 1 "
            f"-f -o {rep} {target}")
     print(f"\n[ncu] {cmd}")
@@ -243,23 +296,38 @@ def run_ncu(args, run_dir):
 
 
 # --------------------------------------------------------------------------- code diff
-def prev_commit(history, gpu, run):
+def prev_kernel_source(history, gpu, run):
+    """(prev run number, its kernel label, its kernel source) for the previous run on this GPU."""
     prev = find_ref(history, gpu, run, "prev")
     if prev is None:
-        return None, None
-    for r in history:
-        if int(r["run"]) == prev and r.get("commit"):
-            return prev, r["commit"].split()[0]
-    return prev, None
+        return None, None, None
+    row = next((r for r in history if int(r["run"]) == prev), None)
+    if row is None:
+        return prev, None, None
+    kernel = row.get("kernel") or DEFAULT_KERNEL
+    commit = (row.get("commit") or "").split()[0] if row.get("commit") else ""
+    src = None
+    if commit and commit != "unknown":                       # exact file as measured
+        src = sh(f"git show {commit}:{kernel}") or None
+    if src is None and os.path.exists(kernel):
+        src = open(kernel).read()
+    if src is not None and not src.endswith("\n"):
+        src += "\n"
+    return prev, kernel, src
 
 
-def code_diff(history, gpu, run, paths):
-    """git diff (with line numbers in the hunk headers) between the previous run's commit and now."""
-    prev, commit = prev_commit(history, gpu, run)
-    if not commit or commit == "unknown":
-        return None, None
-    d = sh(f"git diff -U2 {commit} -- {paths}")
-    return prev, (d or "(no code changes in " + paths + ")")
+def code_diff(history, gpu, run, kernel_path):
+    """Unified diff (with line numbers) between the previous run's kernel and this run's kernel."""
+    import difflib
+    prev, prev_kernel, prev_src = prev_kernel_source(history, gpu, run)
+    if prev is None or prev_src is None:
+        return None
+    cur = open(kernel_path).read()
+    if not cur.endswith("\n"):
+        cur += "\n"
+    d = "".join(difflib.unified_diff(prev_src.splitlines(True), cur.splitlines(True),
+                                     fromfile=f"Run {prev}: {prev_kernel}", tofile=f"Run {run}: {kernel_path}", n=2))
+    return prev, (d.rstrip("\n") or "(no code changes)")
 
 
 # --------------------------------------------------------------------------- reporting
@@ -303,9 +371,9 @@ def build_markdown(run, ts, env, note, rows, history, ncu, reason="", change_txt
             L += [f"Code diff vs Run {dprev} (hunk headers `@@ -old,+new @@` give line numbers):", "",
                   "```diff", dtext, "```", ""]
     L += ["### Environment", "", "| Environment | |", "|---|---|"]
-    order = ["gpu", "compute_capability", "gpu_memory_gb", "driver", "torch", "torch_cuda",
+    order = ["kernel", "gpu", "compute_capability", "gpu_memory_gb", "driver", "torch", "torch_cuda",
              "cuda_tile", "python", "nsight_compute", "host", "commit", "B", "H"]
-    names = {"gpu": "GPU", "compute_capability": "Compute capability",
+    names = {"kernel": "Kernel file", "gpu": "GPU", "compute_capability": "Compute capability",
              "gpu_memory_gb": "GPU memory (GB)", "driver": "NVIDIA driver", "torch": "PyTorch",
              "torch_cuda": "PyTorch CUDA", "cuda_tile": "cuda-tile", "python": "Python",
              "nsight_compute": "Nsight Compute", "host": "Host", "commit": "Git commit",
@@ -369,6 +437,16 @@ def append_results(run, ts, env, note, rows, history, ncu, reason="", change_txt
         with open(os.path.join(run_dir, "change.diff"), "w") as f:
             f.write(diff[1] + "\n")
 
+    if os.path.exists(RUNS_CSV):                     # upgrade older runs.csv without "kernel" column
+        with open(RUNS_CSV) as f:
+            old = list(csv.DictReader(f))
+        if old and "kernel" not in old[0]:
+            with open(RUNS_CSV, "w", newline="") as f:
+                w = csv.DictWriter(f, fieldnames=CSV_FIELDS)
+                w.writeheader()
+                for r in old:
+                    r.setdefault("kernel", "")
+                    w.writerow({k: r.get(k, "") for k in CSV_FIELDS})
     new_file = not os.path.exists(RUNS_CSV)
     with open(RUNS_CSV, "a", newline="") as f:
         w = csv.DictWriter(f, fieldnames=CSV_FIELDS)
@@ -376,7 +454,10 @@ def append_results(run, ts, env, note, rows, history, ncu, reason="", change_txt
             w.writeheader()
         for r in rows:
             w.writerow(dict(run=run, timestamp=ts, gpu=env["gpu"], commit=env.get("commit", ""),
-                            note=note, **r))
+                            kernel=env.get("kernel", ""), note=note, **r))
+    if env.get("kernel") and os.path.exists(env["kernel"]):
+        import shutil
+        shutil.copy(env["kernel"], os.path.join(run_dir, "kernel_measured.py"))
 
     if not os.path.exists(RUNS_MD):
         with open(RUNS_MD, "w") as f:
@@ -399,7 +480,10 @@ def main():
     p.add_argument("--note", default="", help="short title of this run (shown in the heading)")
     p.add_argument("--reason", default="", help="why this change was made (cite the profile, e.g. 'Run 2 ncu: 255 regs -> 1 block/SM')")
     p.add_argument("--change", default="", help="what was changed, in words (the code diff is added automatically)")
-    p.add_argument("--diff-paths", default="attention/", help="paths whose git diff vs the previous run is recorded")
+    p.add_argument("--kernel", default=DEFAULT_KERNEL,
+                   help="kernel file to measure, e.g. profiling/kernels/v3_occupancy2_heavyfirst.py "
+                        "(must define fused_attention(q, k, v, tile_m, tile_n)); default attention/fused.py")
+    p.add_argument("--no-check", action="store_true", help="skip the correctness check before timing")
     p.add_argument("--B", type=int, default=2)
     p.add_argument("--H", type=int, default=8)
     p.add_argument("--Ds", default="64,128")
@@ -427,14 +511,22 @@ def main():
     if args.import_csv:
         rows = import_rows(args.import_csv)
         ts = args.timestamp or dt.datetime.now(IST).strftime("%Y-%m-%d %H:%M")
-        env = {"gpu": args.gpu or "unknown", "commit": args.commit or "unknown",
+        env = {"gpu": args.gpu or "unknown", "commit": args.commit or "unknown", "kernel": "",
                "B": rows[0]["B"] if rows else "", "H": rows[0]["H"] if rows else "",
                "source": args.import_csv}
         append_results(run, ts, env, args.note, rows, history, None, args.reason, args.change)
         return
 
     ts = dt.datetime.now(IST).strftime("%Y-%m-%d %H:%M")
+    if not os.path.exists(args.kernel):
+        sys.exit(f"kernel file not found: {args.kernel}")
     env = collect_env(args)
+    env["kernel"] = args.kernel
+    if not args.no_check:
+        print(f"Checking {args.kernel} against the FP32 reference ...")
+        if not check_correctness(load_fused(args.kernel), parse_tiles(args.tiles), args.B, args.H):
+            sys.exit("correctness check FAILED: run not recorded (fix the kernel, or use --no-check)")
+        print()
     print(f"Run {run} — {ts} IST — {env['gpu']} — commit {env['commit']}\n")
     impls = ["fused", "sdpa"] + (["unfused"] if args.with_unfused else [])
     rows = measure(args, impls, parse_tiles(args.tiles))
@@ -443,9 +535,8 @@ def main():
         run_dir = os.path.join(RUNS_DIR, f"run_{run:03d}")
         os.makedirs(run_dir, exist_ok=True)
         ncu = run_ncu(args, run_dir)
-    diff = code_diff(history, env["gpu"], run, args.diff_paths)
-    append_results(run, ts, env, args.note, rows, history, ncu, args.reason, args.change,
-                   diff if diff[1] else None)
+    diff = code_diff(history, env["gpu"], run, args.kernel)
+    append_results(run, ts, env, args.note, rows, history, ncu, args.reason, args.change, diff)
 
 
 if __name__ == "__main__":
