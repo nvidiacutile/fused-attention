@@ -1,49 +1,61 @@
-run,timestamp,gpu,commit,note,D,N,B,H,impl,tile_m,tile_n,median_ms,tflops
-1,2026-10-29 16:30,NVIDIA L4,967838a,"fused v1, no optimizations",64,512,2,8,fused,64,64,0.0553,9.709
-1,2026-10-29 16:30,NVIDIA L4,967838a,"fused v1, no optimizations",64,512,2,8,unfused,64,64,0.2212,2.427
-1,2026-10-29 16:30,NVIDIA L4,967838a,"fused v1, no optimizations",64,512,2,8,sdpa,-,-,0.0512,10.486
-1,2026-10-29 16:30,NVIDIA L4,967838a,"fused v1, no optimizations",64,2048,2,8,fused,64,64,0.2181,39.383
-1,2026-10-29 16:30,NVIDIA L4,967838a,"fused v1, no optimizations",64,2048,2,8,unfused,64,64,1.9584,4.386
-1,2026-10-29 16:30,NVIDIA L4,967838a,"fused v1, no optimizations",64,2048,2,8,sdpa,-,-,0.1659,51.782
-1,2026-10-29 16:30,NVIDIA L4,967838a,"fused v1, no optimizations",64,8192,2,8,fused,64,64,2.2164,62.009
-1,2026-10-29 16:30,NVIDIA L4,967838a,"fused v1, no optimizations",64,8192,2,8,unfused,64,64,19.1928,7.161
-1,2026-10-29 16:30,NVIDIA L4,967838a,"fused v1, no optimizations",64,8192,2,8,sdpa,-,-,0.9861,139.375
-1,2026-10-29 16:30,NVIDIA L4,967838a,"fused v1, no optimizations",128,512,2,8,fused,64,64,0.0563,19.065
-1,2026-10-29 16:30,NVIDIA L4,967838a,"fused v1, no optimizations",128,512,2,8,unfused,64,64,0.1720,6.242
-1,2026-10-29 16:30,NVIDIA L4,967838a,"fused v1, no optimizations",128,512,2,8,sdpa,-,-,0.0655,16.384
-1,2026-10-29 16:30,NVIDIA L4,967838a,"fused v1, no optimizations",128,2048,2,8,fused,64,64,0.2335,73.584
-1,2026-10-29 16:30,NVIDIA L4,967838a,"fused v1, no optimizations",128,2048,2,8,unfused,64,64,1.5969,10.758
-1,2026-10-29 16:30,NVIDIA L4,967838a,"fused v1, no optimizations",128,2048,2,8,sdpa,-,-,0.1930,89.004
-1,2026-10-29 16:30,NVIDIA L4,967838a,"fused v1, no optimizations",128,8192,2,8,fused,64,64,2.6286,104.572
-1,2026-10-29 16:30,NVIDIA L4,967838a,"fused v1, no optimizations",128,8192,2,8,unfused,64,64,21.2639,12.927
-1,2026-10-29 16:30,NVIDIA L4,967838a,"fused v1, no optimizations",128,8192,2,8,sdpa,-,-,1.9610,140.175
-2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),"fused v1, no optimizations (RTX PRO 6000 VM)",64,512,2,8,fused,64,64,0.0184,29.229
-2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),"fused v1, no optimizations (RTX PRO 6000 VM)",64,512,2,8,sdpa,-,-,0.0281,19.119
-2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),"fused v1, no optimizations (RTX PRO 6000 VM)",64,512,2,8,unfused,64,64,0.0794,6.761
-2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),"fused v1, no optimizations (RTX PRO 6000 VM)",64,2048,2,8,fused,64,64,0.0764,112.434
-2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),"fused v1, no optimizations (RTX PRO 6000 VM)",64,2048,2,8,sdpa,-,-,0.0857,100.237
-2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),"fused v1, no optimizations (RTX PRO 6000 VM)",64,2048,2,8,unfused,64,64,0.9184,9.353
-2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),"fused v1, no optimizations (RTX PRO 6000 VM)",64,8192,2,8,fused,64,64,0.7026,195.604
-2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),"fused v1, no optimizations (RTX PRO 6000 VM)",64,8192,2,8,sdpa,-,-,0.5527,248.688
-2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),"fused v1, no optimizations (RTX PRO 6000 VM)",64,8192,2,8,unfused,64,64,14.8034,9.284
-2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),"fused v1, no optimizations (RTX PRO 6000 VM)",128,512,2,8,fused,64,64,0.0244,44.006
-2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),"fused v1, no optimizations (RTX PRO 6000 VM)",128,512,2,8,sdpa,-,-,0.0295,36.433
-2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),"fused v1, no optimizations (RTX PRO 6000 VM)",128,512,2,8,unfused,64,64,0.0848,12.667
-2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),"fused v1, no optimizations (RTX PRO 6000 VM)",128,2048,2,8,fused,64,64,0.1115,154.096
-2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),"fused v1, no optimizations (RTX PRO 6000 VM)",128,2048,2,8,sdpa,-,-,0.1166,147.350
-2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),"fused v1, no optimizations (RTX PRO 6000 VM)",128,2048,2,8,unfused,64,64,0.9617,17.865
-2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),"fused v1, no optimizations (RTX PRO 6000 VM)",128,8192,2,8,fused,64,64,1.0884,252.541
-2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),"fused v1, no optimizations (RTX PRO 6000 VM)",128,8192,2,8,sdpa,-,-,1.0177,270.107
-2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),"fused v1, no optimizations (RTX PRO 6000 VM)",128,8192,2,8,unfused,64,64,15.2536,18.021
-3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,64,512,2,8,fused,64,64,0.0191,28.079
-3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,64,512,2,8,sdpa,-,-,0.0237,22.641
-3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,64,2048,2,8,fused,64,64,0.0682,126.026
-3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,64,2048,2,8,sdpa,-,-,0.0855,100.462
-3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,64,8192,2,8,fused,64,64,0.5908,232.645
-3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,64,8192,2,8,sdpa,-,-,0.5483,250.662
-3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,128,512,2,8,fused,64,64,0.0252,42.528
-3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,128,512,2,8,sdpa,-,-,0.0298,35.983
-3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,128,2048,2,8,fused,64,64,0.1113,154.340
-3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,128,2048,2,8,sdpa,-,-,0.1164,147.553
-3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,128,8192,2,8,fused,64,64,1.0238,268.486
-3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,128,8192,2,8,sdpa,-,-,1.0154,270.720
+run,timestamp,gpu,commit,kernel,note,D,N,B,H,impl,tile_m,tile_n,median_ms,tflops
+1,2026-10-29 16:30,NVIDIA L4,967838a,,"fused v1, no optimizations",64,512,2,8,fused,64,64,0.0553,9.709
+1,2026-10-29 16:30,NVIDIA L4,967838a,,"fused v1, no optimizations",64,512,2,8,unfused,64,64,0.2212,2.427
+1,2026-10-29 16:30,NVIDIA L4,967838a,,"fused v1, no optimizations",64,512,2,8,sdpa,-,-,0.0512,10.486
+1,2026-10-29 16:30,NVIDIA L4,967838a,,"fused v1, no optimizations",64,2048,2,8,fused,64,64,0.2181,39.383
+1,2026-10-29 16:30,NVIDIA L4,967838a,,"fused v1, no optimizations",64,2048,2,8,unfused,64,64,1.9584,4.386
+1,2026-10-29 16:30,NVIDIA L4,967838a,,"fused v1, no optimizations",64,2048,2,8,sdpa,-,-,0.1659,51.782
+1,2026-10-29 16:30,NVIDIA L4,967838a,,"fused v1, no optimizations",64,8192,2,8,fused,64,64,2.2164,62.009
+1,2026-10-29 16:30,NVIDIA L4,967838a,,"fused v1, no optimizations",64,8192,2,8,unfused,64,64,19.1928,7.161
+1,2026-10-29 16:30,NVIDIA L4,967838a,,"fused v1, no optimizations",64,8192,2,8,sdpa,-,-,0.9861,139.375
+1,2026-10-29 16:30,NVIDIA L4,967838a,,"fused v1, no optimizations",128,512,2,8,fused,64,64,0.0563,19.065
+1,2026-10-29 16:30,NVIDIA L4,967838a,,"fused v1, no optimizations",128,512,2,8,unfused,64,64,0.1720,6.242
+1,2026-10-29 16:30,NVIDIA L4,967838a,,"fused v1, no optimizations",128,512,2,8,sdpa,-,-,0.0655,16.384
+1,2026-10-29 16:30,NVIDIA L4,967838a,,"fused v1, no optimizations",128,2048,2,8,fused,64,64,0.2335,73.584
+1,2026-10-29 16:30,NVIDIA L4,967838a,,"fused v1, no optimizations",128,2048,2,8,unfused,64,64,1.5969,10.758
+1,2026-10-29 16:30,NVIDIA L4,967838a,,"fused v1, no optimizations",128,2048,2,8,sdpa,-,-,0.1930,89.004
+1,2026-10-29 16:30,NVIDIA L4,967838a,,"fused v1, no optimizations",128,8192,2,8,fused,64,64,2.6286,104.572
+1,2026-10-29 16:30,NVIDIA L4,967838a,,"fused v1, no optimizations",128,8192,2,8,unfused,64,64,21.2639,12.927
+1,2026-10-29 16:30,NVIDIA L4,967838a,,"fused v1, no optimizations",128,8192,2,8,sdpa,-,-,1.9610,140.175
+2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),,"fused v1, no optimizations (RTX PRO 6000 VM)",64,512,2,8,fused,64,64,0.0184,29.229
+2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),,"fused v1, no optimizations (RTX PRO 6000 VM)",64,512,2,8,sdpa,-,-,0.0281,19.119
+2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),,"fused v1, no optimizations (RTX PRO 6000 VM)",64,512,2,8,unfused,64,64,0.0794,6.761
+2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),,"fused v1, no optimizations (RTX PRO 6000 VM)",64,2048,2,8,fused,64,64,0.0764,112.434
+2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),,"fused v1, no optimizations (RTX PRO 6000 VM)",64,2048,2,8,sdpa,-,-,0.0857,100.237
+2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),,"fused v1, no optimizations (RTX PRO 6000 VM)",64,2048,2,8,unfused,64,64,0.9184,9.353
+2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),,"fused v1, no optimizations (RTX PRO 6000 VM)",64,8192,2,8,fused,64,64,0.7026,195.604
+2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),,"fused v1, no optimizations (RTX PRO 6000 VM)",64,8192,2,8,sdpa,-,-,0.5527,248.688
+2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),,"fused v1, no optimizations (RTX PRO 6000 VM)",64,8192,2,8,unfused,64,64,14.8034,9.284
+2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),,"fused v1, no optimizations (RTX PRO 6000 VM)",128,512,2,8,fused,64,64,0.0244,44.006
+2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),,"fused v1, no optimizations (RTX PRO 6000 VM)",128,512,2,8,sdpa,-,-,0.0295,36.433
+2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),,"fused v1, no optimizations (RTX PRO 6000 VM)",128,512,2,8,unfused,64,64,0.0848,12.667
+2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),,"fused v1, no optimizations (RTX PRO 6000 VM)",128,2048,2,8,fused,64,64,0.1115,154.096
+2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),,"fused v1, no optimizations (RTX PRO 6000 VM)",128,2048,2,8,sdpa,-,-,0.1166,147.350
+2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),,"fused v1, no optimizations (RTX PRO 6000 VM)",128,2048,2,8,unfused,64,64,0.9617,17.865
+2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),,"fused v1, no optimizations (RTX PRO 6000 VM)",128,8192,2,8,fused,64,64,1.0884,252.541
+2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),,"fused v1, no optimizations (RTX PRO 6000 VM)",128,8192,2,8,sdpa,-,-,1.0177,270.107
+2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),,"fused v1, no optimizations (RTX PRO 6000 VM)",128,8192,2,8,unfused,64,64,15.2536,18.021
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),,occupancy=2 hint,64,512,2,8,fused,64,64,0.0191,28.079
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),,occupancy=2 hint,64,512,2,8,sdpa,-,-,0.0237,22.641
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),,occupancy=2 hint,64,2048,2,8,fused,64,64,0.0682,126.026
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),,occupancy=2 hint,64,2048,2,8,sdpa,-,-,0.0855,100.462
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),,occupancy=2 hint,64,8192,2,8,fused,64,64,0.5908,232.645
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),,occupancy=2 hint,64,8192,2,8,sdpa,-,-,0.5483,250.662
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),,occupancy=2 hint,128,512,2,8,fused,64,64,0.0252,42.528
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),,occupancy=2 hint,128,512,2,8,sdpa,-,-,0.0298,35.983
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),,occupancy=2 hint,128,2048,2,8,fused,64,64,0.1113,154.340
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),,occupancy=2 hint,128,2048,2,8,sdpa,-,-,0.1164,147.553
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),,occupancy=2 hint,128,8192,2,8,fused,64,64,1.0238,268.486
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),,occupancy=2 hint,128,8192,2,8,sdpa,-,-,1.0154,270.720
+4,2026-10-30 21:00,NVIDIA RTX PRO 6000 Blackwell Server Edition,3ffcf08,profiling/kernels/v3_occupancy2_heavyfirst.py,v3: occupancy=2 + heavy-first block order,64,512,2,8,fused,64,64,0.0190,28.268
+4,2026-10-30 21:00,NVIDIA RTX PRO 6000 Blackwell Server Edition,3ffcf08,profiling/kernels/v3_occupancy2_heavyfirst.py,v3: occupancy=2 + heavy-first block order,64,512,2,8,sdpa,-,-,0.0239,22.444
+4,2026-10-30 21:00,NVIDIA RTX PRO 6000 Blackwell Server Edition,3ffcf08,profiling/kernels/v3_occupancy2_heavyfirst.py,v3: occupancy=2 + heavy-first block order,64,2048,2,8,fused,64,64,0.0497,172.905
+4,2026-10-30 21:00,NVIDIA RTX PRO 6000 Blackwell Server Edition,3ffcf08,profiling/kernels/v3_occupancy2_heavyfirst.py,v3: occupancy=2 + heavy-first block order,64,2048,2,8,sdpa,-,-,0.0856,100.331
+4,2026-10-30 21:00,NVIDIA RTX PRO 6000 Blackwell Server Edition,3ffcf08,profiling/kernels/v3_occupancy2_heavyfirst.py,v3: occupancy=2 + heavy-first block order,64,8192,2,8,fused,64,64,0.5084,270.328
+4,2026-10-30 21:00,NVIDIA RTX PRO 6000 Blackwell Server Edition,3ffcf08,profiling/kernels/v3_occupancy2_heavyfirst.py,v3: occupancy=2 + heavy-first block order,64,8192,2,8,sdpa,-,-,0.5427,253.271
+4,2026-10-30 21:00,NVIDIA RTX PRO 6000 Blackwell Server Edition,3ffcf08,profiling/kernels/v3_occupancy2_heavyfirst.py,v3: occupancy=2 + heavy-first block order,128,512,2,8,fused,64,64,0.0250,43.019
+4,2026-10-30 21:00,NVIDIA RTX PRO 6000 Blackwell Server Edition,3ffcf08,profiling/kernels/v3_occupancy2_heavyfirst.py,v3: occupancy=2 + heavy-first block order,128,512,2,8,sdpa,-,-,0.0284,37.850
+4,2026-10-30 21:00,NVIDIA RTX PRO 6000 Blackwell Server Edition,3ffcf08,profiling/kernels/v3_occupancy2_heavyfirst.py,v3: occupancy=2 + heavy-first block order,128,2048,2,8,fused,64,64,0.0825,208.130
+4,2026-10-30 21:00,NVIDIA RTX PRO 6000 Blackwell Server Edition,3ffcf08,profiling/kernels/v3_occupancy2_heavyfirst.py,v3: occupancy=2 + heavy-first block order,128,2048,2,8,sdpa,-,-,0.1164,147.634
+4,2026-10-30 21:00,NVIDIA RTX PRO 6000 Blackwell Server Edition,3ffcf08,profiling/kernels/v3_occupancy2_heavyfirst.py,v3: occupancy=2 + heavy-first block order,128,8192,2,8,fused,64,64,0.9112,301.682
+4,2026-10-30 21:00,NVIDIA RTX PRO 6000 Blackwell Server Edition,3ffcf08,profiling/kernels/v3_occupancy2_heavyfirst.py,v3: occupancy=2 + heavy-first block order,128,8192,2,8,sdpa,-,-,1.0176,270.119

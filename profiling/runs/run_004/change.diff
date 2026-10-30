@@ -1,0 +1,21 @@
+--- Run 3: attention/fused.py
++++ Run 4: profiling/kernels/v3_occupancy2_heavyfirst.py
+@@ -1,2 +1,3 @@
++#v3: v2 (occupancy=2) + heavy-first Q tile order with swapped grid axes (Run 4). Frozen snapshot.
+ import math
+ import numpy as np
+@@ -9,6 +10,6 @@
+ @ct.kernel(occupancy = 2)  #for run 3
+ def fused_attn_kernel(Q, K, V, O, scale: float, H: ConstInt, TILE_M: ConstInt, TILE_N: ConstInt, TILE_D: ConstInt):
+-    i = ct.bid(0)                 # which Q tile this block owns
+-    bh = ct.bid(1)                # which (batch, head)
++    bh = ct.bid(0)                          # which (batch, head); axis 0 is launched fastest
++    i = ct.num_blocks(1) - 1 - ct.bid(1)    # which Q tile; heaviest (last) Q tiles launch first
+     b = bh // H
+     h = bh % H
+@@ -65,4 +66,4 @@
+     O = torch.empty_like(q)
+     scale = 1.0 / math.sqrt(D)
+-    ct.launch(torch.cuda.current_stream(), (N // tile_m, B * H, 1), fused_attn_kernel, (q, k, v, O, scale, H, tile_m, tile_n, D))
++    ct.launch(torch.cuda.current_stream(), (B * H, N // tile_m, 1), fused_attn_kernel, (q, k, v, O, scale, H, tile_m, tile_n, D))
+     return O
