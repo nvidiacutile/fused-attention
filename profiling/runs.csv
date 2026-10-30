@@ -35,3 +35,15 @@ run,timestamp,gpu,commit,note,D,N,B,H,impl,tile_m,tile_n,median_ms,tflops
 2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),"fused v1, no optimizations (RTX PRO 6000 VM)",128,8192,2,8,fused,64,64,1.0884,252.541
 2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),"fused v1, no optimizations (RTX PRO 6000 VM)",128,8192,2,8,sdpa,-,-,1.0177,270.107
 2,2026-10-30 19:41,NVIDIA RTX PRO 6000 Blackwell Server Edition,276b9d0 (+ uncommitted changes),"fused v1, no optimizations (RTX PRO 6000 VM)",128,8192,2,8,unfused,64,64,15.2536,18.021
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,64,512,2,8,fused,64,64,0.0191,28.079
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,64,512,2,8,sdpa,-,-,0.0237,22.641
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,64,2048,2,8,fused,64,64,0.0682,126.026
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,64,2048,2,8,sdpa,-,-,0.0855,100.462
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,64,8192,2,8,fused,64,64,0.5908,232.645
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,64,8192,2,8,sdpa,-,-,0.5483,250.662
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,128,512,2,8,fused,64,64,0.0252,42.528
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,128,512,2,8,sdpa,-,-,0.0298,35.983
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,128,2048,2,8,fused,64,64,0.1113,154.340
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,128,2048,2,8,sdpa,-,-,0.1164,147.553
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,128,8192,2,8,fused,64,64,1.0238,268.486
+3,2026-10-30 20:25,NVIDIA RTX PRO 6000 Blackwell Server Edition,d4c9c72 (+ uncommitted changes),occupancy=2 hint,128,8192,2,8,sdpa,-,-,1.0154,270.720

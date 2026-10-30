@@ -1,0 +1,11 @@
+diff --git a/attention/fused.py b/attention/fused.py
+index b022c47..06fa8e9 100644
+--- a/attention/fused.py
++++ b/attention/fused.py
+@@ -7,5 +7,5 @@ ConstInt = ct.Constant[int]
+ 
+ 
+-@ct.kernel
++@ct.kernel(occupancy = 2)  #for run 3
+ def fused_attn_kernel(Q, K, V, O, scale: float, H: ConstInt, TILE_M: ConstInt, TILE_N: ConstInt, TILE_D: ConstInt):
+     i = ct.bid(0)                 # which Q tile this block owns
