@@ -7,8 +7,7 @@ ConstInt = ct.Constant[int]
 
 
 @ct.kernel
-def fused_attn_kernel(Q, K, V, O, scale: float,
-                      H: ConstInt, TILE_M: ConstInt, TILE_N: ConstInt, TILE_D: ConstInt):
+def fused_attn_kernel(Q, K, V, O, scale: float, H: ConstInt, TILE_M: ConstInt, TILE_N: ConstInt, TILE_D: ConstInt):
     i = ct.bid(0)                 # which Q tile this block owns
     bh = ct.bid(1)                # which (batch, head)
     b = bh // H
@@ -22,7 +21,7 @@ def fused_attn_kernel(Q, K, V, O, scale: float,
     l = ct.full((TILE_M, 1), 0.0, dtype=np.float32)
     acc = ct.full((TILE_M, TILE_D), 0.0, dtype=np.float32)
 
-    rows = i * TILE_M + ct.arange(TILE_M, dtype=np.int32)[:, None]  #which query rows does this block/tile handle 
+    rows = i * TILE_M + ct.arange(TILE_M, dtype=np.int32)[:, None]  # which query rows does this block/tile handle 
 
     for j in range(i + 1):        # causal: only K/V tiles 0..i (assumes TILE_M == TILE_N)
         kt = ct.load(K, index=(b, h, 0, j), shape=(1, 1, TILE_D, TILE_N),
