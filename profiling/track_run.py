@@ -12,6 +12,12 @@ Usage (from the repo root, .venv active):
     python -m profiling.track_run --note "fused v1, no optimizations"
     python -m profiling.track_run --note "exp2 + scale Q once" --ncu
     python -m profiling.track_run --tiles 64x64,128x128 --note "tile sweep"
+    python -m profiling.track_run --ncu --note "occupancy=2" \
+        --reason "Run 2 ncu: 255 registers/thread -> 1 block/SM, 12% occupancy, no warp ready 67% of cycles" \
+        --change "Added occupancy=2 hint to @ct.kernel in attention/fused.py"
+
+The git diff of attention/ since the previous run on the same GPU is added automatically
+(commit your change before running).
 
 Record an earlier benchmark CSV (e.g. results/bench_forward.csv) as a run without re-running:
 
@@ -236,6 +242,26 @@ def run_ncu(args, run_dir):
     return metrics
 
 
+# --------------------------------------------------------------------------- code diff
+def prev_commit(history, gpu, run):
+    prev = find_ref(history, gpu, run, "prev")
+    if prev is None:
+        return None, None
+    for r in history:
+        if int(r["run"]) == prev and r.get("commit"):
+            return prev, r["commit"].split()[0]
+    return prev, None
+
+
+def code_diff(history, gpu, run, paths):
+    """git diff (with line numbers in the hunk headers) between the previous run's commit and now."""
+    prev, commit = prev_commit(history, gpu, run)
+    if not commit or commit == "unknown":
+        return None, None
+    d = sh(f"git diff -U2 {commit} -- {paths}")
+    return prev, (d or "(no code changes in " + paths + ")")
+
+
 # --------------------------------------------------------------------------- reporting
 def key_of(r):
     return (int(r["D"]), int(r["N"]), r["impl"], str(r["tile_m"]), str(r["tile_n"]))
@@ -257,7 +283,7 @@ def change(new_ms, old_ms):
     return f"{abs(pct):.1f}% {word}"
 
 
-def build_markdown(run, ts, env, note, rows, history, ncu):
+def build_markdown(run, ts, env, note, rows, history, ncu, reason="", change_txt="", diff=None):
     gpu = env["gpu"]
     prev = find_ref(history, gpu, run, "prev")
     base = find_ref(history, gpu, run, "first")
@@ -266,7 +292,17 @@ def build_markdown(run, ts, env, note, rows, history, ncu):
     L = [f"## Run {run} — {ts} IST", ""]
     if note:
         L += [f"**Note:** {note}", ""]
-    L += ["| Environment | |", "|---|---|"]
+    if reason:
+        L += ["### Why (from profiling)", "", reason, ""]
+    if change_txt or diff:
+        L += ["### Change", ""]
+        if change_txt:
+            L += [change_txt, ""]
+        if diff:
+            dprev, dtext = diff
+            L += [f"Code diff vs Run {dprev} (hunk headers `@@ -old,+new @@` give line numbers):", "",
+                  "```diff", dtext, "```", ""]
+    L += ["### Environment", "", "| Environment | |", "|---|---|"]
     order = ["gpu", "compute_capability", "gpu_memory_gb", "driver", "torch", "torch_cuda",
              "cuda_tile", "python", "nsight_compute", "host", "commit", "B", "H"]
     names = {"gpu": "GPU", "compute_capability": "Compute capability",
@@ -289,7 +325,7 @@ def build_markdown(run, ts, env, note, rows, history, ncu):
         sep += "---|"
     head += f" vs previous run{f' ({prev})' if prev else ''} | vs first run{f' ({base})' if base else ''} on this GPU |"
     sep += "---|---|"
-    L += ["### Results (fused kernel, median of 30 runs)", "", head, sep]
+    L += ["### Result (fused kernel, median of 30 runs)", "", head, sep]
     for r in sorted((r for r in rows if r["impl"] == "fused"),
                     key=lambda r: (r["D"], r["N"], int(r["tile_m"]))):
         ms = float(r["median_ms"])
@@ -325,10 +361,13 @@ def build_markdown(run, ts, env, note, rows, history, ncu):
     return "\n".join(L)
 
 
-def append_results(run, ts, env, note, rows, history, ncu):
+def append_results(run, ts, env, note, rows, history, ncu, reason="", change_txt="", diff=None):
     run_dir = os.path.join(RUNS_DIR, f"run_{run:03d}")
     os.makedirs(run_dir, exist_ok=True)
-    md = build_markdown(run, ts, env, note, rows, history, ncu)
+    md = build_markdown(run, ts, env, note, rows, history, ncu, reason, change_txt, diff)
+    if diff and diff[1]:
+        with open(os.path.join(run_dir, "change.diff"), "w") as f:
+            f.write(diff[1] + "\n")
 
     new_file = not os.path.exists(RUNS_CSV)
     with open(RUNS_CSV, "a", newline="") as f:
@@ -357,7 +396,10 @@ def append_results(run, ts, env, note, rows, history, ncu):
 # --------------------------------------------------------------------------- main
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--note", default="", help="what changed in this run (shown in the heading)")
+    p.add_argument("--note", default="", help="short title of this run (shown in the heading)")
+    p.add_argument("--reason", default="", help="why this change was made (cite the profile, e.g. 'Run 2 ncu: 255 regs -> 1 block/SM')")
+    p.add_argument("--change", default="", help="what was changed, in words (the code diff is added automatically)")
+    p.add_argument("--diff-paths", default="attention/", help="paths whose git diff vs the previous run is recorded")
     p.add_argument("--B", type=int, default=2)
     p.add_argument("--H", type=int, default=8)
     p.add_argument("--Ds", default="64,128")
@@ -388,7 +430,7 @@ def main():
         env = {"gpu": args.gpu or "unknown", "commit": args.commit or "unknown",
                "B": rows[0]["B"] if rows else "", "H": rows[0]["H"] if rows else "",
                "source": args.import_csv}
-        append_results(run, ts, env, args.note, rows, history, None)
+        append_results(run, ts, env, args.note, rows, history, None, args.reason, args.change)
         return
 
     ts = dt.datetime.now(IST).strftime("%Y-%m-%d %H:%M")
@@ -401,7 +443,9 @@ def main():
         run_dir = os.path.join(RUNS_DIR, f"run_{run:03d}")
         os.makedirs(run_dir, exist_ok=True)
         ncu = run_ncu(args, run_dir)
-    append_results(run, ts, env, args.note, rows, history, ncu)
+    diff = code_diff(history, env["gpu"], run, args.diff_paths)
+    append_results(run, ts, env, args.note, rows, history, ncu, args.reason, args.change,
+                   diff if diff[1] else None)
 
 
 if __name__ == "__main__":
