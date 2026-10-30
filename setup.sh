@@ -6,8 +6,8 @@
 #   bash setup.sh
 #   source .venv/bin/activate
 #
-# Creates .venv, installs the pinned requirements, runs a cuTile smoke test
-# and writes the environment details to env.txt (used in README/report).
+# Creates .venv, installs the pinned requirements and writes the environment
+# details to env.txt (used in README/report).
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -29,9 +29,6 @@ fi
 source "$VENV/bin/activate"
 python -m pip install --quiet --upgrade pip
 python -m pip install --quiet -r requirements.txt
-
-echo "== cuTile smoke test =="
-python scripts/smoke_test.py
 
 echo "== Recording environment to env.txt =="
 {

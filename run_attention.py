@@ -3,16 +3,15 @@
     python run_attention.py --input INPUT.npz --output OUTPUT.npy --backend cutile
 
 Input:  .npz with contiguous float16 arrays
-          Q [B, H, N, D], K [B, H, N, D], V [B, H, N, Dv]
-        limits: 1<=B<=16, 1<=H<=32, 1<=N<=8192, D, Dv in {32, 64, 128},
+          Q [B, H, N, D], K [B, H, N, D], V [B, H, N, D]
+        limits: 1<=B<=16, 1<=H<=32, 1<=N<=8192, D in {32, 64, 128} (Q, K, V share D),
         N divisible by --block-m and --block-n
-Output: .npy, float16, shape [B, H, N, Dv]
+Output: .npy, float16, shape [B, H, N, D]
 
 Backends:
   cutile     fused cuTile kernel (attention/fused.py)
   unfused    unfused cuTile baseline (attention/unfused.py)
   reference  PyTorch reference, FP32 intermediates (attention/reference.py)
-  cutedsl    optional CuTe DSL track (not implemented)
 
 Exit status: 0 success, 2 unsupported input or usage error, 1 runtime failure.
 """
@@ -28,7 +27,7 @@ from attention.validation import ValidationError, validate_qkv
 OUTPUT_DTYPE = np.float16
 EXIT_OK, EXIT_RUNTIME, EXIT_INVALID = 0, 1, 2
 
-BACKENDS = ("cutile", "unfused", "reference", "cutedsl")
+BACKENDS = ("cutile", "unfused", "reference")
 
 
 def parse_args(argv=None):
@@ -61,13 +60,13 @@ def load_qkv(path):
 
 
 def get_backend(name):
-    """Return fn(q, k, v, block_m, block_n) -> torch.Tensor [B, H, N, Dv]. Imports lazily."""
+    """Return fn(q, k, v, block_m, block_n) -> torch.Tensor [B, H, N, D]. Imports lazily."""
     if name == "cutile":
         from attention.fused import fused_attention
         return fused_attention
     if name == "unfused":
         from attention.unfused import unfused_attention
-        return lambda q, k, v, bm, bn: unfused_attention(q, k, v,bm, bn)  
+        return lambda q, k, v, bm, bn: unfused_attention(q, k, v, bm, bn)  
     if name == "reference":
         from attention.reference import causal_attention_reference
         return lambda q, k, v, bm, bn: causal_attention_reference(q, k, v)

@@ -1,10 +1,10 @@
 """Correctness test cases.
 
-Defines the fixed list of 60 cases and builds reproducible Q, K, V for each.
+Defines the fixed list of 84 cases and builds reproducible Q, K, V for each.
 
 Grid
-  D in {32, 64, 128} x N in {512, 4096, 8192} x {tiny, large} x (B, H) in {(1,1), (2,8), (3,5)}  -> 54
-  max shape (B, H) = (16, 32) at N = 512:  D in {32, 64, 128} x {tiny, large}               ->  6
+  D in {32, 64, 128} x N in {128, 512, 4096, 8192} x {tiny, large} x (B, H) in {(1,1), (2,8), (3,5)}  -> 72
+  max shape (B, H) = (16, 32): N in {128, 512} x D in {32, 64, 128} x {tiny, large}              -> 12
 
 Score magnitude
   Q and K are standard normal scaled by sigma, so scores q.k/sqrt(D) have std ~ sigma^2
@@ -25,10 +25,10 @@ from dataclasses import dataclass
 import numpy as np
 
 HEAD_DIMS = (32, 64, 128)
-SEQ_LENS = (512, 4096, 8192)
+SEQ_LENS = (128, 512, 4096, 8192)
 BATCH_HEADS = ((1, 1), (2, 8), (3, 5))
 MAX_BATCH_HEADS = (16, 32)
-MAX_SHAPE_SEQ_LEN = 512
+MAX_SHAPE_SEQ_LENS = (128, 512)
 MAGNITUDES = {"tiny": 0.03, "large": 7.0}
 
 
@@ -63,7 +63,12 @@ def all_cases() -> list:
         for B, H in BATCH_HEADS
     ]
     B, H = MAX_BATCH_HEADS
-    cases += [Case(B, H, MAX_SHAPE_SEQ_LEN, D, mag) for D in HEAD_DIMS for mag in MAGNITUDES]
+    cases += [
+        Case(B, H, N, D, mag)
+        for N in MAX_SHAPE_SEQ_LENS
+        for D in HEAD_DIMS
+        for mag in MAGNITUDES
+    ]
     return cases
 
 

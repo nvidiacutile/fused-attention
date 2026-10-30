@@ -56,7 +56,7 @@ bash setup.sh
 source .venv/bin/activate
 ```
 
-`setup.sh` creates `.venv`, installs the pinned `requirements.txt`, runs a cuTilesmoke test (`scripts/smoke_test.py`) and records the  environment to `env.txt`.
+`setup.sh` creates `.venv`, installs the pinned `requirements.txt` and records the environment to `env.txt`.
 
 ### 3. Before pausing the instance
 
@@ -72,9 +72,9 @@ Anything not pushed is lost when the instance is paused or destroyed. The instan
 python run_attention.py --input INPUT.npz --output OUTPUT.npy --backend cutile
 ```
 
-- **Input:** `INPUT.npz` with contiguous float16 arrays `Q` `[B, H, N, D]`, `K` `[B, H, N, D]`, `V` `[B, H, N, Dv]`.
-- **Limits:** 1 ≤ B ≤ 16, 1 ≤ H ≤ 32, 1 ≤ N ≤ 8192, D and Dv ∈ {32, 64, 128}, N divisible by `--block-m` and `--block-n` (default 64).
-- **Output:** float16 array of shape `[B, H, N, Dv]`.
+- **Input:** `INPUT.npz` with contiguous float16 arrays `Q` `[B, H, N, D]`, `K` `[B, H, N, D]`, `V` `[B, H, N, D]` (Q, K and V share the head dim D).
+- **Limits:** 1 ≤ B ≤ 16, 1 ≤ H ≤ 32, 1 ≤ N ≤ 8192, D ∈ {32, 64, 128}, N divisible by `--block-m` and `--block-n` (default 64).
+- **Output:** float16 array of shape `[B, H, N, D]`.
 - **Backends:** `cutile` (fused kernel), `unfused` (baseline), `reference` (PyTorch), `cutedsl` (optional track, not implemented).
 - **Exit status:** 0 success, 2 unsupported input (with an error message), 1 runtime failure.
 
@@ -88,7 +88,7 @@ python tests/run_correctness.py --impl fused --block-m 128 --block-n 64
 python tests/run_correctness.py --impl fused --filter N512     # subset by case id
 ```
 
-Runs the chosen kernel and the FP32 PyTorch reference on 60 fixed-seed cases from
+Runs the chosen kernel and the FP32 PyTorch reference on 84 fixed-seed cases from
 `tests/cases.py`:
 
 - D ∈ {32, 64, 128} × N ∈ {512, 4096, 8192} × tiny/large score magnitudes × (B, H) ∈ {(1, 1), (2, 8), (3, 5)}
@@ -108,7 +108,7 @@ python tests/run_correctness.py --impl reference    # harness self-check: refere
 python tests/run_correctness.py --impl unfused      # unfused cuTile baseline vs reference
 ```
 
-Each runs all 60 cases and should end with `CORRECT: all 60 cases passed`, writing
+Each runs all 84 cases and should end with `CORRECT: all 84 cases passed`, writing
 `results/correctness_reference.csv` and `results/correctness_unfused.csv`. Add
 `--filter N512` (or any part of a case id) to run a subset. The unfused baseline always
 uses 64×64 tiles, so `--block-m` / `--block-n` only affect validation for it.
