@@ -6,7 +6,7 @@ import cuda.tile as ct
 ConstInt = ct.Constant[int]
 
 
-@ct.kernel
+@ct.kernel(occupancy = 2)  #for run 3
 def fused_attn_kernel(Q, K, V, O, scale: float, H: ConstInt, TILE_M: ConstInt, TILE_N: ConstInt, TILE_D: ConstInt):
     i = ct.bid(0)                 # which Q tile this block owns
     bh = ct.bid(1)                # which (batch, head)
