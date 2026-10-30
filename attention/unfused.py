@@ -1,9 +1,9 @@
 """Unfused cuTile causal attention baseline.
 
-FP16 inputs, FP32 accumulation. Three separate kernels:
-  1. masked, scaled QKᵀ  -> scores written to global memory
-  2. row-wise softmax    -> probabilities written to global memory
-  3. P @ V               -> output
+FP16 inputs, FP32 accumulation. One block per (query row, batch*head).
+1. masked, scaled q·Kᵀ  -> scores row written to S
+2. row softmax          -> probabilities row written to P
+3. p @ V                -> output row
 """
 
 import math
@@ -13,90 +13,67 @@ import cuda.tile as ct
 
 ConstInt = ct.Constant[int]
 
-# load q tile, k tile -> calculate score s -> populate S
-@ct.kernel
-def scores_kernel(Q, K, S, scale: float, H: ConstInt, TILE_M: ConstInt, TILE_N: ConstInt, TILE_D: ConstInt):
-    bid_m = ct.bid(0)
-    bid_n = ct.bid(1)
-    bh = ct.bid(2)
-    b = bh // H
-    h = bh % H
-
-    q = ct.load(Q, index=(b, h, bid_m, 0), shape=(1, 1, TILE_M, TILE_D)).reshape((TILE_M, TILE_D))
-    kt = ct.load(K, index=(b, h, 0, bid_n), shape=(1, 1, TILE_D, TILE_N), order=(0, 1, 3, 2)).reshape((TILE_D, TILE_N))
-
-    s = ct.full((TILE_M, TILE_N), 0.0, dtype=np.float32)
-    s = ct.mma(q, kt, s)
-    s = s * scale
-
-    rows = bid_m * TILE_M + ct.arange(TILE_M, dtype=np.int32)[:, None]
-    cols = bid_n * TILE_N + ct.arange(TILE_N, dtype=np.int32)[None, :]
-    s = ct.where(rows >= cols, s, -np.inf)
-
-    ct.store(S, index=(b, h, bid_m, bid_n), tile=s.reshape((1, 1, TILE_M, TILE_N)))
-
 
 @ct.kernel
-def softmax_kernel(S, P, H: ConstInt, TILE_M: ConstInt, TILE_N: ConstInt):
-    bid_m = ct.bid(0)
+def scores_kernel(Q, K, S, scale: float, H: ConstInt, N: ConstInt, D: ConstInt):
+    i = ct.bid(0)                      # query row
     bh = ct.bid(1)
-    b = bh // H
-    h = bh % H
-    num_n = ct.cdiv(S.shape[3], TILE_N)
+    b, h = bh // H, bh % H
 
-    m = ct.full((TILE_M, 1), -np.inf, dtype=np.float32)
-    for j in range(num_n):
-        s = ct.load(S, index=(b, h, bid_m, j), shape=(1, 1, TILE_M, TILE_N)).reshape((TILE_M, TILE_N))
-        m = ct.maximum(m, ct.max(s, axis=-1, keepdims=True))
+    q = ct.load(Q, index=(b, h, i, 0), shape=(1, 1, 1, D)).reshape((D, 1)).astype(np.float32)
+    kt = ct.load(K, index=(b, h, 0, 0), shape=(1, 1, D, N),
+                 order=(0, 1, 3, 2)).reshape((D, N)).astype(np.float32)
 
-    l = ct.full((TILE_M, 1), 0.0, dtype=np.float32)
-    for j in range(num_n):
-        s = ct.load(S, index=(b, h, bid_m, j), shape=(1, 1, TILE_M, TILE_N)).reshape((TILE_M, TILE_N))
-        l = l + ct.sum(ct.exp(s - m), axis=-1, keepdims=True)
+    s = ct.sum(q * kt, axis=0, keepdims=True) * scale        # (1, N)
 
-    for j in range(num_n):
-        s = ct.load(S, index=(b, h, bid_m, j), shape=(1, 1, TILE_M, TILE_N)).reshape((TILE_M, TILE_N))
-        p = ct.exp(s - m) / l
-        p = p.astype(P.dtype).reshape((1, 1, TILE_M, TILE_N))
-        ct.store(P, index=(b, h, bid_m, j), tile=p)
+    cols = ct.arange(N, dtype=np.int32)[None, :]
+    s = ct.where(cols <= i, s, -np.inf)                      # causal mask
+
+    ct.store(S, index=(b, h, i, 0), tile=s.reshape((1, 1, 1, N)))
 
 
 @ct.kernel
-def pv_kernel(P, V, O, H: ConstInt, TILE_M: ConstInt, TILE_N: ConstInt, TILE_D: ConstInt):
-    bid_m = ct.bid(0)
+def softmax_kernel(S, P, H: ConstInt, N: ConstInt):
+    i = ct.bid(0)
     bh = ct.bid(1)
-    b = bh // H
-    h = bh % H
-    num_n = ct.cdiv(P.shape[3], TILE_N)
+    b, h = bh // H, bh % H
 
-    acc = ct.full((TILE_M, TILE_D), 0.0, dtype=np.float32)
-    for j in range(num_n):
-        p = ct.load(P, index=(b, h, bid_m, j), shape=(1, 1, TILE_M, TILE_N)).reshape((TILE_M, TILE_N))
-        v = ct.load(V, index=(b, h, j, 0), shape=(1, 1, TILE_N, TILE_D)).reshape((TILE_N, TILE_D))
-        acc = ct.mma(p, v, acc)
-    ct.store(O, index=(b, h, bid_m, 0), tile=acc.astype(O.dtype).reshape((1, 1, TILE_M, TILE_D)))
+    s = ct.load(S, index=(b, h, i, 0), shape=(1, 1, 1, N)).reshape((1, N))
+    m = ct.max(s, axis=-1, keepdims=True)
+    e = ct.exp(s - m)
+    p = e / ct.sum(e, axis=-1, keepdims=True)
+
+    ct.store(P, index=(b, h, i, 0), tile=p.astype(P.dtype).reshape((1, 1, 1, N)))
 
 
-def unfused_attention(q, k, v, tile_m=64, tile_n=64, return_intermediates=False):
-    assert q.dtype == k.dtype == v.dtype == torch.float16
-    assert q.is_cuda and q.ndim == 4 and q.shape == k.shape and v.shape[:3] == q.shape[:3]
+@ct.kernel
+def pv_kernel(P, V, O, H: ConstInt, N: ConstInt, D: ConstInt):
+    i = ct.bid(0)
+    bh = ct.bid(1)
+    b, h = bh // H, bh % H
+
+    p = ct.load(P, index=(b, h, i, 0), shape=(1, 1, 1, N)).reshape((N, 1)).astype(np.float32)
+    v = ct.load(V, index=(b, h, 0, 0), shape=(1, 1, N, D)).reshape((N, D)).astype(np.float32)
+
+    o = ct.sum(p * v, axis=0, keepdims=True)                 # (1, D)
+    ct.store(O, index=(b, h, i, 0), tile=o.astype(O.dtype).reshape((1, 1, 1, D)))
+
+
+def unfused_attention(q, k, v, return_intermediates=False, **_ignored):
     B, H, N, D = q.shape
-    if N % tile_m or N % tile_n:
-        raise ValueError(f"N={N} must be divisible by tile sizes {tile_m} and {tile_n}")
+    Dv = v.shape[-1]
     q, k, v = q.contiguous(), k.contiguous(), v.contiguous()
 
     S = torch.empty((B, H, N, N), device=q.device, dtype=torch.float32)
     P = torch.empty((B, H, N, N), device=q.device, dtype=torch.float16)
-    O = torch.empty((B, H, N, v.shape[-1]), device=q.device, dtype=torch.float16)
+    O = torch.empty((B, H, N, Dv), device=q.device, dtype=torch.float16)
     scale = 1.0 / math.sqrt(D)
     stream = torch.cuda.current_stream()
+    grid = (N, B * H, 1)
 
-    ct.launch(stream, (N // tile_m, N // tile_n, B * H), scores_kernel,
-              (q, k, S, scale, H, tile_m, tile_n, D))
-    ct.launch(stream, (N // tile_m, B * H, 1), softmax_kernel,
-              (S, P, H, tile_m, tile_n))
-    ct.launch(stream, (N // tile_m, B * H, 1), pv_kernel,
-              (P, v, O, H, tile_m, tile_n, v.shape[-1]))
+    ct.launch(stream, grid, scores_kernel, (q, k, S, scale, H, N, D))
+    ct.launch(stream, grid, softmax_kernel, (S, P, H, N))
+    ct.launch(stream, grid, pv_kernel, (P, v, O, H, N, Dv))
 
     if return_intermediates:
         return O, S, P
