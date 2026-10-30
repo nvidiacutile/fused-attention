@@ -3,7 +3,7 @@
 Defines the fixed list of 84 cases and builds reproducible Q, K, V for each.
 
 Grid
-  D in {32, 64, 128} x N in {128, 512, 4096, 8192} x {tiny, large} x (B, H) in {(1,1), (2,8), (3,5)}  -> 72
+  D in {32, 64, 128} x N in {128, 512, 2048, 8192} x {tiny, large} x (B, H) in {(1,1), (2,8), (3,5)}  -> 72
   max shape (B, H) = (16, 32): N in {128, 512} x D in {32, 64, 128} x {tiny, large}              -> 12
 
 Score magnitude
@@ -25,7 +25,7 @@ from dataclasses import dataclass
 import numpy as np
 
 HEAD_DIMS = (32, 64, 128)
-SEQ_LENS = (128, 512, 4096, 8192)
+SEQ_LENS = (128, 512, 2048, 8192)
 BATCH_HEADS = ((1, 1), (2, 8), (3, 5))
 MAX_BATCH_HEADS = (16, 32)
 MAX_SHAPE_SEQ_LENS = (128, 512)

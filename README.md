@@ -91,7 +91,7 @@ python tests/run_correctness.py --impl fused --filter N512     # subset by case 
 Runs the chosen kernel and the FP32 PyTorch reference on 84 fixed-seed cases from
 `tests/cases.py`:
 
-- D ∈ {32, 64, 128} × N ∈ {512, 4096, 8192} × tiny/large score magnitudes × (B, H) ∈ {(1, 1), (2, 8), (3, 5)}
+- D ∈ {32, 64, 128} × N ∈ {512, 2048, 8192} × tiny/large score magnitudes × (B, H) ∈ {(1, 1), (2, 8), (3, 5)}
 - plus the maximum shape (B, H) = (16, 32) at N = 512 for each D and magnitude
 
 Tiny scores (σ = 0.03, score std ≈ 1e-3) give a near-uniform softmax; large scores
