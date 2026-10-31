@@ -10,8 +10,8 @@ ConstInt = ct.Constant[int]
 def fused_attn_kernel(Q, K, V, O, scale: float, H: ConstInt, TILE_M: ConstInt, TILE_N: ConstInt, TILE_D: ConstInt):
     i = ct.bid(0)                 # which Q tile this block owns
     bh = ct.bid(1)                # which (batch, head)
-    b = bh // H
-    h = bh % H
+    b = bh // H                   # goes up by 1 every H [0 to BATCH-1]
+    h = bh % H                    # varies from 0 to H-1 in every H
 
     # load my Q tile ONCE
     q = ct.load(Q, index=(b, h, i, 0), shape=(1, 1, TILE_M, TILE_D)).reshape((TILE_M, TILE_D))
@@ -23,7 +23,13 @@ def fused_attn_kernel(Q, K, V, O, scale: float, H: ConstInt, TILE_M: ConstInt, T
 
     rows = i * TILE_M + ct.arange(TILE_M, dtype=np.int32)[:, None]  # which query rows does this block/tile handle 
 
-    for j in range(i + 1):        # causal: only K/V tiles 0..i (assumes TILE_M == TILE_N)
+    # causal bounds in units of K/V tiles (works for TILE_M != TILE_N)
+    # last query row of this tile is (i+1)*TILE_M - 1 -> need K/V tiles 0..ceil((i+1)*TILE_M / TILE_N)-1
+    num_kv_tiles = ((i + 1) * TILE_M + TILE_N - 1) // TILE_N
+    # first K/V tile that can contain a col > the first query row (i*TILE_M) -> needs masking
+    mask_start = (i * TILE_M) // TILE_N
+
+    for j in range(num_kv_tiles):
         kt = ct.load(K, index=(b, h, 0, j), shape=(1, 1, TILE_D, TILE_N),
                      order=(0, 1, 3, 2)).reshape((TILE_D, TILE_N))
         v = ct.load(V, index=(b, h, j, 0), shape=(1, 1, TILE_N, TILE_D)).reshape((TILE_N, TILE_D))
@@ -33,8 +39,8 @@ def fused_attn_kernel(Q, K, V, O, scale: float, H: ConstInt, TILE_M: ConstInt, T
         s = ct.mma(q, kt,s) *scale
         
 
-        # 2. causal mask on the diagonal tile only
-        if j == i:
+        # 2. causal mask only on tiles that straddle/cross the diagonal
+        if j >= mask_start:
             cols = j * TILE_N + ct.arange(TILE_N, dtype=np.int32)[None, :]
             s = ct.where(cols > rows, -np.inf, s)
 
@@ -58,9 +64,9 @@ def fused_attn_kernel(Q, K, V, O, scale: float, H: ConstInt, TILE_M: ConstInt, T
 
 
 def fused_attention(q, k, v, tile_m=64, tile_n=64):
-    if tile_m != tile_n:
-        raise NotImplementedError("fused kernel currently requires block_m == block_n")
     B, H, N, D = q.shape
+    if N % tile_m != 0 or N % tile_n != 0:
+        raise ValueError(f"N={N} must be divisible by tile_m={tile_m} and tile_n={tile_n}")
     q, k, v = q.contiguous(), k.contiguous(), v.contiguous()
     O = torch.empty_like(q)
     scale = 1.0 / math.sqrt(D)
