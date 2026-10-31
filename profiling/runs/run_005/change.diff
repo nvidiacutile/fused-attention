@@ -1,0 +1,59 @@
+--- Run 4: profiling/kernels/v3_occupancy2_heavyfirst.py
++++ Run 5: profiling/kernels/tiles/v0_baseline.py
+@@ -1,3 +1,3 @@
+-#v3: v2 (occupancy=2) + heavy-first Q tile order with swapped grid axes (Run 4). Frozen snapshot.
++# tiles/v0: baseline = attention/fused.py at commit 95e7266 (2026-10-31). Frozen snapshot.
+ import math
+ import numpy as np
+@@ -8,10 +8,10 @@
+ 
+ 
+-@ct.kernel(occupancy = 2)  #for run 3
++@ct.kernel
+ def fused_attn_kernel(Q, K, V, O, scale: float, H: ConstInt, TILE_M: ConstInt, TILE_N: ConstInt, TILE_D: ConstInt):
+-    bh = ct.bid(0)                          # which (batch, head); axis 0 is launched fastest
+-    i = ct.num_blocks(1) - 1 - ct.bid(1)    # which Q tile; heaviest (last) Q tiles launch first
+-    b = bh // H
+-    h = bh % H
++    i = ct.bid(0)                 # which Q tile this block owns
++    bh = ct.bid(1)                # which (batch, head)
++    b = bh // H                   # goes up by 1 every H [0 to BATCH-1]
++    h = bh % H                    # varies from 0 to H-1 in every H
+ 
+     # load my Q tile ONCE
+@@ -25,5 +25,11 @@
+     rows = i * TILE_M + ct.arange(TILE_M, dtype=np.int32)[:, None]  # which query rows does this block/tile handle 
+ 
+-    for j in range(i + 1):        # causal: only K/V tiles 0..i (assumes TILE_M == TILE_N)
++    # causal bounds in units of K/V tiles (works for TILE_M != TILE_N)
++    # last query row of this tile is (i+1)*TILE_M - 1 -> need K/V tiles 0..ceil((i+1)*TILE_M / TILE_N)-1
++    num_kv_tiles = ((i + 1) * TILE_M + TILE_N - 1) // TILE_N
++    # first K/V tile that can contain a col > the first query row (i*TILE_M) -> needs masking
++    mask_start = (i * TILE_M) // TILE_N
++
++    for j in range(num_kv_tiles):
+         kt = ct.load(K, index=(b, h, 0, j), shape=(1, 1, TILE_D, TILE_N),
+                      order=(0, 1, 3, 2)).reshape((TILE_D, TILE_N))
+@@ -35,6 +41,6 @@
+         
+ 
+-        # 2. causal mask on the diagonal tile only
+-        if j == i:
++        # 2. causal mask only on tiles that straddle/cross the diagonal
++        if j >= mask_start:
+             cols = j * TILE_N + ct.arange(TILE_N, dtype=np.int32)[None, :]
+             s = ct.where(cols > rows, -np.inf, s)
+@@ -60,10 +66,10 @@
+ 
+ def fused_attention(q, k, v, tile_m=64, tile_n=64):
+-    if tile_m != tile_n:
+-        raise NotImplementedError("fused kernel currently requires block_m == block_n")
+     B, H, N, D = q.shape
++    if N % tile_m != 0 or N % tile_n != 0:
++        raise ValueError(f"N={N} must be divisible by tile_m={tile_m} and tile_n={tile_n}")
+     q, k, v = q.contiguous(), k.contiguous(), v.contiguous()
+     O = torch.empty_like(q)
+     scale = 1.0 / math.sqrt(D)
+-    ct.launch(torch.cuda.current_stream(), (B * H, N // tile_m, 1), fused_attn_kernel, (q, k, v, O, scale, H, tile_m, tile_n, D))
++    ct.launch(torch.cuda.current_stream(), (N // tile_m, B * H, 1), fused_attn_kernel, (q, k, v, O, scale, H, tile_m, tile_n, D))
+     return O
