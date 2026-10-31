@@ -17,15 +17,15 @@ run,timestamp,gpu,commit,kernel,note,D,N,B,H,impl,tile_m,tile_n,median_ms,tflops
 1,2026-11-01 01:24,NVIDIA RTX PRO 6000 Blackwell Server Edition,2f878a8,profiling/kernels/v0_baseline.py,"v0: baseline, no optimizations",128,8192,2,8,fused,64,64,1.0821,254.024
 1,2026-11-01 01:24,NVIDIA RTX PRO 6000 Blackwell Server Edition,2f878a8,profiling/kernels/v0_baseline.py,"v0: baseline, no optimizations",128,8192,2,8,sdpa,-,-,1.0064,273.130
 1,2026-11-01 01:24,NVIDIA RTX PRO 6000 Blackwell Server Edition,2f878a8,profiling/kernels/v0_baseline.py,"v0: baseline, no optimizations",128,8192,2,8,unfused,64,64,6.1342,44.811
-2,2026-11-01 01:39,NVIDIA RTX PRO 6000 Blackwell Server Edition,8aefacb,profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order,64,512,2,8,fused,64,64,0.0197,27.258
-2,2026-11-01 01:39,NVIDIA RTX PRO 6000 Blackwell Server Edition,8aefacb,profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order,64,512,2,8,sdpa,-,-,0.0220,24.439
-2,2026-11-01 01:39,NVIDIA RTX PRO 6000 Blackwell Server Edition,8aefacb,profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order,64,2048,2,8,fused,64,64,0.0772,111.222
-2,2026-11-01 01:39,NVIDIA RTX PRO 6000 Blackwell Server Edition,8aefacb,profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order,64,2048,2,8,sdpa,-,-,0.0844,101.738
-2,2026-11-01 01:39,NVIDIA RTX PRO 6000 Blackwell Server Edition,8aefacb,profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order,64,8192,2,8,fused,64,64,0.6913,198.804
-2,2026-11-01 01:39,NVIDIA RTX PRO 6000 Blackwell Server Edition,8aefacb,profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order,64,8192,2,8,sdpa,-,-,0.5469,251.293
-2,2026-11-01 01:39,NVIDIA RTX PRO 6000 Blackwell Server Edition,8aefacb,profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order,128,512,2,8,fused,64,64,0.0239,44.889
-2,2026-11-01 01:39,NVIDIA RTX PRO 6000 Blackwell Server Edition,8aefacb,profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order,128,512,2,8,sdpa,-,-,0.0281,38.217
-2,2026-11-01 01:39,NVIDIA RTX PRO 6000 Blackwell Server Edition,8aefacb,profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order,128,2048,2,8,fused,64,64,0.1120,153.392
-2,2026-11-01 01:39,NVIDIA RTX PRO 6000 Blackwell Server Edition,8aefacb,profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order,128,2048,2,8,sdpa,-,-,0.1151,149.297
-2,2026-11-01 01:39,NVIDIA RTX PRO 6000 Blackwell Server Edition,8aefacb,profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order,128,8192,2,8,fused,64,64,1.0827,253.877
-2,2026-11-01 01:39,NVIDIA RTX PRO 6000 Blackwell Server Edition,8aefacb,profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order,128,8192,2,8,sdpa,-,-,1.0094,272.325
+2,2026-11-01 01:46,NVIDIA RTX PRO 6000 Blackwell Server Edition,437d4c8 (+ uncommitted changes),profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order (re-run; Run 2 measured the unedited copy),64,512,2,8,fused,64,64,0.0191,28.103
+2,2026-11-01 01:46,NVIDIA RTX PRO 6000 Blackwell Server Edition,437d4c8 (+ uncommitted changes),profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order (re-run; Run 2 measured the unedited copy),64,512,2,8,sdpa,-,-,0.0240,22.370
+2,2026-11-01 01:46,NVIDIA RTX PRO 6000 Blackwell Server Edition,437d4c8 (+ uncommitted changes),profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order (re-run; Run 2 measured the unedited copy),64,2048,2,8,fused,64,64,0.0640,134.184
+2,2026-11-01 01:46,NVIDIA RTX PRO 6000 Blackwell Server Edition,437d4c8 (+ uncommitted changes),profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order (re-run; Run 2 measured the unedited copy),64,2048,2,8,sdpa,-,-,0.0855,100.519
+2,2026-11-01 01:46,NVIDIA RTX PRO 6000 Blackwell Server Edition,437d4c8 (+ uncommitted changes),profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order (re-run; Run 2 measured the unedited copy),64,8192,2,8,fused,64,64,0.6334,216.983
+2,2026-11-01 01:46,NVIDIA RTX PRO 6000 Blackwell Server Edition,437d4c8 (+ uncommitted changes),profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order (re-run; Run 2 measured the unedited copy),64,8192,2,8,sdpa,-,-,0.5464,251.528
+2,2026-11-01 01:46,NVIDIA RTX PRO 6000 Blackwell Server Edition,437d4c8 (+ uncommitted changes),profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order (re-run; Run 2 measured the unedited copy),128,512,2,8,fused,64,64,0.0250,42.936
+2,2026-11-01 01:46,NVIDIA RTX PRO 6000 Blackwell Server Edition,437d4c8 (+ uncommitted changes),profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order (re-run; Run 2 measured the unedited copy),128,512,2,8,sdpa,-,-,0.0284,37.808
+2,2026-11-01 01:46,NVIDIA RTX PRO 6000 Blackwell Server Edition,437d4c8 (+ uncommitted changes),profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order (re-run; Run 2 measured the unedited copy),128,2048,2,8,fused,64,64,0.0933,184.144
+2,2026-11-01 01:46,NVIDIA RTX PRO 6000 Blackwell Server Edition,437d4c8 (+ uncommitted changes),profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order (re-run; Run 2 measured the unedited copy),128,2048,2,8,sdpa,-,-,0.1164,147.593
+2,2026-11-01 01:46,NVIDIA RTX PRO 6000 Blackwell Server Edition,437d4c8 (+ uncommitted changes),profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order (re-run; Run 2 measured the unedited copy),128,8192,2,8,fused,64,64,0.9930,276.813
+2,2026-11-01 01:46,NVIDIA RTX PRO 6000 Blackwell Server Edition,437d4c8 (+ uncommitted changes),profiling/kernels/v1_heavyfirst.py,v1: heavy-first block order (re-run; Run 2 measured the unedited copy),128,8192,2,8,sdpa,-,-,1.0121,271.597
