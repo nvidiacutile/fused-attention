@@ -1,0 +1,7 @@
+--- Run 6: profiling/kernels/tiles/v0_baseline.py
++++ Run 7: profiling/kernels/unequalTiles/v0_baseline.py
+@@ -1,3 +1,3 @@
+-# tiles/v0: baseline = attention/fused.py at commit 95e7266 (2026-10-31). Frozen snapshot.
++# unequalTiles/v0: baseline = attention/fused.py at commit 9af6cc0 (2026-10-31). Frozen snapshot.
+ import math
+ import numpy as np

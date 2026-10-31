@@ -89,3 +89,15 @@ run,timestamp,gpu,commit,kernel,note,D,N,B,H,impl,tile_m,tile_n,median_ms,tflops
 6,2026-10-31 18:59,NVIDIA RTX PRO 6000 Blackwell Server Edition,d2e94cc (+ uncommitted changes),profiling/kernels/tiles/v0_baseline.py,"tiles/v0: baseline, no optimizations",128,2048,2,8,sdpa,-,-,0.1168,147.148
 6,2026-10-31 18:59,NVIDIA RTX PRO 6000 Blackwell Server Edition,d2e94cc (+ uncommitted changes),profiling/kernels/tiles/v0_baseline.py,"tiles/v0: baseline, no optimizations",128,8192,2,8,fused,64,64,1.0905,252.071
 6,2026-10-31 18:59,NVIDIA RTX PRO 6000 Blackwell Server Edition,d2e94cc (+ uncommitted changes),profiling/kernels/tiles/v0_baseline.py,"tiles/v0: baseline, no optimizations",128,8192,2,8,sdpa,-,-,1.0226,268.809
+7,2026-11-01 00:40,NVIDIA RTX PRO 6000 Blackwell Server Edition,b2d5573,profiling/kernels/unequalTiles/v0_baseline.py,"unequalTiles/v0: baseline, no optimizations",64,512,2,8,fused,64,64,0.0191,28.103
+7,2026-11-01 00:40,NVIDIA RTX PRO 6000 Blackwell Server Edition,b2d5573,profiling/kernels/unequalTiles/v0_baseline.py,"unequalTiles/v0: baseline, no optimizations",64,512,2,8,sdpa,-,-,0.0239,22.490
+7,2026-11-01 00:40,NVIDIA RTX PRO 6000 Blackwell Server Edition,b2d5573,profiling/kernels/unequalTiles/v0_baseline.py,"unequalTiles/v0: baseline, no optimizations",64,2048,2,8,fused,64,64,0.0784,109.565
+7,2026-11-01 00:40,NVIDIA RTX PRO 6000 Blackwell Server Edition,b2d5573,profiling/kernels/unequalTiles/v0_baseline.py,"unequalTiles/v0: baseline, no optimizations",64,2048,2,8,sdpa,-,-,0.0855,100.444
+7,2026-11-01 00:40,NVIDIA RTX PRO 6000 Blackwell Server Edition,b2d5573,profiling/kernels/unequalTiles/v0_baseline.py,"unequalTiles/v0: baseline, no optimizations",64,8192,2,8,fused,64,64,0.6906,199.016
+7,2026-11-01 00:40,NVIDIA RTX PRO 6000 Blackwell Server Edition,b2d5573,profiling/kernels/unequalTiles/v0_baseline.py,"unequalTiles/v0: baseline, no optimizations",64,8192,2,8,sdpa,-,-,0.5481,250.757
+7,2026-11-01 00:40,NVIDIA RTX PRO 6000 Blackwell Server Edition,b2d5573,profiling/kernels/unequalTiles/v0_baseline.py,"unequalTiles/v0: baseline, no optimizations",128,512,2,8,fused,64,64,0.0248,43.268
+7,2026-11-01 00:40,NVIDIA RTX PRO 6000 Blackwell Server Edition,b2d5573,profiling/kernels/unequalTiles/v0_baseline.py,"unequalTiles/v0: baseline, no optimizations",128,512,2,8,sdpa,-,-,0.0283,37.915
+7,2026-11-01 00:40,NVIDIA RTX PRO 6000 Blackwell Server Edition,b2d5573,profiling/kernels/unequalTiles/v0_baseline.py,"unequalTiles/v0: baseline, no optimizations",128,2048,2,8,fused,64,64,0.1130,152.023
+7,2026-11-01 00:40,NVIDIA RTX PRO 6000 Blackwell Server Edition,b2d5573,profiling/kernels/unequalTiles/v0_baseline.py,"unequalTiles/v0: baseline, no optimizations",128,2048,2,8,sdpa,-,-,0.1163,147.695
+7,2026-11-01 00:40,NVIDIA RTX PRO 6000 Blackwell Server Edition,b2d5573,profiling/kernels/unequalTiles/v0_baseline.py,"unequalTiles/v0: baseline, no optimizations",128,8192,2,8,fused,64,64,1.0834,253.708
+7,2026-11-01 00:40,NVIDIA RTX PRO 6000 Blackwell Server Edition,b2d5573,profiling/kernels/unequalTiles/v0_baseline.py,"unequalTiles/v0: baseline, no optimizations",128,8192,2,8,sdpa,-,-,1.0094,272.329
