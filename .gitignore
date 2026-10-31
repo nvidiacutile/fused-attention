@@ -5,3 +5,4 @@ __pycache__/
 *.npz
 *.npy
 .venv/
+env.txt
