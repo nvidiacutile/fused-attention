@@ -1,5 +1,4 @@
-# /v0: baseline = attention/fused.py at commit cc64ade (2026-10-31). Frozen snapshot.
-# /v0: baseline = attention/fused.py at commit 95e7266 (2026-10-31). Frozen snapshot.
+# tiles/v0: baseline = attention/fused.py at commit 95e7266 (2026-10-31). Frozen snapshot.
 import math
 import numpy as np
 import torch
