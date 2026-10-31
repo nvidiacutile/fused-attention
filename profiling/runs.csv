@@ -1,0 +1,19 @@
+run,timestamp,gpu,commit,kernel,note,D,N,B,H,impl,tile_m,tile_n,median_ms,tflops
+1,2026-11-01 01:24,NVIDIA RTX PRO 6000 Blackwell Server Edition,2f878a8,profiling/kernels/v0_baseline.py,"v0: baseline, no optimizations",64,512,2,8,fused,64,64,0.0197,27.302
+1,2026-11-01 01:24,NVIDIA RTX PRO 6000 Blackwell Server Edition,2f878a8,profiling/kernels/v0_baseline.py,"v0: baseline, no optimizations",64,512,2,8,sdpa,-,-,0.0225,23.899
+1,2026-11-01 01:24,NVIDIA RTX PRO 6000 Blackwell Server Edition,2f878a8,profiling/kernels/v0_baseline.py,"v0: baseline, no optimizations",64,512,2,8,unfused,64,64,0.0472,11.378
+1,2026-11-01 01:24,NVIDIA RTX PRO 6000 Blackwell Server Edition,2f878a8,profiling/kernels/v0_baseline.py,"v0: baseline, no optimizations",64,2048,2,8,fused,64,64,0.0770,111.500
+1,2026-11-01 01:24,NVIDIA RTX PRO 6000 Blackwell Server Edition,2f878a8,profiling/kernels/v0_baseline.py,"v0: baseline, no optimizations",64,2048,2,8,sdpa,-,-,0.0844,101.796
+1,2026-11-01 01:24,NVIDIA RTX PRO 6000 Blackwell Server Edition,2f878a8,profiling/kernels/v0_baseline.py,"v0: baseline, no optimizations",64,2048,2,8,unfused,64,64,0.3257,26.375
+1,2026-11-01 01:24,NVIDIA RTX PRO 6000 Blackwell Server Edition,2f878a8,profiling/kernels/v0_baseline.py,"v0: baseline, no optimizations",64,8192,2,8,fused,64,64,0.6894,199.349
+1,2026-11-01 01:24,NVIDIA RTX PRO 6000 Blackwell Server Edition,2f878a8,profiling/kernels/v0_baseline.py,"v0: baseline, no optimizations",64,8192,2,8,sdpa,-,-,0.5428,253.211
+1,2026-11-01 01:24,NVIDIA RTX PRO 6000 Blackwell Server Edition,2f878a8,profiling/kernels/v0_baseline.py,"v0: baseline, no optimizations",64,8192,2,8,unfused,64,64,5.9873,22.955
+1,2026-11-01 01:24,NVIDIA RTX PRO 6000 Blackwell Server Edition,2f878a8,profiling/kernels/v0_baseline.py,"v0: baseline, no optimizations",128,512,2,8,fused,64,64,0.0239,44.919
+1,2026-11-01 01:24,NVIDIA RTX PRO 6000 Blackwell Server Edition,2f878a8,profiling/kernels/v0_baseline.py,"v0: baseline, no optimizations",128,512,2,8,sdpa,-,-,0.0281,38.152
+1,2026-11-01 01:24,NVIDIA RTX PRO 6000 Blackwell Server Edition,2f878a8,profiling/kernels/v0_baseline.py,"v0: baseline, no optimizations",128,512,2,8,unfused,64,64,0.0516,20.828
+1,2026-11-01 01:24,NVIDIA RTX PRO 6000 Blackwell Server Edition,2f878a8,profiling/kernels/v0_baseline.py,"v0: baseline, no optimizations",128,2048,2,8,fused,64,64,0.1119,153.479
+1,2026-11-01 01:24,NVIDIA RTX PRO 6000 Blackwell Server Edition,2f878a8,profiling/kernels/v0_baseline.py,"v0: baseline, no optimizations",128,2048,2,8,sdpa,-,-,0.1150,149.359
+1,2026-11-01 01:24,NVIDIA RTX PRO 6000 Blackwell Server Edition,2f878a8,profiling/kernels/v0_baseline.py,"v0: baseline, no optimizations",128,2048,2,8,unfused,64,64,0.3584,47.928
+1,2026-11-01 01:24,NVIDIA RTX PRO 6000 Blackwell Server Edition,2f878a8,profiling/kernels/v0_baseline.py,"v0: baseline, no optimizations",128,8192,2,8,fused,64,64,1.0821,254.024
+1,2026-11-01 01:24,NVIDIA RTX PRO 6000 Blackwell Server Edition,2f878a8,profiling/kernels/v0_baseline.py,"v0: baseline, no optimizations",128,8192,2,8,sdpa,-,-,1.0064,273.130
+1,2026-11-01 01:24,NVIDIA RTX PRO 6000 Blackwell Server Edition,2f878a8,profiling/kernels/v0_baseline.py,"v0: baseline, no optimizations",128,8192,2,8,unfused,64,64,6.1342,44.811
