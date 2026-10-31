@@ -267,8 +267,8 @@ def run_ncu(args, run_dir):
     target = (f"{sys.executable} -m profiling.track_run --_ncu-target "
               f"--ncu-size {args.ncu_size} --ncu-tile {args.ncu_tile} --B {args.B} --H {args.H} "
               f"--kernel '{args.kernel}'")
-    cmd = (f"ncu --set full -k regex:{args.ncu_kernel} --launch-skip 1 --launch-count 1 "
-           f"-f -o {rep} {target}")
+    cmd = (f"ncu --set {args.ncu_set} {args.ncu_args} -k regex:{args.ncu_kernel} "
+           f"--launch-skip 1 --launch-count 1 -f -o {rep} {target}")
     print(f"\n[ncu] {cmd}")
     r = subprocess.run(cmd, shell=True, capture_output=True, text=True)
     with open(os.path.join(run_dir, f"{name}_ncu_log.txt"), "w") as f:
@@ -281,7 +281,8 @@ def run_ncu(args, run_dir):
     sh(f"ncu --import {rep}.ncu-rep --page details > {rep}_details.txt")
     raw = sh(f"ncu --import {rep}.ncu-rep --page raw --csv")
     metrics = {"status": "ok", "report": os.path.relpath(rep + ".ncu-rep", HERE),
-               "size": f"D={D}, N={N}, tile {args.ncu_tile}"}
+               "size": f"D={D}, N={N}, tile {args.ncu_tile}",
+               "command": f"ncu --set {args.ncu_set} {args.ncu_args}".strip()}
     try:
         lines = list(csv.reader(raw.splitlines()))
         header, units, values = lines[0], lines[1], lines[2]
@@ -391,7 +392,8 @@ def build_markdown(run, ts, env, note, rows, history, ncu, reason="", change_txt
     if unf:
         head += " Fused vs unfused |"
         sep += "---|"
-    head += f" vs previous run{f' ({prev})' if prev else ''} | vs first run{f' ({base})' if base else ''} on this GPU |"
+    head += (f" vs previous run{f' (Run {prev})' if prev else ''} on this GPU |"
+             f" vs baseline{f' (Run {base})' if base else ''} on this GPU |")
     sep += "---|---|"
     L += ["### Result (fused kernel, median of 30 runs)", "", head, sep]
     for r in sorted((r for r in rows if r["impl"] == "fused"),
@@ -418,7 +420,8 @@ def build_markdown(run, ts, env, note, rows, history, ncu, reason="", change_txt
         if ncu.get("status") != "ok":
             L += [f"Profiling {ncu.get('status')}.", ""]
         else:
-            L += [f"Kernel: fused, {ncu['size']}. Report: `profiling/{ncu['report']}`", "",
+            L += [f"Kernel: fused, {ncu['size']}. Command: `{ncu.get('command', 'ncu --set full')}`. "
+                  f"Report: `profiling/{ncu['report']}`", "",
                   "| Metric | Value |", "|---|---|"]
             for label in NCU_METRICS.values():
                 if label in ncu:
@@ -494,6 +497,10 @@ def main():
     p.add_argument("--ncu-size", default="64,8192", help="D,N for --ncu (default 64,8192)")
     p.add_argument("--ncu-tile", default="64x64")
     p.add_argument("--ncu-kernel", default="fused", help="regex for the kernel name")
+    p.add_argument("--ncu-set", default="full",
+                   help="Nsight Compute section set: full (all sections, slowest), detailed, basic (fastest)")
+    p.add_argument("--ncu-args", default="",
+                   help="extra arguments passed to ncu, e.g. \"--section WarpStateStats\"")
     p.add_argument("--import-csv", help="record an existing benchmark CSV as a run instead of measuring")
     p.add_argument("--timestamp", help="for --import-csv: 'YYYY-MM-DD HH:MM' (IST)")
     p.add_argument("--gpu", help="for --import-csv: GPU name")
