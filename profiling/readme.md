@@ -71,7 +71,7 @@ A **series** is a baseline (`v0_baseline.py`) plus its versions (`v1_â€¦`, `v2_â
 Start one when `attention/fused.py` has changed. Existing files are never overwritten.
  
 ```bash
-SERIES=fa2          # short name: letters, digits, - or _ (e.g. fa2, oct31, after-unfused-fix)
+SERIES= _____         # short name: letters, digits, - or _ (e.g. fa2, oct31, after-unfused-fix)
  
 mkdir -p profiling/kernels/$SERIES
 cp -n attention/fused.py profiling/kernels/$SERIES/v0_baseline.py
@@ -115,7 +115,7 @@ so each run's effect has one cause.
 
 1. Copy and push the unchanged copy:
    ```bash
-   SERIES=fa2
+   SERIES
    cp -n profiling/kernels/$SERIES/v0_baseline.py profiling/kernels/$SERIES/v1_<change>.py
    git add profiling/kernels/$SERIES
    git commit -m "$SERIES/v1: copy of v0 (to edit)"
@@ -133,7 +133,7 @@ so each run's effect has one cause.
 **Option B: edit on the VM**
 
 ```bash
-SERIES=fa2
+#Series set
 cp -n profiling/kernels/$SERIES/v0_baseline.py profiling/kernels/$SERIES/v1_<change>.py
 nano profiling/kernels/$SERIES/v1_<change>.py
 #   make the change, and set line 1 to:  # fa2/v1: v0 + <change> (Run N).
@@ -157,12 +157,12 @@ sudo env "PATH=$PATH" python -m profiling.track_run --ncu \
   --change "<what you changed, in words>"
 ```
 
-### 4. Save and stop
+### 4. Save and stop (whenever after profiling)
 
 ```bash
 sudo chown -R ubuntu:ubuntu ~/fused-attention     # files written under sudo belong to root
 git add profiling/
-git commit -m "Run N: <change>"
+git commit -m "Run N: <change>" #mention change
 git pull --rebase && git push
 ```
 
