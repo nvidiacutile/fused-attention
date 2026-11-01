@@ -14,6 +14,10 @@ Tiles strictly above the diagonal of S / P are never touched; they are filled
 with -inf / 0 only when return_intermediates=True so the returned S, P are clean.
 
 Memory note: S (FP32) and P (FP16) are full B*H*N*N buffers.
+
+GQA/MQA: Q is (B, H, N, D), K and V are (B, H_kv, N, D) with H % H_kv == 0.
+Query head h reads K/V head h // QUERY_GROUP, where QUERY_GROUP = H // H_kv.
+H_kv == H is MHA (QUERY_GROUP = 1), H_kv == 1 is MQA. S, P and O keep H heads.
 """
 
 import math
@@ -25,11 +29,12 @@ ConstInt = ct.Constant[int]
 
 
 @ct.kernel
-def scores_kernel(Q, K, S, scale: float, H: ConstInt,
+def scores_kernel(Q, K, S, scale: float, H: ConstInt, QUERY_GROUP: ConstInt,
                   TILE_M: ConstInt, TILE_N: ConstInt, TILE_D: ConstInt):
     i = ct.bid(0)                      # query tile
     bh = ct.bid(1)
     b, h = bh // H, bh % H
+    kv_h = h // QUERY_GROUP            # GQA: K/V head shared by this query head
 
     q = ct.load(Q, index=(b, h, i, 0), shape=(1, 1, TILE_M, TILE_D)).reshape((TILE_M, TILE_D))
     rows = i * TILE_M + ct.arange(TILE_M, dtype=np.int32)[:, None]
@@ -38,7 +43,7 @@ def scores_kernel(Q, K, S, scale: float, H: ConstInt,
     mask_start = (i * TILE_M) // TILE_N                         # first tile touching the diagonal
 
     for j in range(num_kv_tiles):
-        kt = ct.load(K, index=(b, h, 0, j), shape=(1, 1, TILE_D, TILE_N),
+        kt = ct.load(K, index=(b, kv_h, 0, j), shape=(1, 1, TILE_D, TILE_N),
                      order=(0, 1, 3, 2)).reshape((TILE_D, TILE_N))
         s = ct.full((TILE_M, TILE_N), 0.0, dtype=np.float32)
         s = ct.mma(q, kt, s) * scale
@@ -73,17 +78,19 @@ def softmax_kernel(S, P, H: ConstInt, TILE_M: ConstInt, TILE_N: ConstInt):
 
 
 @ct.kernel
-def pv_kernel(P, V, O, H: ConstInt, TILE_M: ConstInt, TILE_N: ConstInt, TILE_D: ConstInt):
+def pv_kernel(P, V, O, H: ConstInt, QUERY_GROUP: ConstInt,
+              TILE_M: ConstInt, TILE_N: ConstInt, TILE_D: ConstInt):
     i = ct.bid(0)
     bh = ct.bid(1)
     b, h = bh // H, bh % H
+    kv_h = h // QUERY_GROUP            # GQA: K/V head shared by this query head
 
     num_kv_tiles = ((i + 1) * TILE_M + TILE_N - 1) // TILE_N
 
     acc = ct.full((TILE_M, TILE_D), 0.0, dtype=np.float32)
     for j in range(num_kv_tiles):
         p = ct.load(P, index=(b, h, i, j), shape=(1, 1, TILE_M, TILE_N)).reshape((TILE_M, TILE_N))
-        v = ct.load(V, index=(b, h, j, 0), shape=(1, 1, TILE_N, TILE_D)).reshape((TILE_N, TILE_D))
+        v = ct.load(V, index=(b, kv_h, j, 0), shape=(1, 1, TILE_N, TILE_D)).reshape((TILE_N, TILE_D))
         acc = ct.mma(p, v, acc)
 
     ct.store(O, index=(b, h, i, 0), tile=acc.astype(O.dtype).reshape((1, 1, TILE_M, TILE_D)))
@@ -93,6 +100,7 @@ def unfused_attention(q, k, v, tile_m=64, tile_n=64, return_intermediates=False)
     B, H, N, D = q.shape
     if N % tile_m != 0 or N % tile_n != 0:
         raise ValueError(f"N={N} must be divisible by tile_m={tile_m} and tile_n={tile_n}")
+    query_group = H // k.shape[1]   # GQA group size; shapes are checked by validate_qkv in the callers
     q, k, v = q.contiguous(), k.contiguous(), v.contiguous()
 
     if return_intermediates:
@@ -107,9 +115,9 @@ def unfused_attention(q, k, v, tile_m=64, tile_n=64, return_intermediates=False)
     stream = torch.cuda.current_stream()
     grid = (N // tile_m, B * H, 1)
 
-    ct.launch(stream, grid, scores_kernel, (q, k, S, scale, H, tile_m, tile_n, D))
+    ct.launch(stream, grid, scores_kernel, (q, k, S, scale, H, query_group, tile_m, tile_n, D))
     ct.launch(stream, grid, softmax_kernel, (S, P, H, tile_m, tile_n))
-    ct.launch(stream, grid, pv_kernel, (P, v, O, H, tile_m, tile_n, D))
+    ct.launch(stream, grid, pv_kernel, (P, v, O, H, query_group, tile_m, tile_n, D))
 
     if return_intermediates:
         return O, S, P
