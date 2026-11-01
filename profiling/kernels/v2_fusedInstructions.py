@@ -61,7 +61,7 @@ def fused_attn_kernel(Q, K, V, O, scale: float, H: ConstInt, TILE_M: ConstInt, T
 
         m = m_new
 
-    out   = ct.truediv(acc, l, flush_to_zero=True, rounding_mode=RMd.APPROX)   # instead of acc / l
+    out   = ct.truediv(acc, l, flush_to_zero=True, rounding_mode=ct.RoundingMode.APPROX)   # instead of acc / l
     ct.store(O, index=(b, h, i, 0), tile=out.astype(O.dtype).reshape((1, 1, TILE_M, TILE_D)))
 
 
