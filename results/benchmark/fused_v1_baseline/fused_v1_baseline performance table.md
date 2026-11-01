@@ -1,4 +1,6 @@
-# fused_v1_baseline performance table
+# fused_v1_baseline_performance_table
+
+## Tile summary (averaged over D ∈ {64, 128}, N ∈ {128, 512, 2048, 8192})
 
 | Tile (M×N) | Fused ms | Fused TFLOPS | Unfused TFLOPS | SDPA TFLOPS | Speedup vs unfused | % of SDPA TFLOPS |
 |---|---|---|---|---|---|---|
@@ -6,6 +8,8 @@
 | **64×128**  | **1.351** | **25.82** | 4.77 | 33.47 | **4.27×** | **77.2%** |
 | 128×64  | 1.670 | 20.71 | 4.20 | 31.91 | 3.93× | 64.9% |
 | 128×128 | 2.109 | 16.37 | 3.87 | 31.90 | 3.41× | 51.3% |
+
+## Best tile per N × D (lowest fused latency)
 
 | N \ D | D=64 | D=128 |
 |---|---|---|
