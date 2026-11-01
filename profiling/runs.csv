@@ -131,3 +131,57 @@ run,timestamp,gpu,commit,kernel,note,D,N,B,H,impl,tile_m,tile_n,median_ms,tflops
 8,2026-11-01 19:39,NVIDIA RTX PRO 6000 Blackwell Server Edition,ab2ce3f (+ uncommitted changes),profiling/kernels/v3_occupancy2.py,v3 (occupancy=2): tile sweep,128,8192,2,8,fused,128,64,5.6460,48.685
 8,2026-11-01 19:39,NVIDIA RTX PRO 6000 Blackwell Server Edition,ab2ce3f (+ uncommitted changes),profiling/kernels/v3_occupancy2.py,v3 (occupancy=2): tile sweep,128,8192,2,8,fused,128,128,10.9929,25.005
 8,2026-11-01 19:39,NVIDIA RTX PRO 6000 Blackwell Server Edition,ab2ce3f (+ uncommitted changes),profiling/kernels/v3_occupancy2.py,v3 (occupancy=2): tile sweep,128,8192,2,8,sdpa,-,-,1.0298,266.934
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,64,512,2,8,fused,64,64,0.0188,28.557
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,64,512,2,8,fused,64,128,0.0208,25.752
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,64,512,2,8,fused,128,64,0.0231,23.286
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,64,512,2,8,fused,128,128,0.0413,13.001
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,64,512,2,8,sdpa,-,-,0.0240,22.399
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,64,2048,2,8,fused,64,64,0.0558,153.875
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,64,2048,2,8,fused,64,128,0.0661,129.899
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,64,2048,2,8,fused,128,64,0.0579,148.471
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,64,2048,2,8,fused,128,128,0.1378,62.325
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,64,2048,2,8,sdpa,-,-,0.0856,100.312
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,64,8192,2,8,fused,64,64,0.5577,246.419
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,64,8192,2,8,fused,64,128,0.7252,189.531
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,64,8192,2,8,fused,128,64,0.5080,270.558
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,64,8192,2,8,fused,128,128,1.5276,89.970
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,64,8192,2,8,sdpa,-,-,0.5564,247.036
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,128,512,2,8,fused,64,64,0.0231,46.474
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,128,512,2,8,fused,64,128,0.0230,46.668
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,128,512,2,8,fused,128,64,0.0946,11.346
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,128,512,2,8,fused,128,128,0.1050,10.230
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,128,512,2,8,sdpa,-,-,0.0296,36.275
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,128,2048,2,8,fused,64,64,0.0866,198.327
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,128,2048,2,8,fused,64,128,0.0864,198.915
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,128,2048,2,8,fused,128,64,0.3703,46.394
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,128,2048,2,8,fused,128,128,0.5429,31.644
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,128,2048,2,8,sdpa,-,-,0.1183,145.238
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,128,8192,2,8,fused,64,64,0.9501,289.321
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,128,8192,2,8,fused,64,128,0.9174,299.635
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,128,8192,2,8,fused,128,64,4.4281,62.076
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,128,8192,2,8,fused,128,128,7.4264,37.013
+9,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739,profiling/kernels/v2_fusedInstructions.py,v2 (occupancy 1): large-tile check,128,8192,2,8,sdpa,-,-,1.0258,267.967
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,64,512,2,8,fused,32,64,0.0196,27.459
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,64,512,2,8,fused,64,32,0.0205,26.133
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,64,512,2,8,fused,64,64,0.0189,28.364
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,64,512,2,8,sdpa,-,-,0.0239,22.444
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,64,2048,2,8,fused,32,64,0.0609,141.133
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,64,2048,2,8,fused,64,32,0.0557,154.096
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,64,2048,2,8,fused,64,64,0.0497,172.850
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,64,2048,2,8,sdpa,-,-,0.0862,99.642
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,64,8192,2,8,fused,32,64,0.6811,201.784
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,64,8192,2,8,fused,64,32,0.4578,300.200
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,64,8192,2,8,fused,64,64,0.4283,320.903
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,64,8192,2,8,sdpa,-,-,0.5603,245.315
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,128,512,2,8,fused,32,64,0.0395,27.181
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,128,512,2,8,fused,64,32,0.0273,39.268
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,128,512,2,8,fused,64,64,0.0339,31.715
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,128,512,2,8,sdpa,-,-,0.0301,35.696
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,128,2048,2,8,fused,32,64,0.1871,91.843
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,128,2048,2,8,fused,64,32,0.0971,176.922
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,128,2048,2,8,fused,64,64,0.1317,130.403
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,128,2048,2,8,sdpa,-,-,0.1177,146.008
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,128,8192,2,8,fused,32,64,2.5262,108.810
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,128,8192,2,8,fused,64,32,0.8438,325.746
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,128,8192,2,8,fused,64,64,1.0864,253.013
+10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,128,8192,2,8,sdpa,-,-,0.9766,281.466
