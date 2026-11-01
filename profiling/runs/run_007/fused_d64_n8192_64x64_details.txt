@@ -1,0 +1,217 @@
+[11605] python3.12@127.0.0.1
+  fused_attn_kernel_Kt1_A4f16_7v8l0_8t1_ci16_p16_A4f16_7v8l0_8t1_ci16_p16_A4f16_7v8l0_8t1_ci16_p16_A4f16_7v8l0_8t1_ci16_p16_Sf32_I8_I64_I64_I64 (16, 128, 1)x(256, 1, 1), Context 1, Stream 7, Device 0, CC 12.0
+    Section: Tile Statistics
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Block Size (Chosen by Compiler)                      256
+    Cluster Size                                           0
+    Launch Execution Model                       Tile (Tile)
+    #Thread Blocks Launched                             2048
+    #Tile Blocks Specified                              2048
+    Blocks as Clusters                                     0
+    ------------------------------- ----------- ------------
+
+    INF   One thread block is mapped to execute one tile block instructions.                                            
+
+    Section: GPU Speed Of Light Throughput
+    ----------------------- ----------- ------------
+    Metric Name             Metric Unit Metric Value
+    ----------------------- ----------- ------------
+    DRAM Frequency                  Ghz        12.47
+    SM Frequency                    Ghz         2.12
+    Elapsed Cycles                cycle       938278
+    Memory Throughput                 %        65.37
+    DRAM Throughput                   %         7.17
+    Duration                         us       440.32
+    L1/TEX Cache Throughput           %        45.07
+    L2 Cache Throughput               %        65.37
+    SM Active Cycles              cycle    922045.24
+    Compute (SM) Throughput           %        76.95
+    ----------------------- ----------- ------------
+
+    OPT   Compute is more heavily utilized than Memory: Look at the Compute Workload Analysis section to see what the   
+          compute pipelines are spending their time doing. Also, consider whether any computation is redundant and      
+          could be reduced or moved to look-up tables.                                                                  
+
+    Section: GPU Speed Of Light Roofline Chart (Overview)
+    INF   The ratio of peak float (FP32) to double (FP64) performance on this device is 64:1. The workload achieved 5%  
+          of this device's FP32 peak performance and 0% of its FP64 peak performance. See the Profiling Guide           
+          (https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html#roofline) for more details on roofline      
+          analysis.                                                                                                     
+
+    Section: PM Sampling
+    ------------------------- ----------- ------------
+    Metric Name               Metric Unit Metric Value
+    ------------------------- ----------- ------------
+    Maximum Buffer Size             Mbyte        32.83
+    Maximum Sampling Interval          us            3
+    # Pass Groups                                    2
+    ------------------------- ----------- ------------
+
+    Section: Compute Workload Analysis
+    -------------------- ----------- ------------
+    Metric Name          Metric Unit Metric Value
+    -------------------- ----------- ------------
+    Executed Ipc Active   inst/cycle         1.11
+    Executed Ipc Elapsed  inst/cycle         1.09
+    Issue Slots Busy               %        27.55
+    Issued Ipc Active     inst/cycle         1.12
+    SM Busy                        %        76.95
+    -------------------- ----------- ------------
+
+    OPT   Tensor is the highest-utilized pipeline (77.0%) based on elapsed cycles in the workload, taking into account  
+          the rates of its different instructions. It is the logical aggregation of individual tensor pipelines. It's   
+          dominated by its Tensor (FP) sub-pipeline. The pipeline is well-utilized, but might become a bottleneck if    
+          more work is added. Based on the number of executed instructions, the highest utilized pipeline (77.0%) is    
+          Tensor (FP). It executes 16-bit floating point tensor operations. Comparing the two, the overall pipeline     
+          utilization appears to be caused by frequent, low-latency instructions. See the Profiling Guide               
+          (https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html#metrics-decoder) or hover over the          
+          pipeline name to understand the workloads handled by each pipeline. The Instruction Statistics section shows  
+          the mix of executed instructions for this workload. Check the Warp State Statistics section for which         
+          reasons cause warps to stall.                                                                                 
+
+    Section: Memory Workload Analysis
+    --------------------------------------- ----------- ------------
+    Metric Name                             Metric Unit Metric Value
+    --------------------------------------- ----------- ------------
+    Local Memory Spilling Requests                                 0
+    Local Memory Spilling Request Overhead            %            0
+    L2 Sector Promotion Misses                        %            0
+    Shared Memory Spilling Requests                                0
+    Shared Memory Spilling Request Overhead           %            0
+    Memory Throughput                           Gbyte/s       114.42
+    Mem Busy                                          %        65.37
+    Max Bandwidth                                     %        64.87
+    L1/TEX Hit Rate                                   %            0
+    L2 Persisting Size                            Mbyte        25.17
+    L2 Compression Success Rate                       %            0
+    L2 Compression Ratio                                           0
+    L2 Compression Input Sectors                 sector            0
+    L2 Hit Rate                                       %        96.95
+    Mem Pipes Busy                                    %        26.58
+    --------------------------------------- ----------- ------------
+
+    Section: Scheduler Statistics
+    ---------------------------- ----------- ------------
+    Metric Name                  Metric Unit Metric Value
+    ---------------------------- ----------- ------------
+    One or More Eligible                   %        27.94
+    Issued Warp Per Scheduler                        0.28
+    No Eligible                            %        72.06
+    Active Warps Per Scheduler          warp         2.97
+    Eligible Warps Per Scheduler        warp         0.38
+    ---------------------------- ----------- ------------
+
+    OPT   Est. Local Speedup: 23.05%                                                                                    
+          Every scheduler is capable of issuing one instruction per cycle, but for this workload each scheduler only    
+          issues an instruction every 3.6 cycles. This might leave hardware resources underutilized and may lead to     
+          less optimal performance. Out of the maximum of 12 warps per scheduler, this workload allocates an average    
+          of 2.97 active warps per scheduler, but only an average of 0.38 warps were eligible per cycle. Eligible       
+          warps are the subset of active warps that are ready to issue their next instruction. Every cycle with no      
+          eligible warp results in no instruction being issued and the issue slot remains unused. To increase the       
+          number of eligible warps, reduce the time the active warps are stalled by inspecting the top stall reasons    
+          on the Warp State Statistics and Source Counters sections.                                                    
+
+    Section: Warp State Statistics
+    ---------------------------------------- ----------- ------------
+    Metric Name                              Metric Unit Metric Value
+    ---------------------------------------- ----------- ------------
+    Warp Cycles Per Issued Instruction             cycle        10.64
+    Warp Cycles Per Executed Instruction           cycle        10.74
+    Avg. Active Threads Per Warp                                31.99
+    Avg. Not Predicated Off Threads Per Warp                    30.59
+    ---------------------------------------- ----------- ------------
+
+    Section: Instruction Statistics
+    ---------------------------------------- ----------- ------------
+    Metric Name                              Metric Unit Metric Value
+    ---------------------------------------- ----------- ------------
+    Local Memory Spilling Requests                  byte            0
+    Shared Memory Spilling Requests                 byte            0
+    Avg. Executed Instructions Per Scheduler        inst    255094.36
+    Executed Instructions                           inst    191830959
+    Avg. Issued Instructions Per Scheduler          inst    257618.24
+    Issued Instructions                             inst    193728918
+    ---------------------------------------- ----------- ------------
+
+    OPT   Est. Speedup: 3.054%                                                                                          
+          This workload executes 17965056 fused and 39370752 non-fused FP32 instructions. By converting pairs of        
+          non-fused instructions to their fused                                                                         
+          (https://docs.nvidia.com/cuda/floating-point/#cuda-and-floating-point), higher-throughput equivalent, the     
+          achieved FP32 performance could be increased by up to 34% (relative to its current performance).              
+
+    Section: Launch Statistics
+    -------------------------------- --------------- ---------------
+    Metric Name                          Metric Unit    Metric Value
+    -------------------------------- --------------- ---------------
+    Block Size                                                   256
+    Cluster Scheduling Policy                           PolicySpread
+    Cluster Size                                                   0
+    Function Cache Configuration                     CachePreferNone
+    Grid Size                                                   2048
+    Preferred Cluster Size                                         0
+    Registers Per Thread             register/thread             128
+    Shared Memory Configuration Size           Kbyte          102.40
+    Driver Shared Memory Per Block       Kbyte/block            1.02
+    Dynamic Shared Memory Per Block       byte/block               0
+    Static Shared Memory Per Block       Kbyte/block           49.28
+    # SMs                                         SM             188
+    Stack Size                                                  1024
+    Threads                                   thread          524288
+    # TPCs                                                        94
+    Enabled TPC IDs                                              all
+    Uses Green Context                                             0
+    Waves Per SM                                                5.45
+    -------------------------------- --------------- ---------------
+
+    Section: Occupancy
+    ------------------------------- ----------- ------------
+    Metric Name                     Metric Unit Metric Value
+    ------------------------------- ----------- ------------
+    Max Active Clusters                 cluster            0
+    Max Cluster Size                      block            8
+    Overall GPU Occupancy                     %            0
+    Cluster Occupancy                         %            0
+    Block Limit Barriers                  block           12
+    Block Limit SM                        block           24
+    Block Limit Registers                 block            2
+    Block Limit Shared Mem                block            2
+    Block Limit Warps                     block            6
+    Theoretical Active Warps per SM        warp           16
+    Theoretical Occupancy                     %        33.33
+    Achieved Occupancy                        %        24.78
+    Achieved Active Warps Per SM           warp        11.89
+    ------------------------------- ----------- ------------
+
+    OPT   Est. Speedup: 23.05%                                                                                          
+          The 4.00 theoretical warps per scheduler this kernel can issue according to its occupancy are below the       
+          hardware maximum of 12. This kernel's theoretical occupancy (33.3%) is limited by the number of required      
+          registers, and the required amount of shared memory.                                                          
+
+    Section: GPU and Memory Workload Distribution
+    -------------------------- ----------- ------------
+    Metric Name                Metric Unit Metric Value
+    -------------------------- ----------- ------------
+    Average DRAM Active Cycles       cycle       393608
+    Total DRAM Elapsed Cycles        cycle     87842816
+    Average L1 Active Cycles         cycle    922045.24
+    Total L1 Elapsed Cycles          cycle    175782880
+    Average L2 Active Cycles         cycle    804448.67
+    Total L2 Elapsed Cycles          cycle     52553344
+    Average SM Active Cycles         cycle    922045.24
+    Total SM Elapsed Cycles          cycle    175782880
+    Average SMSP Active Cycles       cycle    922126.24
+    Total SMSP Elapsed Cycles        cycle    703131520
+    -------------------------- ----------- ------------
+
+    Section: Source Counters
+    ------------------------- ----------- ------------
+    Metric Name               Metric Unit Metric Value
+    ------------------------- ----------- ------------
+    Branch Instructions Ratio           %         0.04
+    Branch Instructions              inst      7194156
+    Branch Efficiency                   %        99.96
+    Avg. Divergent Branches      branches         2.72
+    ------------------------- ----------- ------------
+
