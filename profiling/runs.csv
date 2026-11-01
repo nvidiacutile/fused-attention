@@ -185,3 +185,5 @@ run,timestamp,gpu,commit,kernel,note,D,N,B,H,impl,tile_m,tile_n,median_ms,tflops
 10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,128,8192,2,8,fused,64,32,0.8438,325.746
 10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,128,8192,2,8,fused,64,64,1.0864,253.013
 10,2026-11-01 19:57,NVIDIA RTX PRO 6000 Blackwell Server Edition,4ca8739 (+ uncommitted changes),profiling/kernels/v4_occupancy3.py,v4 (occupancy 3): small-tile check,128,8192,2,8,sdpa,-,-,0.9766,281.466
+11,2026-11-01 20:01,NVIDIA RTX PRO 6000 Blackwell Server Edition,08a2d41,profiling/kernels/v3_occupancy2.py,"v3 at 128x64, D=128: spilling check",128,8192,2,8,fused,128,64,5.7354,47.927
+11,2026-11-01 20:01,NVIDIA RTX PRO 6000 Blackwell Server Edition,08a2d41,profiling/kernels/v3_occupancy2.py,"v3 at 128x64, D=128: spilling check",128,8192,2,8,sdpa,-,-,1.0256,268.013

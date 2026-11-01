@@ -1,0 +1,14 @@
+--- Run 10: profiling/kernels/v4_occupancy3.py
++++ Run 11: profiling/kernels/v3_occupancy2.py
+@@ -1,3 +1,3 @@
+-# v4: v2 + occupancy=3 hint (target 3 blocks per SM)
++# v3: v2 + occupancy=2 hint (target 2 blocks per SM)
+ import math
+ import numpy as np
+@@ -9,5 +9,5 @@
+ 
+ 
+-@ct.kernel(occupancy=3)
++@ct.kernel(occupancy=2)
+ def fused_attn_kernel(Q, K, V, O, scale: float, H: ConstInt, TILE_M: ConstInt, TILE_N: ConstInt, TILE_D: ConstInt):
+     bh = ct.bid(0)                          # which (batch, head); axis 0 is launched fastest
