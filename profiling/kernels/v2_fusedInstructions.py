@@ -50,10 +50,10 @@ def fused_attn_kernel(Q, K, V, O, scale: float, H: ConstInt, TILE_M: ConstInt, T
         m_new = ct.maximum(m, ct.max(s, axis = -1, keepdims = True)*scale)
 
         # correction factor for the old totals: e^(m - m_new)
-        alpha = ct.exp2(m - m_new)
+        alpha = ct.exp2(m - m_new, flush_to_zero=True)
 
         # this tile's numerators: e^(s - m_new)
-        p = ct.exp2(s * scale - m_new)   
+        p = ct.exp2(s * scale - m_new, flush_to_zero=True)   
 
         # 6. update the running sum and the accumulator
         l = l*alpha  + ct.sum(p, axis=-1, keepdims=True)
@@ -61,7 +61,7 @@ def fused_attn_kernel(Q, K, V, O, scale: float, H: ConstInt, TILE_M: ConstInt, T
 
         m = m_new
 
-    out = acc / l
+    out   = ct.truediv(acc, l, flush_to_zero=True, rounding_mode=RMd.APPROX)   # instead of acc / l
     ct.store(O, index=(b, h, i, 0), tile=out.astype(O.dtype).reshape((1, 1, TILE_M, TILE_D)))
 
 
