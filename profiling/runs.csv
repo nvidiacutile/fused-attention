@@ -65,3 +65,15 @@ run,timestamp,gpu,commit,kernel,note,D,N,B,H,impl,tile_m,tile_n,median_ms,tflops
 5,2026-11-01 19:17,NVIDIA RTX PRO 6000 Blackwell Server Edition,57fa9f2,profiling/kernels/v4_occupancy3.py,v4: occupancy=3 (instead of 2),128,2048,2,8,sdpa,-,-,0.1177,145.988
 5,2026-11-01 19:17,NVIDIA RTX PRO 6000 Blackwell Server Edition,57fa9f2,profiling/kernels/v4_occupancy3.py,v4: occupancy=3 (instead of 2),128,8192,2,8,fused,64,64,1.1314,242.955
 5,2026-11-01 19:17,NVIDIA RTX PRO 6000 Blackwell Server Edition,57fa9f2,profiling/kernels/v4_occupancy3.py,v4: occupancy=3 (instead of 2),128,8192,2,8,sdpa,-,-,1.0233,268.620
+6,2026-11-01 19:26,NVIDIA RTX PRO 6000 Blackwell Server Edition,a45c6e3,profiling/kernels/v5_occupancy2latency4.py,v5: occupancy=2 + latency=4 on K/V loads,64,512,2,8,fused,64,64,0.0189,28.460
+6,2026-11-01 19:26,NVIDIA RTX PRO 6000 Blackwell Server Edition,a45c6e3,profiling/kernels/v5_occupancy2latency4.py,v5: occupancy=2 + latency=4 on K/V loads,64,512,2,8,sdpa,-,-,0.0239,22.490
+6,2026-11-01 19:26,NVIDIA RTX PRO 6000 Blackwell Server Edition,a45c6e3,profiling/kernels/v5_occupancy2latency4.py,v5: occupancy=2 + latency=4 on K/V loads,64,2048,2,8,fused,64,64,0.0437,196.728
+6,2026-11-01 19:26,NVIDIA RTX PRO 6000 Blackwell Server Edition,a45c6e3,profiling/kernels/v5_occupancy2latency4.py,v5: occupancy=2 + latency=4 on K/V loads,64,2048,2,8,sdpa,-,-,0.0856,100.350
+6,2026-11-01 19:26,NVIDIA RTX PRO 6000 Blackwell Server Edition,a45c6e3,profiling/kernels/v5_occupancy2latency4.py,v5: occupancy=2 + latency=4 on K/V loads,64,8192,2,8,fused,64,64,0.4490,306.084
+6,2026-11-01 19:26,NVIDIA RTX PRO 6000 Blackwell Server Edition,a45c6e3,profiling/kernels/v5_occupancy2latency4.py,v5: occupancy=2 + latency=4 on K/V loads,64,8192,2,8,sdpa,-,-,0.5588,245.954
+6,2026-11-01 19:26,NVIDIA RTX PRO 6000 Blackwell Server Edition,a45c6e3,profiling/kernels/v5_occupancy2latency4.py,v5: occupancy=2 + latency=4 on K/V loads,128,512,2,8,fused,64,64,0.0230,46.701
+6,2026-11-01 19:26,NVIDIA RTX PRO 6000 Blackwell Server Edition,a45c6e3,profiling/kernels/v5_occupancy2latency4.py,v5: occupancy=2 + latency=4 on K/V loads,128,512,2,8,sdpa,-,-,0.0286,37.596
+6,2026-11-01 19:26,NVIDIA RTX PRO 6000 Blackwell Server Edition,a45c6e3,profiling/kernels/v5_occupancy2latency4.py,v5: occupancy=2 + latency=4 on K/V loads,128,2048,2,8,fused,64,64,0.0749,229.285
+6,2026-11-01 19:26,NVIDIA RTX PRO 6000 Blackwell Server Edition,a45c6e3,profiling/kernels/v5_occupancy2latency4.py,v5: occupancy=2 + latency=4 on K/V loads,128,2048,2,8,sdpa,-,-,0.1182,145.336
+6,2026-11-01 19:26,NVIDIA RTX PRO 6000 Blackwell Server Edition,a45c6e3,profiling/kernels/v5_occupancy2latency4.py,v5: occupancy=2 + latency=4 on K/V loads,128,8192,2,8,fused,64,64,0.8132,338.033
+6,2026-11-01 19:26,NVIDIA RTX PRO 6000 Blackwell Server Edition,a45c6e3,profiling/kernels/v5_occupancy2latency4.py,v5: occupancy=2 + latency=4 on K/V loads,128,8192,2,8,sdpa,-,-,1.0257,267.996
