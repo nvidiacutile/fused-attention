@@ -41,3 +41,15 @@ run,timestamp,gpu,commit,kernel,note,D,N,B,H,impl,tile_m,tile_n,median_ms,tflops
 3,2026-11-01 16:29,NVIDIA RTX PRO 6000 Blackwell Server Edition,fab2bd4,profiling/kernels/v2_fusedInstructions.py,"v2: exp2 + folded constants + fast math (FTZ, approx division)",128,2048,2,8,sdpa,-,-,0.1181,145.454
 3,2026-11-01 16:29,NVIDIA RTX PRO 6000 Blackwell Server Edition,fab2bd4,profiling/kernels/v2_fusedInstructions.py,"v2: exp2 + folded constants + fast math (FTZ, approx division)",128,8192,2,8,fused,64,64,0.9465,290.421
 3,2026-11-01 16:29,NVIDIA RTX PRO 6000 Blackwell Server Edition,fab2bd4,profiling/kernels/v2_fusedInstructions.py,"v2: exp2 + folded constants + fast math (FTZ, approx division)",128,8192,2,8,sdpa,-,-,1.0240,268.427
+4,2026-11-01 19:02,NVIDIA RTX PRO 6000 Blackwell Server Edition,1942d7b,profiling/kernels/v3_occupancy2.py,v3: + occupancy=2,64,512,2,8,fused,64,64,0.0188,28.606
+4,2026-11-01 19:02,NVIDIA RTX PRO 6000 Blackwell Server Edition,1942d7b,profiling/kernels/v3_occupancy2.py,v3: + occupancy=2,64,512,2,8,sdpa,-,-,0.0239,22.429
+4,2026-11-01 19:02,NVIDIA RTX PRO 6000 Blackwell Server Edition,1942d7b,profiling/kernels/v3_occupancy2.py,v3: + occupancy=2,64,2048,2,8,fused,64,64,0.0435,197.306
+4,2026-11-01 19:02,NVIDIA RTX PRO 6000 Blackwell Server Edition,1942d7b,profiling/kernels/v3_occupancy2.py,v3: + occupancy=2,64,2048,2,8,sdpa,-,-,0.0863,99.568
+4,2026-11-01 19:02,NVIDIA RTX PRO 6000 Blackwell Server Edition,1942d7b,profiling/kernels/v3_occupancy2.py,v3: + occupancy=2,64,8192,2,8,fused,64,64,0.4468,307.596
+4,2026-11-01 19:02,NVIDIA RTX PRO 6000 Blackwell Server Edition,1942d7b,profiling/kernels/v3_occupancy2.py,v3: + occupancy=2,64,8192,2,8,sdpa,-,-,0.5549,247.684
+4,2026-11-01 19:02,NVIDIA RTX PRO 6000 Blackwell Server Edition,1942d7b,profiling/kernels/v3_occupancy2.py,v3: + occupancy=2,128,512,2,8,fused,64,64,0.0230,46.636
+4,2026-11-01 19:02,NVIDIA RTX PRO 6000 Blackwell Server Edition,1942d7b,profiling/kernels/v3_occupancy2.py,v3: + occupancy=2,128,512,2,8,sdpa,-,-,0.0302,35.602
+4,2026-11-01 19:02,NVIDIA RTX PRO 6000 Blackwell Server Edition,1942d7b,profiling/kernels/v3_occupancy2.py,v3: + occupancy=2,128,2048,2,8,fused,64,64,0.0741,231.960
+4,2026-11-01 19:02,NVIDIA RTX PRO 6000 Blackwell Server Edition,1942d7b,profiling/kernels/v3_occupancy2.py,v3: + occupancy=2,128,2048,2,8,sdpa,-,-,0.1175,146.247
+4,2026-11-01 19:02,NVIDIA RTX PRO 6000 Blackwell Server Edition,1942d7b,profiling/kernels/v3_occupancy2.py,v3: + occupancy=2,128,8192,2,8,fused,64,64,0.8082,340.115
+4,2026-11-01 19:02,NVIDIA RTX PRO 6000 Blackwell Server Edition,1942d7b,profiling/kernels/v3_occupancy2.py,v3: + occupancy=2,128,8192,2,8,sdpa,-,-,1.0275,267.512
