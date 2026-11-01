@@ -17,28 +17,26 @@ def fused_attn_kernel(Q, K, V, O, scale: float, H: ConstInt, TILE_M: ConstInt, T
     q = ct.load(Q, index=(b, h, i, 0), shape=(1, 1, TILE_M, TILE_D)).reshape((TILE_M, TILE_D))
 
     # running values, one per query row (FP32) (for each Q tile)
-    m = ct.full((TILE_M, 1), -np.inf, dtype=np.float32)
-    l = ct.full((TILE_M, 1), 0.0, dtype=np.float32)
-    acc = ct.full((TILE_M, TILE_D), 0.0, dtype=np.float32)
+    m = ct.full((TILE_M, 1), -np.inf, dtype=np.float32) # the max exponent
+    l = ct.full((TILE_M, 1), 0.0, dtype=np.float32) # the denominator sum
+    acc = ct.full((TILE_M, TILE_D), 0.0, dtype=np.float32) # the accumulated output matrix 
 
     rows = i * TILE_M + ct.arange(TILE_M, dtype=np.int32)[:, None]  # which query rows does this block/tile handle 
 
-    # causal bounds in units of K/V tiles (works for TILE_M != TILE_N)
-    # last query row of this tile is (i+1)*TILE_M - 1 -> need K/V tiles 0..ceil((i+1)*TILE_M / TILE_N)-1
+    # number of kv tiles that is required for this query tile
     num_kv_tiles = ((i + 1) * TILE_M + TILE_N - 1) // TILE_N
-    # first K/V tile that can contain a col > the first query row (i*TILE_M) -> needs masking
+    # first kv tile that requires masking
     mask_start = (i * TILE_M) // TILE_N
 
     for j in range(num_kv_tiles):
-        kt = ct.load(K, index=(b, h, 0, j), shape=(1, 1, TILE_D, TILE_N),
-                     order=(0, 1, 3, 2)).reshape((TILE_D, TILE_N))
+        # load the k and the v tile
+        kt = ct.load(K, index=(b, h, 0, j), shape=(1, 1, TILE_D, TILE_N), order=(0, 1, 3, 2)).reshape((TILE_D, TILE_N))
         v = ct.load(V, index=(b, h, j, 0), shape=(1, 1, TILE_N, TILE_D)).reshape((TILE_N, TILE_D))
 
         # 1. scores tile: q @ kt into an FP32 zero tile, then multiply by scale
         s = ct.full((TILE_M, TILE_N), 0.0, dtype=ct.float32)
-        s = ct.mma(q, kt,s) *scale
+        s = ct.mma(q, kt, s) * scale
         
-
         # 2. causal mask only on tiles that straddle/cross the diagonal
         if j >= mask_start:
             cols = j * TILE_N + ct.arange(TILE_N, dtype=np.int32)[None, :]
