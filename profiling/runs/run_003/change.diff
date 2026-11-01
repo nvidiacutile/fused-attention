@@ -1,0 +1,42 @@
+--- Run 2: profiling/kernels/v1_heavyfirst.py
++++ Run 3: profiling/kernels/v2_fusedInstructions.py
+@@ -1,3 +1,3 @@
+-# v1: v0 + heavy-first Q tile order (grid axes swapped, Q tile index reversed)
++# v2: v1 + exp2 with constants (scale*log2(e) passed as `scale`; one FFMA per score element) and fused instructions
+ import math
+ import numpy as np
+@@ -6,4 +6,5 @@
+ 
+ ConstInt = ct.Constant[int]
++LOG2E = 1.4426950408889634        # log2(e): exp(x) = exp2(x * LOG2E)
+ 
+ 
+@@ -38,5 +39,5 @@
+         # 1. scores tile: q @ kt into an FP32 zero tile, then multiply by scale
+         s = ct.full((TILE_M, TILE_N), 0.0, dtype=ct.float32)
+-        s = ct.mma(q, kt,s) *scale
++        s = ct.mma(q, kt,s) 
+         
+ 
+@@ -47,11 +48,11 @@
+ 
+         # 3. new running max: bigger of old m and this tile's row max
+-        m_new = ct.maximum(m, ct.max(s, axis = -1, keepdims = True))
++        m_new = ct.maximum(m, ct.max(s, axis = -1, keepdims = True)*scale)
+ 
+         # correction factor for the old totals: e^(m - m_new)
+-        alpha = ct.exp(m - m_new)
++        alpha = ct.exp2(m - m_new)
+ 
+         # this tile's numerators: e^(s - m_new)
+-        p =  ct.exp(s - m_new)
++        p = ct.exp2(s * scale - m_new)   
+ 
+         # 6. update the running sum and the accumulator
+@@ -71,5 +72,5 @@
+     q, k, v = q.contiguous(), k.contiguous(), v.contiguous()
+     O = torch.empty_like(q)
+-    scale = 1.0 / math.sqrt(D)
++    scale = LOG2E / math.sqrt(D)      # log2(e) / sqrt(D), folded into one constant
+     ct.launch(torch.cuda.current_stream(), (B * H, N // tile_m, 1), fused_attn_kernel, (q, k, v, O, scale, H, tile_m, tile_n, D))
+     return O

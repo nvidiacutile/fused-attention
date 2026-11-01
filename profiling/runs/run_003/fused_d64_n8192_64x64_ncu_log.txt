@@ -1,0 +1,5 @@
+==PROF== Connected to process 10243 (/usr/bin/python3.12)
+==PROF== Profiling "fused_attn_kernel_Kt1_A4f16_7v8l0_8t1_ci16_p16_A4f16_7v8l0_8t1_ci16_p16_A4f16_7v8l0_8t1_ci16_p16_A4f16_7v8l0_8t1_ci16_p16_Sf32_I8_I64_I64_I64": 0%....50%....100% - 40 passes
+==PROF== Disconnected from process 10243
+==PROF== Report: /home/ubuntu/fused-attention/profiling/runs/run_003/fused_d64_n8192_64x64.ncu-rep
+
