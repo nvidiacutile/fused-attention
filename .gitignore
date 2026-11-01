@@ -6,3 +6,5 @@ __pycache__/
 *.npy
 .venv/
 env.txt
+profiling/runs/run_012/fused_d128_n8192_128x128.ncu-rep
+profiling/runs/run_013/fused_d128_n8192_128x64.ncu-rep
