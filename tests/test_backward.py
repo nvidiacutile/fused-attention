@@ -13,7 +13,7 @@ import argparse, csv, math, os, statistics
 import torch
 import torch.nn.functional as F
 
-from attention.fused_autograd import fused_attention_autograd
+from attention.fused_backward import fused_attention_autograd
 
 
 def reference(q, k, v):
