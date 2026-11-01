@@ -53,3 +53,15 @@ run,timestamp,gpu,commit,kernel,note,D,N,B,H,impl,tile_m,tile_n,median_ms,tflops
 4,2026-11-01 19:02,NVIDIA RTX PRO 6000 Blackwell Server Edition,1942d7b,profiling/kernels/v3_occupancy2.py,v3: + occupancy=2,128,2048,2,8,sdpa,-,-,0.1175,146.247
 4,2026-11-01 19:02,NVIDIA RTX PRO 6000 Blackwell Server Edition,1942d7b,profiling/kernels/v3_occupancy2.py,v3: + occupancy=2,128,8192,2,8,fused,64,64,0.8082,340.115
 4,2026-11-01 19:02,NVIDIA RTX PRO 6000 Blackwell Server Edition,1942d7b,profiling/kernels/v3_occupancy2.py,v3: + occupancy=2,128,8192,2,8,sdpa,-,-,1.0275,267.512
+5,2026-11-01 19:17,NVIDIA RTX PRO 6000 Blackwell Server Edition,57fa9f2,profiling/kernels/v4_occupancy3.py,v4: occupancy=3 (instead of 2),64,512,2,8,fused,64,64,0.0177,30.394
+5,2026-11-01 19:17,NVIDIA RTX PRO 6000 Blackwell Server Edition,57fa9f2,profiling/kernels/v4_occupancy3.py,v4: occupancy=3 (instead of 2),64,512,2,8,sdpa,-,-,0.0227,23.647
+5,2026-11-01 19:17,NVIDIA RTX PRO 6000 Blackwell Server Edition,57fa9f2,profiling/kernels/v4_occupancy3.py,v4: occupancy=3 (instead of 2),64,2048,2,8,fused,64,64,0.0501,171.415
+5,2026-11-01 19:17,NVIDIA RTX PRO 6000 Blackwell Server Edition,57fa9f2,profiling/kernels/v4_occupancy3.py,v4: occupancy=3 (instead of 2),64,2048,2,8,sdpa,-,-,0.0861,99.790
+5,2026-11-01 19:17,NVIDIA RTX PRO 6000 Blackwell Server Edition,57fa9f2,profiling/kernels/v4_occupancy3.py,v4: occupancy=3 (instead of 2),64,8192,2,8,fused,64,64,0.4259,322.675
+5,2026-11-01 19:17,NVIDIA RTX PRO 6000 Blackwell Server Edition,57fa9f2,profiling/kernels/v4_occupancy3.py,v4: occupancy=3 (instead of 2),64,8192,2,8,sdpa,-,-,0.5503,249.736
+5,2026-11-01 19:17,NVIDIA RTX PRO 6000 Blackwell Server Edition,57fa9f2,profiling/kernels/v4_occupancy3.py,v4: occupancy=3 (instead of 2),128,512,2,8,fused,64,64,0.0340,31.536
+5,2026-11-01 19:17,NVIDIA RTX PRO 6000 Blackwell Server Edition,57fa9f2,profiling/kernels/v4_occupancy3.py,v4: occupancy=3 (instead of 2),128,512,2,8,sdpa,-,-,0.0289,37.118
+5,2026-11-01 19:17,NVIDIA RTX PRO 6000 Blackwell Server Edition,57fa9f2,profiling/kernels/v4_occupancy3.py,v4: occupancy=3 (instead of 2),128,2048,2,8,fused,64,64,0.1311,131.056
+5,2026-11-01 19:17,NVIDIA RTX PRO 6000 Blackwell Server Edition,57fa9f2,profiling/kernels/v4_occupancy3.py,v4: occupancy=3 (instead of 2),128,2048,2,8,sdpa,-,-,0.1177,145.988
+5,2026-11-01 19:17,NVIDIA RTX PRO 6000 Blackwell Server Edition,57fa9f2,profiling/kernels/v4_occupancy3.py,v4: occupancy=3 (instead of 2),128,8192,2,8,fused,64,64,1.1314,242.955
+5,2026-11-01 19:17,NVIDIA RTX PRO 6000 Blackwell Server Edition,57fa9f2,profiling/kernels/v4_occupancy3.py,v4: occupancy=3 (instead of 2),128,8192,2,8,sdpa,-,-,1.0233,268.620
