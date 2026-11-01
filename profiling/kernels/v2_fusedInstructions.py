@@ -1,4 +1,4 @@
-# v2: v1 + exp2 with constants (scale*log2(e) passed as `scale`; one FFMA per score element) and fused instructions
+# v2: v1 + exp2 with folded constants (log2(e)/sqrt(D) passed as scale) + flush_to_zero on exp2
 import math
 import numpy as np
 import torch
