@@ -31,7 +31,6 @@ def fused_attn_kernel(Q, K, V, O, scale: float, H: ConstInt, TILE_M: ConstInt, T
     # first K/V tile that can contain a col > the first query row (i*TILE_M) -> needs masking
     mask_start = (i * TILE_M) // TILE_N
 
-    # phase 1: K/V tiles fully below the diagonal -> no causal mask, no branch
     for j in range(mask_start):
         kt = ct.load(K, index=(b, h, 0, j), shape=(1, 1, TILE_D, TILE_N),
                      order=(0, 1, 3, 2)).reshape((TILE_D, TILE_N))
@@ -45,7 +44,6 @@ def fused_attn_kernel(Q, K, V, O, scale: float, H: ConstInt, TILE_M: ConstInt, T
         acc = ct.mma(p.astype(np.float16), v, acc * alpha)
         m = m_new
 
-    # phase 2: tiles that cross the diagonal (j = mask_start .. num_kv_tiles-1) -> apply the causal mask
     for t in range(num_kv_tiles - mask_start):
         j = mask_start + t
         kt = ct.load(K, index=(b, h, 0, j), shape=(1, 1, TILE_D, TILE_N),
