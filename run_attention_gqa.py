@@ -12,7 +12,7 @@ Output: .npy, float16, shape [B, H, N, D] (H query heads)
 
 Backends:
   cutile     fused cuTile GQA kernel (attention/gqa/fused_gqa.py)
-  unfused    unfused cuTile baseline (attention/fused/unfused.py)
+  unfused    unfused cuTile baseline (attention/gqa/unfused_gqa.py)
   reference  PyTorch reference, FP32 intermediates (attention/gqa/reference_gqa.py)
 
 Exit status: 0 success, 2 unsupported input or usage error, 1 runtime failure.
