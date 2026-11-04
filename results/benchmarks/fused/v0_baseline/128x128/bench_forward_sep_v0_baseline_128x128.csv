@@ -1,0 +1,25 @@
+D,N,B,H,impl,tile_m,tile_n,median_ms,tflops,first_call_ms,fused_speedup_vs_unfused,fused_speedup_vs_sdpa,gpu,kernel
+64,128,2,8,fused,128,128,0.0238,1.411,1413.7,2.080,0.550,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
+64,128,2,8,unfused,128,128,0.0495,0.677,3243.9,,,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
+64,128,2,8,sdpa,128,128,0.0131,2.564,5.3,,,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
+64,512,2,8,fused,128,128,0.0484,11.089,0.1,2.198,0.461,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
+64,512,2,8,unfused,128,128,0.1064,5.045,0.2,,,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
+64,512,2,8,sdpa,128,128,0.0223,24.071,2.8,,,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
+64,2048,2,8,fused,128,128,0.1874,45.832,0.2,2.898,0.450,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
+64,2048,2,8,unfused,128,128,0.5431,15.816,0.6,,,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
+64,2048,2,8,sdpa,128,128,0.0844,101.815,0.6,,,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
+64,8192,2,8,fused,128,128,1.8020,76.272,1.8,4.065,0.306,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
+64,8192,2,8,unfused,128,128,7.3248,18.764,7.7,,,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
+64,8192,2,8,sdpa,128,128,0.5512,249.345,2.2,,,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
+128,128,2,8,fused,128,128,0.0626,1.072,2488.4,0.887,0.268,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
+128,128,2,8,unfused,128,128,0.0555,1.209,7067.5,,,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
+128,128,2,8,sdpa,128,128,0.0168,4.006,1.8,,,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
+128,512,2,8,fused,128,128,0.1197,8.973,0.1,1.040,0.235,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
+128,512,2,8,unfused,128,128,0.1245,8.627,0.2,,,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
+128,512,2,8,sdpa,128,128,0.0281,38.217,2.4,,,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
+128,2048,2,8,fused,128,128,0.5423,31.682,0.6,1.190,0.212,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
+128,2048,2,8,unfused,128,128,0.6452,26.629,0.8,,,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
+128,2048,2,8,sdpa,128,128,0.1152,149.193,0.7,,,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
+128,8192,2,8,fused,128,128,6.1045,45.028,6.1,1.277,0.166,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
+128,8192,2,8,unfused,128,128,7.7965,35.257,8.1,,,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
+128,8192,2,8,sdpa,128,128,1.0147,270.903,2.7,,,NVIDIA RTX PRO 6000 Blackwell Server Edition,attention/fused/fused_kernels/v0_baseline.py
