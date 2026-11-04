@@ -1,0 +1,9 @@
+--- Run 4: attention/gqa/fused_kernels/v2_headpacking.py
++++ Run 5: attention/gqa/fused_kernels/v3_headpacking_occ1.py
+@@ -10,5 +10,5 @@
+ 
+ 
+-@ct.kernel(occupancy=2)
++@ct.kernel(occupancy=1)
+ def fused_attn_kernel(Q, K, V, O, scale: float, H_KV: ConstInt, QUERY_GROUP: ConstInt, TILE_M: ConstInt, TILE_N: ConstInt, TILE_D: ConstInt):
+     bkv = ct.bid(0)

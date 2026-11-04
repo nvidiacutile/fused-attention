@@ -1,0 +1,123 @@
+## Run 3 — 2026-11-05 02:37 IST
+
+**Note:** v2: GQA head packing
+
+### Change
+
+One block handles all query heads sharing a K/V head (rows = QUERY_GROUP*TILE_M)
+
+Code diff vs Run 2 (hunk headers `@@ -old,+new @@` give line numbers):
+
+```diff
+--- Run 2: attention/gqa/fused_kernels/v1_latency.py
++++ Run 3: attention/gqa/fused_kernels/v2_headpacking.py
+@@ -1,4 +1,4 @@
+-# v4: v3 + latency hint on K/V loads
+-# GQA: K/V have H_kv heads; query head h reads K/V head h // (H // H_kv). Grid and O stay on H query heads.
++# v4: v3 + GQA head packing (one block handles all query heads sharing a K/V head)
++# GQA: K/V have H_kv heads; query head h reads K/V head h // (H // H_kv).
+ import math
+ import numpy as np
+@@ -9,24 +9,24 @@
+ LOG2E = 1.4426950408889634        # log2(e): exp(x) = exp2(x * LOG2E)
+ 
+-KV_LATENCY = 4
+-
+ 
+ @ct.kernel(occupancy=2)
+-def fused_attn_kernel(Q, K, V, O, scale: float, H: ConstInt, QUERY_GROUP: ConstInt, TILE_M: ConstInt, TILE_N: ConstInt, TILE_D: ConstInt):
+-    bh = ct.bid(0)                          # which (batch, head); axis 0 is launched fastest
++def fused_attn_kernel(Q, K, V, O, scale: float, H_KV: ConstInt, QUERY_GROUP: ConstInt, TILE_M: ConstInt, TILE_N: ConstInt, TILE_D: ConstInt):
++    bkv = ct.bid(0)
+     i = ct.num_blocks(1) - 1 - ct.bid(1)    # which Q tile; heaviest (last) Q tiles launch first
+-    b = bh // H                   # goes up by 1 every H [0 to BATCH-1]
+-    h = bh % H                    # varies from 0 to H-1 in every H
+-    kv_h = h // QUERY_GROUP          # GQA: K/V head shared by this query head (H_kv = H // QUERY_GROUP)
++    b = bkv // H_KV
++    kv_h = bkv % H_KV
++
++    ROWS = QUERY_GROUP * TILE_M
+ 
+     # load my Q tile ONCE
+-    q = ct.load(Q, index=(b, h, i, 0), shape=(1, 1, TILE_M, TILE_D)).reshape((TILE_M, TILE_D))
++    q = ct.load(Q, index=(b, kv_h, i, 0), shape=(1, QUERY_GROUP, TILE_M, TILE_D)).reshape((ROWS, TILE_D))
+ 
+     # running values, one per query row (FP32) (for each Q tile)
+-    m = ct.full((TILE_M, 1), -np.inf, dtype=np.float32)
+-    l = ct.full((TILE_M, 1), 0.0, dtype=np.float32)
+-    acc = ct.full((TILE_M, TILE_D), 0.0, dtype=np.float32)
++    m = ct.full((ROWS, 1), -np.inf, dtype=np.float32)
++    l = ct.full((ROWS, 1), 0.0, dtype=np.float32)
++    acc = ct.full((ROWS, TILE_D), 0.0, dtype=np.float32)
+ 
+-    rows = i * TILE_M + ct.arange(TILE_M, dtype=np.int32)[:, None]  # which query rows does this block/tile handle 
++    pos = ct.full((QUERY_GROUP, TILE_M), 0, dtype=np.int32) + ct.arange(TILE_M, dtype=np.int32)[None, :]
++    rows = i * TILE_M + pos.reshape((ROWS, 1))  # which query rows does this block/tile handle 
+ 
+     # causal bounds in units of K/V tiles (works for TILE_M != TILE_N)
+@@ -38,10 +38,9 @@
+     for j in range(num_kv_tiles):
+         kt = ct.load(K, index=(b, kv_h, 0, j), shape=(1, 1, TILE_D, TILE_N),
+-                     order=(0, 1, 3, 2), latency=KV_LATENCY).reshape((TILE_D, TILE_N))
+-        v = ct.load(V, index=(b, kv_h, j, 0), shape=(1, 1, TILE_N, TILE_D),
+-                    latency=KV_LATENCY).reshape((TILE_N, TILE_D))
++                     order=(0, 1, 3, 2)).reshape((TILE_D, TILE_N))
++        v = ct.load(V, index=(b, kv_h, j, 0), shape=(1, 1, TILE_N, TILE_D)).reshape((TILE_N, TILE_D))
+ 
+         # 1. scores tile: q @ kt into an FP32 zero tile, then multiply by scale
+-        s = ct.full((TILE_M, TILE_N), 0.0, dtype=ct.float32)
++        s = ct.full((ROWS, TILE_N), 0.0, dtype=ct.float32)
+         s = ct.mma(q, kt,s) 
+         
+@@ -68,8 +67,8 @@
+ 
+     out   = ct.truediv(acc, l, flush_to_zero=True, rounding_mode=ct.RoundingMode.APPROX)   # instead of acc / l
+-    ct.store(O, index=(b, h, i, 0), tile=out.astype(O.dtype).reshape((1, 1, TILE_M, TILE_D)))
++    ct.store(O, index=(b, kv_h, i, 0), tile=out.astype(O.dtype).reshape((1, QUERY_GROUP, TILE_M, TILE_D)))
+ 
+ 
+-def fused_gqa_attention(q, k, v, tile_m=64, tile_n=64):
++def fused_gqa_attention(q, k, v, tile_m=32, tile_n=64):
+     B, H, N, D = q.shape
+     H_kv = k.shape[1]
+@@ -82,4 +81,4 @@
+     O = torch.empty_like(q)
+     scale = LOG2E / math.sqrt(D)      # log2(e) / sqrt(D), folded into one constant
+-    ct.launch(torch.cuda.current_stream(), (B * H, N // tile_m, 1), fused_attn_kernel, (q, k, v, O, scale, H, query_group, tile_m, tile_n, D))
++    ct.launch(torch.cuda.current_stream(), (B * H_kv, N // tile_m, 1), fused_attn_kernel, (q, k, v, O, scale, H_kv, query_group, tile_m, tile_n, D))
+     return O
+```
+
+### Environment
+
+| Environment | |
+|---|---|
+| Kernel file | attention/gqa/fused_kernels/v2_headpacking.py |
+| GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
+| Compute capability | 12.0 |
+| GPU memory (GB) | 95.0 |
+| NVIDIA driver | 595.91.07 |
+| PyTorch | 2.14.1+cu130 |
+| PyTorch CUDA | 13.0 |
+| cuda-tile | 1.6.0 |
+| Python | 3.12.3 |
+| Nsight Compute | Version 2026.1.1.0 (build 37634170) (public-release) |
+| Host | jl-vm-563768 |
+| Git commit | af2dd5f (+ uncommitted changes) |
+| Batch B | 2 |
+| Heads H | 8 |
+| K/V heads H_kv | 2 |
+
+### Result (fused kernel, median of 30 runs)
+
+| D | N | Tile | Fused ms | Fused TFLOP/s | SDPA ms | Fused vs SDPA | vs previous run (Run 2) on this GPU | vs baseline (Run 1) on this GPU |
+|---|---|---|---|---|---|---|---|---|
+| 64 | 512 | 32x64 | 0.026 | 20.7 | 0.024 | 1.08× slower | - | - |
+| 64 | 2048 | 32x64 | 0.077 | 111.4 | 0.086 | 1.12× faster | - | - |
+| 64 | 8192 | 32x64 | 0.539 | 255.1 | 0.556 | 1.03× faster | - | - |
+| 128 | 512 | 32x64 | 0.100 | 10.8 | 0.030 | 3.36× slower | - | - |
+| 128 | 2048 | 32x64 | 0.420 | 40.9 | 0.117 | 3.59× slower | - | - |
+| 128 | 8192 | 32x64 | 5.030 | 54.6 | 1.017 | 4.94× slower | - | - |
+
+---
+
