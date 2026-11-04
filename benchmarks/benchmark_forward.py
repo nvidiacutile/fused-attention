@@ -1,8 +1,26 @@
-import argparse, csv, os, re, statistics, time
+"""Forward benchmark (MHA): fused vs unfused vs SDPA.
+
+--kernel loads fused_attention from any kernel file instead of attention/fused/fused.py,
+e.g. attention/fused/fused_kernels/v3_occupancy2.py; --tag names the outputs
+(default: kernel file name). The per-config CSV, summary CSV and plots carry fused
+speedup vs unfused and vs SDPA. Outputs go to results/benchmark/<tag>/<tile>/ by default.
+"""
+import argparse, csv, importlib.util, os, re, statistics, sys, time
 import torch
 import torch.nn.functional as F
-from attention.fused.fused import fused_attention
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # repo root
 from attention.fused.unfused import unfused_attention
+
+fused_attention = None  # set in main() from --kernel
+
+
+def load_fused(path):
+    """Import fused_attention from a kernel file without touching attention/fused/fused.py."""
+    name = "kernel_" + re.sub(r"\W", "_", os.path.splitext(os.path.basename(path))[0])
+    spec = importlib.util.spec_from_file_location(name, path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod.fused_attention
 
 def sdpa(q, k, v, tm, tn):
     return F.scaled_dot_product_attention(q, k, v, is_causal=True)
@@ -39,10 +57,10 @@ def time_impl(fn, q, k, v, tm, tn, warmup=10, reps=30):
     return statistics.median(times), first_call_ms
 
 def write_summary(rows, path):
-    """Average latency/throughput per N, per D and overall, plus fused speedup over unfused.
+    """Average latency/throughput per N, per D and overall, plus fused speedup over unfused and SDPA.
 
-    Speedup is the geometric mean of per-config ratios unfused_ms / fused_ms
-    (only configs where both ran), so one large N does not dominate.
+    Speedup is the geometric mean of per-config ratios unfused_ms / fused_ms (or sdpa_ms / fused_ms),
+    only configs where both ran, so one large N does not dominate. >1 means fused is faster.
     """
     ok = [(r[0], r[1], r[4], float(r[7]), float(r[8])) for r in rows if r[7] != ""]
     impls = list(dict.fromkeys(r[2] for r in ok))
@@ -54,9 +72,10 @@ def write_summary(rows, path):
             tf = [r[4] for r in sub if r[2] == name]
             row += [f"{statistics.mean(ms):.4f}" if ms else "", f"{statistics.mean(tf):.3f}" if tf else ""]
         lat = {(r[0], r[1], r[2]): r[3] for r in sub}
-        ratios = [lat[(d, n, "unfused")] / ms for (d, n, name), ms in lat.items()
-                  if name == "fused" and (d, n, "unfused") in lat]
-        row.append(f"{statistics.geometric_mean(ratios):.2f}" if ratios else "")
+        for other in ("unfused", "sdpa"):
+            ratios = [lat[(d, n, other)] / ms for (d, n, name), ms in lat.items()
+                      if name == "fused" and (d, n, other) in lat]
+            row.append(f"{statistics.geometric_mean(ratios):.2f}" if ratios else "")
         return row
 
     out = [summarize("N", n, [r for r in ok if r[1] == n]) for n in sorted({r[1] for r in ok})]
@@ -65,7 +84,7 @@ def write_summary(rows, path):
 
     header = (["scope", "value"]
               + [f"{name}_{m}" for name in impls for m in ("avg_median_ms", "avg_tflops")]
-              + ["fused_speedup_vs_unfused"])
+              + ["fused_speedup_vs_unfused", "fused_speedup_vs_sdpa"])
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     with open(path, "w", newline="") as f:
         w = csv.writer(f)
@@ -111,18 +130,24 @@ def write_plots(rows, path):
             ax.legend(frameon=False)
 
         ax = row[2]
-        pts = [(n, lat[(D, n, "unfused")] / lat[(D, n, "fused")]) for n in Ns
-               if (D, n, "fused") in lat and (D, n, "unfused") in lat]
-        if pts:
-            ax.plot(*zip(*pts), color=PLOT_STYLE["fused"][0], marker="o", markersize=7, linewidth=2)
-            for n, s in pts:
-                ax.annotate(f"{s:.1f}x", (n, s), textcoords="offset points", xytext=(-6, 6),
-                            ha="right", fontsize=9, color="#52514e")
-            ax.set_ylim(0, max(s for _, s in pts) * 1.15)
+        ymax = 1.0
+        for other in ("unfused", "sdpa"):
+            pts = [(n, lat[(D, n, other)] / lat[(D, n, "fused")]) for n in Ns
+                   if (D, n, "fused") in lat and (D, n, other) in lat]
+            if pts:
+                color, marker = PLOT_STYLE[other]
+                ax.plot(*zip(*pts), color=color, marker=marker, markersize=7, linewidth=2,
+                        label=f"vs {other}")
+                for n, s in pts:
+                    ax.annotate(f"{s:.2f}x", (n, s), textcoords="offset points", xytext=(-6, 6),
+                                ha="right", fontsize=9, color=color)
+                ymax = max(ymax, max(s for _, s in pts))
+        ax.set_ylim(0, ymax * 1.15)
         ax.axhline(1.0, color="#9a9994", linewidth=1, linestyle="--")
-        ax.set_ylabel("fused speedup over unfused (x)")
+        ax.set_ylabel("fused speedup (x, >1 = fused faster)")
+        ax.legend(frameon=False)
 
-        for ax, title in zip(row, ("Latency", "Throughput", "Fused vs unfused")):
+        for ax, title in zip(row, ("Latency", "Throughput", "Fused speedup")):
             ax.set_title(f"{title} vs N  (D={D})", fontsize=11, loc="left")
             ax.set_xscale("log", base=2)
             ax.set_xticks(Ns)
@@ -141,26 +166,35 @@ def write_plots(rows, path):
 
 
 def main():
+    global fused_attention
     p = argparse.ArgumentParser()
+    p.add_argument("--kernel", default="attention/fused/fused.py",
+                   help="kernel file with fused_attention, e.g. attention/fused/fused_kernels/v3_occupancy2.py")
+    p.add_argument("--tag", default=None, help="name used in output paths (default: kernel file name)")
     p.add_argument("--B", type=int, default=2)
     p.add_argument("--H", type=int, default=8)
     p.add_argument("--tile-m", type=int, default=64)
     p.add_argument("--tile-n", type=int, default=64)
     p.add_argument("--impls", default="fused,unfused,sdpa")
     p.add_argument("--out", default=None,
-                   help="per-config CSV (default: results/bench_forward_sep_<gpu>.csv)")
+                   help="per-config CSV (default: results/benchmark/<tag>/<tile>/bench_forward_sep_<tag>_<tile>.csv)")
     p.add_argument("--summary-out", default=None,
                    help="aggregate CSV: averages per N / per D and fused-vs-unfused speedup "
-                        "(default: results/bench_forward_agg_<gpu>.csv)")
+                        "(default: results/benchmark/<tag>/<tile>/bench_forward_agg_<tag>_<tile>.csv)")
     p.add_argument("--plot-out", default=None,
                    help="6-panel PNG: latency/throughput/speedup vs N per D "
-                        "(default: results/bench_forward_plots_<gpu>.png)")
+                        "(default: results/benchmark/<tag>/<tile>/bench_forward_plots_<tag>_<tile>.png)")
     args = p.parse_args()
 
-    gpu = re.sub(r"[^A-Za-z0-9]+", "_", torch.cuda.get_device_name()).strip("_")  # e.g. NVIDIA_L4
-    args.out = args.out or f"results/bench_forward_sep_{gpu}.csv"
-    args.summary_out = args.summary_out or f"results/bench_forward_agg_{gpu}.csv"
-    args.plot_out = args.plot_out or f"results/bench_forward_plots_{gpu}.png"
+    fused_attention = load_fused(args.kernel)
+    tag = args.tag or os.path.splitext(os.path.basename(args.kernel))[0]
+    tile = f"{args.tile_m}x{args.tile_n}"
+    base = f"results/benchmark/{tag}/{tile}"
+    gpu = torch.cuda.get_device_name()
+    print(f"kernel={args.kernel}  tag={tag}  tile={tile}  gpu={gpu}")
+    args.out = args.out or f"{base}/bench_forward_sep_{tag}_{tile}.csv"
+    args.summary_out = args.summary_out or f"{base}/bench_forward_agg_{tag}_{tile}.csv"
+    args.plot_out = args.plot_out or f"{base}/bench_forward_plots_{tag}_{tile}.png"
 
     torch.manual_seed(0)
     rows = []
@@ -184,11 +218,21 @@ def main():
                                  "", "", "", ])
                 torch.cuda.empty_cache()
 
+    # per-config speedups of fused (blank on rows that are not fused or where a run failed)
+    lat = {(r[0], r[1], r[4]): float(r[7]) for r in rows if r[7] != ""}
+    for r in rows:
+        f_ms = lat.get((r[0], r[1], "fused")) if r[4] == "fused" else None
+        for other in ("unfused", "sdpa"):
+            o_ms = lat.get((r[0], r[1], other))
+            r.append(f"{o_ms / f_ms:.3f}" if f_ms and o_ms else "")
+        r += [gpu, args.kernel]
+
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     with open(args.out, "w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["D", "N", "B", "H", "impl", "tile_m", "tile_n",
-                    "median_ms", "tflops", "first_call_ms"])
+                    "median_ms", "tflops", "first_call_ms",
+                    "fused_speedup_vs_unfused", "fused_speedup_vs_sdpa", "gpu", "kernel"])
         w.writerows(rows)
     print(f"wrote {args.out}")
     write_summary(rows, args.summary_out)
