@@ -1,0 +1,35 @@
+--- Run 20: profiling/kernels/v10_exp2fp16.py
++++ Run 21: profiling/kernels/v11_vlate.py
+@@ -1,3 +1,3 @@
+-# v10: v3 + exp2 computed in FP16 for p (p is cast to FP16 for the P@V multiply anyway); row sum added to l in FP32
++# v11: v3 + V tile loaded just before the P@V multiply (after the softmax) instead of at the top of the loop, as in NVIDIA TileGym attention.py
+ import math
+ import numpy as np
+@@ -35,5 +35,4 @@
+         kt = ct.load(K, index=(b, h, 0, j), shape=(1, 1, TILE_D, TILE_N),
+                      order=(0, 1, 3, 2)).reshape((TILE_D, TILE_N))
+-        v = ct.load(V, index=(b, h, j, 0), shape=(1, 1, TILE_N, TILE_D)).reshape((TILE_N, TILE_D))
+ 
+         # 1. scores tile: q @ kt into an FP32 zero tile, then multiply by scale
+@@ -50,13 +49,15 @@
+         m_new = ct.maximum(m, ct.max(s, axis = -1, keepdims = True)*scale)
+ 
+-        # correction factor for the old totals (one value per row, stays FP32)
++        # correction factor for the old totals: e^(m - m_new)
+         alpha = ct.exp2(m - m_new, flush_to_zero=True)
+ 
+-        # this tile's numerators: exponent computed in FP32 (one FFMA), exp2 evaluated in FP16
+-        p = ct.exp2((s * scale - m_new).astype(np.float16))
++        # this tile's numerators: e^(s - m_new)
++        p = ct.exp2(s * scale - m_new, flush_to_zero=True)   
+ 
+-        # 6. update the running sum (row sums converted to FP32) and the accumulator
+-        l = l*alpha + ct.sum(p, axis=-1, keepdims=True).astype(np.float32)
+-        acc = ct.mma(p, v, acc * alpha)
++        # 6. update the running sum and the accumulator
++        l = l*alpha  + ct.sum(p, axis=-1, keepdims=True)
++        # V is only needed here, so it is loaded after the softmax
++        v = ct.load(V, index=(b, h, j, 0), shape=(1, 1, TILE_N, TILE_D)).reshape((TILE_N, TILE_D))
++        acc = ct.mma(p.astype(np.float16), v, acc * alpha)
+ 
+         m = m_new
