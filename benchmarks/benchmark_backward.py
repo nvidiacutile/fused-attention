@@ -5,7 +5,7 @@ Run from the repo root:
     python -m temp_results.benchmark_backward --tile-m 64 --tile-n 128
 
 Implementations (all causal, FP16 inputs, autograd backward):
-  fused  attention.fused_backward.fused_attention_autograd (cuTile forward + recompute backward)
+  fused  attention.backward.fused_backward.fused_attention_autograd (cuTile forward + recompute backward)
   naive  PyTorch eager: S = QK^T*scale, mask, softmax (FP32), P V. Autograd stores the N x N
          probabilities for the backward; this is the "unfused" training baseline.
   sdpa   torch.nn.functional.scaled_dot_product_attention(is_causal=True)
@@ -24,7 +24,7 @@ import argparse, csv, math, os, statistics
 import torch
 import torch.nn.functional as F
 
-from attention.fused_backward import fused_attention_autograd
+from attention.backward.fused_backward import fused_attention_autograd
 
 
 def naive_attention(q, k, v):

@@ -1,8 +1,8 @@
 import argparse, csv, os, re, statistics, time
 import torch
 import torch.nn.functional as F
-from attention.fused import fused_attention
-from attention.unfused import unfused_attention
+from attention.fused.fused import fused_attention
+from attention.fused.unfused import unfused_attention
 
 def sdpa(q, k, v, tm, tn):
     return F.scaled_dot_product_attention(q, k, v, is_causal=True)

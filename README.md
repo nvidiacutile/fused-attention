@@ -26,19 +26,21 @@ source .venv/bin/activate
 - `remember.md`: short notes on future optimization ideas.
 
 **`attention/`**: the attention implementations
-- `fused.py`: fused FlashAttention-style cuTile forward kernel with online softmax, configurable query/key tile sizes.
-- `fused_gqa.py`: the fused forward kernel extended to grouped-query attention; query head `h` reads K/V head `h // (H // H_kv)`.
-- `fused_backward.py`: fused forward that also saves the softmax statistics, plus a recompute-based backward (two cuTile kernels: dK/dV and dQ, no atomics), wrapped as a PyTorch autograd function (`fused_attention_autograd`).
-- `unfused.py`: tiled unfused cuTile baseline with three separate kernels (QKᵀ scores → softmax → PV); scores and probabilities are stored in GPU memory.
-- `reference.py`: PyTorch causal attention reference (FP16 inputs, FP32 intermediates), the ground truth for correctness.
-- `validation.py`: shared input checks (shapes, dtype, limits, tile divisibility), used by the CLI, the kernels and the tests.
+- `fused/fused.py`: fused FlashAttention-style cuTile forward kernel with online softmax, configurable query/key tile sizes.
+- `gqa/fused_gqa.py`: the fused forward kernel extended to grouped-query attention; query head `h` reads K/V head `h // (H // H_kv)`.
+- `backward/fused_backward.py`: fused forward that also saves the softmax statistics, plus a recompute-based backward (two cuTile kernels: dK/dV and dQ, no atomics), wrapped as a PyTorch autograd function (`fused_attention_autograd`).
+- `fused/unfused.py`: tiled unfused cuTile baseline with three separate kernels (QKᵀ scores → softmax → PV); scores and probabilities are stored in GPU memory.
+- `fused/reference.py`: PyTorch causal attention reference (FP16 inputs, FP32 intermediates), the ground truth for correctness.
+- `fused/validation.py`: shared input checks (shapes, dtype, limits, tile divisibility), used by the CLI, the kernels and the tests.
+- `gqa/validation_gqa.py`: the same input checks for GQA/MQA (K and V of shape [B, H_kv, N, D] with H_kv dividing H), used by run_attention_gqa.py and the GQA tests.
 
 **`tests/`**: correctness testing
-- `cases.py`: the fixed list of 84 test cases with reproducible Q, K, V.
-- `cases_gqa.py`: the fixed list of 96 GQA test cases (`H_kv` in 1, 2, 4, 8, including MQA and plain MHA) with reproducible Q, K, V.
-- `run_correctness.py`: runs a chosen implementation on every case, compares it with the reference and writes a PASS/FAIL CSV.
-- `run_correctness_gqa.py`: the same check over the GQA cases.
-- `test_backward.py`: checks O, dQ, dK and dV of the fused backward against an FP32 PyTorch reference, and times forward+backward against PyTorch SDPA.
+- `fused/cases.py`: the fixed list of 84 test cases with reproducible Q, K, V.
+- `gqa/cases_gqa.py`: the fixed list of 96 GQA test cases (`H_kv` in 1, 2, 4, 8, including MQA and plain MHA) with reproducible Q, K, V.
+- `fused/run_correctness.py`: runs a chosen implementation on every case, compares it with the reference and writes a PASS/FAIL CSV.
+- `gqa/run_correctness_gqa.py`: the same check over the GQA cases.
+- `backward/cases_backward.py`: the fixed list of 7 backward cases (B, H, N, D, sigma) with reproducible Q, K, V and dO, plus the forward+backward timing grid.
+- `backward/run_correctness_backward.py`: checks O, dQ, dK and dV of the fused backward against an FP32 PyTorch reference, and times forward+backward against PyTorch SDPA.
 
 **`benchmarks/`**
 - `benchmark_forward.py`: times fused, unfused and PyTorch SDPA across head sizes and sequence lengths, and writes a per-setting CSV, a summary CSV and a plot.

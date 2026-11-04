@@ -2,22 +2,22 @@
 
 Q is [B, H, N, D]; K and V are [B, H_kv, N, D] (H_kv divides H). Run once per H_kv, e.g.
     python benchmarks/benchmark_forward_gqa.py --H-kv 2 --tile-m 64 --tile-n 64
-fused = attention/fused_gqa.py, unfused = attention/unfused.py (both GQA-aware),
+fused = attention/gqa/fused_gqa.py, unfused = attention/gqa/unfused_gqa.py (both GQA-aware),
 sdpa = torch SDPA with enable_gqa=True. FLOPs are the same as MHA (they depend on H, not H_kv).
 Rows are the benchmark_forward.py columns plus H_kv as the last column.
 """
 import argparse, csv, os, re, statistics, time
 import torch
 import torch.nn.functional as F
-from attention.fused_gqa import fused_gqa_attention
-from attention.unfused import unfused_attention
+from attention.gqa.fused_gqa import fused_gqa_attention
+from attention.gqa.unfused_gqa import unfused_gqa_attention
 
 def sdpa(q, k, v, tm, tn):
     return F.scaled_dot_product_attention(q, k, v, is_causal=True, enable_gqa=True)
 
 IMPLS = {
     "fused":   lambda q, k, v, tm, tn: fused_gqa_attention(q, k, v, tm, tn),
-    "unfused": lambda q, k, v, tm, tn: unfused_attention(q, k, v, tm, tn),
+    "unfused": lambda q, k, v, tm, tn: unfused_gqa_attention(q, k, v, tm, tn),
     "sdpa":    sdpa,
 }
 

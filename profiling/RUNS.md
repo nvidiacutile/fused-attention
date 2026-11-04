@@ -70,7 +70,7 @@ Code diff vs Run 1 (hunk headers `@@ -old,+new @@` give line numbers):
 --- Run 1: profiling/kernels/v0_baseline.py
 +++ Run 2: profiling/kernels/v1_heavyfirst.py
 @@ -1,3 +1,3 @@
--# v0: baseline = attention/fused.py at commit ea1416a (2026-10-31). Frozen snapshot.
+-# v0: baseline = attention/fused/fused.py at commit ea1416a (2026-10-31). Frozen snapshot.
 +# v1: v0 + heavy-first Q tile order (grid axes swapped, Q tile index reversed)
  import math
  import numpy as np
@@ -1057,7 +1057,7 @@ Code diff vs Run 14 (hunk headers `@@ -old,+new @@` give line numbers):
 +++ Run 15: profiling/kernels/v0_baseline.py
 @@ -1,3 +1,3 @@
 -# v2: v1 + exp2 with folded constants (log2(e)/sqrt(D) passed as scale) + flush_to_zero on exp2
-+# v0: baseline = attention/fused.py at commit ea1416a (2026-10-31). Frozen snapshot.
++# v0: baseline = attention/fused/fused.py at commit ea1416a (2026-10-31). Frozen snapshot.
  import math
  import numpy as np
 @@ -6,11 +6,10 @@
@@ -1235,7 +1235,7 @@ Code diff vs Run 16 (hunk headers `@@ -old,+new @@` give line numbers):
 --- Run 16: profiling/kernels/v0_baseline.py
 +++ Run 17: profiling/kernels/v7_ksplit.py
 @@ -1,3 +1,3 @@
--# v0: baseline = attention/fused.py at commit ea1416a (2026-10-31). Frozen snapshot.
+-# v0: baseline = attention/fused/fused.py at commit ea1416a (2026-10-31). Frozen snapshot.
 +# v7: v3 + two-phase K/V loop: unmasked tiles (j < mask_start) with no branch/where, then the diagonal tile(s) with the mask
  import math
  import numpy as np

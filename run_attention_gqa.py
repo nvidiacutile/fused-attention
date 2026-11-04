@@ -11,9 +11,9 @@ Input:  .npz with contiguous float16 arrays
 Output: .npy, float16, shape [B, H, N, D] (H query heads)
 
 Backends:
-  cutile     fused cuTile GQA kernel (attention/fused_gqa.py)
-  unfused    unfused cuTile baseline (attention/unfused.py)
-  reference  PyTorch reference, FP32 intermediates (attention/reference.py)
+  cutile     fused cuTile GQA kernel (attention/gqa/fused_gqa.py)
+  unfused    unfused cuTile baseline (attention/fused/unfused.py)
+  reference  PyTorch reference, FP32 intermediates (attention/gqa/reference_gqa.py)
 
 Exit status: 0 success, 2 unsupported input or usage error, 1 runtime failure.
 """
@@ -24,7 +24,7 @@ import time
 
 import numpy as np
 
-from attention.validation import ValidationError, validate_qkv
+from attention.gqa.validation_gqa import ValidationError, validate_qkv
 
 OUTPUT_DTYPE = np.float16
 EXIT_OK, EXIT_RUNTIME, EXIT_INVALID = 0, 1, 2
@@ -64,14 +64,14 @@ def load_qkv(path):
 def get_backend(name):
     """Return fn(q, k, v, block_m, block_n) -> torch.Tensor [B, H, N, D]. Imports lazily."""
     if name == "cutile":
-        from attention.fused_gqa import fused_gqa_attention
+        from attention.gqa.fused_gqa import fused_gqa_attention
         return fused_gqa_attention
     if name == "unfused":
-        from attention.unfused import unfused_attention
-        return lambda q, k, v, bm, bn: unfused_attention(q, k, v, bm, bn)  
+        from attention.gqa.unfused_gqa import unfused_gqa_attention
+        return lambda q, k, v, bm, bn: unfused_gqa_attention(q, k, v, bm, bn)  
     if name == "reference":
-        from attention.reference import causal_attention_reference
-        return lambda q, k, v, bm, bn: causal_attention_reference(q, k, v)
+        from attention.gqa.reference_gqa import causal_attention_reference_gqa
+        return lambda q, k, v, bm, bn: causal_attention_reference_gqa(q, k, v)
     raise NotImplementedError(f"backend '{name}' is not implemented")
 
 

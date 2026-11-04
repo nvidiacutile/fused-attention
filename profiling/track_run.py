@@ -16,9 +16,9 @@ Usage (from the repo root, .venv active):
         --note "v3: heavy-first" --reason "..." --change "..."
     python -m profiling.track_run --ncu --note "occupancy=2" \
         --reason "Run 2 ncu: 255 registers/thread -> 1 block/SM, 12% occupancy, no warp ready 67% of cycles" \
-        --change "Added occupancy=2 hint to @ct.kernel in attention/fused.py"
+        --change "Added occupancy=2 hint to @ct.kernel in attention/fused/fused.py"
 
---kernel picks the file to measure (default attention/fused.py). Before timing, the kernel is
+--kernel picks the file to measure (default attention/fused/fused.py). Before timing, the kernel is
 checked against the FP32 reference (D 64/128, N 512/2048, normal and large scores); a failing
 kernel is not recorded. The diff between the previous run's kernel and this one is added
 automatically, and the measured file is copied to runs/run_NNN/kernel_measured.py.
@@ -51,7 +51,7 @@ IST = dt.timezone(dt.timedelta(hours=5, minutes=30))
 
 CSV_FIELDS = ["run", "timestamp", "gpu", "commit", "kernel", "note", "D", "N", "B", "H",
               "impl", "tile_m", "tile_n", "median_ms", "tflops"]
-DEFAULT_KERNEL = "attention/fused.py"
+DEFAULT_KERNEL = "attention/fused/fused.py"
 
 # Nsight Compute metrics summarised in RUNS.md when --ncu is used
 NCU_METRICS = {
@@ -125,9 +125,9 @@ def next_run_number(rows):
 
 # --------------------------------------------------------------------------- kernel under test
 def load_fused(kernel_path):
-    """Return fused_attention() from a kernel file (default: attention/fused.py)."""
+    """Return fused_attention() from a kernel file (default: attention/fused/fused.py)."""
     if kernel_path in (None, "", DEFAULT_KERNEL):
-        from attention.fused import fused_attention
+        from attention.fused.fused import fused_attention
         return fused_attention
     import importlib.util
     path = os.path.abspath(kernel_path)
@@ -142,7 +142,7 @@ def load_fused(kernel_path):
 def check_correctness(fused_attention, tiles, B=2, H=8):
     """Quick check against the FP32 PyTorch reference before timing (same tolerance as tests/)."""
     import torch
-    from attention.reference import causal_attention_reference
+    from attention.fused.reference import causal_attention_reference
     ok = True
     torch.manual_seed(1)
     for D in (64, 128):
@@ -195,7 +195,7 @@ def measure(args, impls, tiles):
     fused_attention = load_fused(args.kernel)
     unfused_attention = None
     if "unfused" in impls:
-        from attention.unfused import unfused_attention
+        from attention.fused.unfused import unfused_attention
 
     out = []
     torch.manual_seed(0)
@@ -485,7 +485,7 @@ def main():
     p.add_argument("--change", default="", help="what was changed, in words (the code diff is added automatically)")
     p.add_argument("--kernel", default=DEFAULT_KERNEL,
                    help="kernel file to measure, e.g. profiling/kernels/v3_occupancy2_heavyfirst.py "
-                        "(must define fused_attention(q, k, v, tile_m, tile_n)); default attention/fused.py")
+                        "(must define fused_attention(q, k, v, tile_m, tile_n)); default attention/fused/fused.py")
     p.add_argument("--no-check", action="store_true", help="skip the correctness check before timing")
     p.add_argument("--B", type=int, default=2)
     p.add_argument("--H", type=int, default=8)

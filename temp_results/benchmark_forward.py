@@ -2,7 +2,7 @@
 
 Differences from the original:
   --kernel  loads fused_attention from a kernel file (e.g. profiling/kernels/v3_occupancy2.py)
-            instead of attention/fused.py; --tag names the outputs (default: file name)
+            instead of attention/fused/fused.py; --tag names the outputs (default: file name)
   fused speedup vs SDPA (sdpa_ms / fused_ms) added to the per-config CSV, the summary CSV
   and the speedup plot; per-config CSV also gets fused speedup vs unfused.
 Outputs go to temp_results/<tag>/<tile>/ by default.
@@ -10,13 +10,13 @@ Outputs go to temp_results/<tag>/<tile>/ by default.
 import argparse, csv, importlib.util, os, re, statistics, time
 import torch
 import torch.nn.functional as F
-from attention.unfused import unfused_attention
+from attention.fused.unfused import unfused_attention
 
 fused_attention = None  # set in main() from --kernel
 
 
 def load_fused(path):
-    """Import fused_attention from a kernel file without touching attention/fused.py."""
+    """Import fused_attention from a kernel file without touching attention/fused/fused.py."""
     name = "kernel_" + re.sub(r"\W", "_", os.path.splitext(os.path.basename(path))[0])
     spec = importlib.util.spec_from_file_location(name, path)
     mod = importlib.util.module_from_spec(spec)
@@ -169,7 +169,7 @@ def write_plots(rows, path):
 def main():
     global fused_attention
     p = argparse.ArgumentParser()
-    p.add_argument("--kernel", default="attention/fused.py",
+    p.add_argument("--kernel", default="attention/fused/fused.py",
                    help="kernel file with fused_attention, e.g. profiling/kernels/v3_occupancy2.py")
     p.add_argument("--tag", default=None, help="name used in output paths (default: kernel file name)")
     p.add_argument("--B", type=int, default=2)
