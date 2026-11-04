@@ -1,0 +1,13 @@
+run,timestamp,gpu,commit,kernel,note,D,N,B,H,impl,tile_m,tile_n,median_ms,tflops
+1,2026-11-05 00:55,NVIDIA RTX PRO 6000 Blackwell Server Edition,40a1914,attention/gqa/fused_kernels/v0_baseline.py,"gqa/v0: baseline (H_kv=2), no optimizations",64,512,2,8,fused,64,64,0.0184,29.152
+1,2026-11-05 00:55,NVIDIA RTX PRO 6000 Blackwell Server Edition,40a1914,attention/gqa/fused_kernels/v0_baseline.py,"gqa/v0: baseline (H_kv=2), no optimizations",64,512,2,8,sdpa,-,-,0.0227,23.663
+1,2026-11-05 00:55,NVIDIA RTX PRO 6000 Blackwell Server Edition,40a1914,attention/gqa/fused_kernels/v0_baseline.py,"gqa/v0: baseline (H_kv=2), no optimizations",64,2048,2,8,fused,64,64,0.0445,192.842
+1,2026-11-05 00:55,NVIDIA RTX PRO 6000 Blackwell Server Edition,40a1914,attention/gqa/fused_kernels/v0_baseline.py,"gqa/v0: baseline (H_kv=2), no optimizations",64,2048,2,8,sdpa,-,-,0.0844,101.738
+1,2026-11-05 00:55,NVIDIA RTX PRO 6000 Blackwell Server Edition,40a1914,attention/gqa/fused_kernels/v0_baseline.py,"gqa/v0: baseline (H_kv=2), no optimizations",64,8192,2,8,fused,64,64,0.4465,307.795
+1,2026-11-05 00:55,NVIDIA RTX PRO 6000 Blackwell Server Edition,40a1914,attention/gqa/fused_kernels/v0_baseline.py,"gqa/v0: baseline (H_kv=2), no optimizations",64,8192,2,8,sdpa,-,-,0.5511,249.410
+1,2026-11-05 00:55,NVIDIA RTX PRO 6000 Blackwell Server Edition,40a1914,attention/gqa/fused_kernels/v0_baseline.py,"gqa/v0: baseline (H_kv=2), no optimizations",128,512,2,8,fused,64,64,0.0225,47.629
+1,2026-11-05 00:55,NVIDIA RTX PRO 6000 Blackwell Server Edition,40a1914,attention/gqa/fused_kernels/v0_baseline.py,"gqa/v0: baseline (H_kv=2), no optimizations",128,512,2,8,sdpa,-,-,0.0284,37.765
+1,2026-11-05 00:55,NVIDIA RTX PRO 6000 Blackwell Server Edition,40a1914,attention/gqa/fused_kernels/v0_baseline.py,"gqa/v0: baseline (H_kv=2), no optimizations",128,2048,2,8,fused,64,64,0.0739,232.512
+1,2026-11-05 00:55,NVIDIA RTX PRO 6000 Blackwell Server Edition,40a1914,attention/gqa/fused_kernels/v0_baseline.py,"gqa/v0: baseline (H_kv=2), no optimizations",128,2048,2,8,sdpa,-,-,0.1159,148.286
+1,2026-11-05 00:55,NVIDIA RTX PRO 6000 Blackwell Server Edition,40a1914,attention/gqa/fused_kernels/v0_baseline.py,"gqa/v0: baseline (H_kv=2), no optimizations",128,8192,2,8,fused,64,64,0.8031,342.276
+1,2026-11-05 00:55,NVIDIA RTX PRO 6000 Blackwell Server Edition,40a1914,attention/gqa/fused_kernels/v0_baseline.py,"gqa/v0: baseline (H_kv=2), no optimizations",128,8192,2,8,sdpa,-,-,1.0241,268.406
