@@ -1371,7 +1371,7 @@ Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `pro
 
 ## Run 21 — 2026-11-04 17:19 IST
 
-**Note:** v11: v3 + V loaded just before P@V (after the softmax), as in NVIDIA TileGym
+**Note:** v8: v3 + V loaded just before P@V (after the softmax), as in NVIDIA TileGym
 
 ### Why (from profiling)
 
@@ -1385,10 +1385,10 @@ Code diff vs Run 20 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ```diff
 --- Run 20: profiling/kernels/v10_exp2fp16.py
-+++ Run 21: profiling/kernels/v11_vlate.py
++++ Run 21: profiling/kernels/v8_vlate.py
 @@ -1,3 +1,3 @@
 -# v10: v3 + exp2 computed in FP16 for p (p is cast to FP16 for the P@V multiply anyway); row sum added to l in FP32
-+# v11: v3 + V tile loaded just before the P@V multiply (after the softmax) instead of at the top of the loop, as in NVIDIA TileGym attention.py
++# v8: v3 + V tile loaded just before the P@V multiply (after the softmax) instead of at the top of the loop, as in NVIDIA TileGym attention.py
  import math
  import numpy as np
 @@ -35,5 +35,4 @@
@@ -1425,7 +1425,7 @@ Code diff vs Run 20 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v11_vlate.py |
+| Kernel file | profiling/kernels/v8_vlate.py |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |

@@ -15,4 +15,4 @@ in the report. Kept here for the record. Times: fused forward, N=8192, B=2, H=8,
 | `RUNS_18-20.md` | sections "Run 18"–"Run 20" of `profiling/RUNS.md` | the run log entries | |
 | `runs_18-20.csv` | rows of runs 18–20 in `profiling/runs.csv` | the raw timings | |
 
-Run numbers 18–20 are left unused in the main log, so Run 21 (v11) keeps its number.
+Run numbers 18–20 are left unused in the main log, so Run 21 (v8_vlate, formerly v11) keeps its number.
