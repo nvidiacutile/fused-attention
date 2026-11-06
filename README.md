@@ -22,8 +22,7 @@ source .venv/bin/activate
 - `run_attention_gqa.py`: same command-line tool for grouped-query attention: K and V have `H_kv` heads (`H_kv` divides `H`; `H_kv == 1` is MQA, `H_kv == H` is plain multi-head), and the cuTile backend is the GQA kernel.
 - `setup.sh`: one-command environment setup (creates `.venv`, installs requirements, writes `env.txt`).
 - `requirements.txt`: pinned Python packages.
-- `env.txt`: GPU, driver, Python, PyTorch and CUDA versions recorded by `setup.sh`.
-- `remember.md`: short notes on future optimization ideas.
+- `env.txt` (written by `setup.sh`, not committed): GPU, driver, Python, PyTorch and CUDA versions recorded by `setup.sh`.
 
 **`attention/`**: the attention implementations
 - `fused/fused.py`: fused FlashAttention-style cuTile forward kernel with online softmax, configurable query/key tile sizes.
