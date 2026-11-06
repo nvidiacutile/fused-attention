@@ -2,6 +2,15 @@
 
 One section per run, newest at the bottom. Times are IST. Changes compare the same size and tile on the same GPU.
 
+> **Notes on this log**
+> - Runs 18–20 (v8 pipelining, v9 lazy rescaling, v10 FP16 exp2) were removed from this log and are kept in
+>   `archive/removed/RUNS_18-20.md`. Run 21's code diff and "vs previous run" column therefore compare against
+>   Run 20 (v10); compare it with Run 4 (v3) instead, since v8_vlate is a change on top of v3.
+> - Files were reorganised after they were measured: `profiling/kernels/` and `profiling/runs/` became
+>   `1_optimizations/`, `2_rejected/` and `3_tile_study/`, and `v11_vlate.py` was renamed `v8_vlate.py`.
+>   The "Kernel file" links point to the current files; `runs.csv` keeps each path as measured, and
+>   `git show <commit>:<path>` returns the exact measured code.
+
 ## Run 1 — 2026-11-01 01:24 IST
 
 **Note:** v0: baseline, no optimizations
