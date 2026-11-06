@@ -6,7 +6,7 @@
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v0_baseline.py |
+| Kernel file | [profiling/kernels/v0_baseline.py](../../kernels/v0_baseline.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |

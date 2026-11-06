@@ -110,7 +110,7 @@ Code diff vs Run 16 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v7_ksplit.py |
+| Kernel file | [profiling/kernels/rejected_optimization/v7_ksplit.py](../../kernels/rejected_optimization/v7_ksplit.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |

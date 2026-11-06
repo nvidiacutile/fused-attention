@@ -36,7 +36,7 @@ Code diff vs Run 6 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v6_occupancy2latency8.py |
+| Kernel file | [profiling/kernels/rejected_optimization/v6_occupancy2latency8.py](../../kernels/rejected_optimization/v6_occupancy2latency8.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |

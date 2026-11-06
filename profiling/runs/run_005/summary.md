@@ -33,7 +33,7 @@ Code diff vs Run 4 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v4_occupancy3.py |
+| Kernel file | [profiling/kernels/rejected_optimization/v4_occupancy3.py](../../kernels/rejected_optimization/v4_occupancy3.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |

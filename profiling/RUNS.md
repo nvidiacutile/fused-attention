@@ -10,7 +10,7 @@ One section per run, newest at the bottom. Times are IST. Changes compare the sa
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v0_baseline.py |
+| Kernel file | [profiling/kernels/v0_baseline.py](kernels/v0_baseline.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -95,7 +95,7 @@ Code diff vs Run 1 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v1_heavyfirst.py |
+| Kernel file | [profiling/kernels/v1_heavyfirst.py](kernels/v1_heavyfirst.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -205,7 +205,7 @@ Code diff vs Run 2 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v2_fusedInstructions.py |
+| Kernel file | [profiling/kernels/v2_fusedInstructions.py](kernels/v2_fusedInstructions.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -280,7 +280,7 @@ Code diff vs Run 3 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v3_occupancy2.py |
+| Kernel file | [profiling/kernels/v3_occupancy2.py](kernels/v3_occupancy2.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -355,7 +355,7 @@ Code diff vs Run 4 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v4_occupancy3.py |
+| Kernel file | [profiling/kernels/rejected_optimization/v4_occupancy3.py](kernels/rejected_optimization/v4_occupancy3.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -440,7 +440,7 @@ Code diff vs Run 5 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v5_occupancy2latency4.py |
+| Kernel file | [profiling/kernels/rejected_optimization/v5_occupancy2latency4.py](kernels/rejected_optimization/v5_occupancy2latency4.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -518,7 +518,7 @@ Code diff vs Run 6 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v6_occupancy2latency8.py |
+| Kernel file | [profiling/kernels/rejected_optimization/v6_occupancy2latency8.py](kernels/rejected_optimization/v6_occupancy2latency8.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -590,7 +590,7 @@ Code diff vs Run 7 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v3_occupancy2.py |
+| Kernel file | [profiling/kernels/v3_occupancy2.py](kernels/v3_occupancy2.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -677,7 +677,7 @@ Code diff vs Run 8 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v2_fusedInstructions.py |
+| Kernel file | [profiling/kernels/v2_fusedInstructions.py](kernels/v2_fusedInstructions.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -752,7 +752,7 @@ Code diff vs Run 9 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v4_occupancy3.py |
+| Kernel file | [profiling/kernels/rejected_optimization/v4_occupancy3.py](kernels/rejected_optimization/v4_occupancy3.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -821,7 +821,7 @@ Code diff vs Run 10 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v3_occupancy2.py |
+| Kernel file | [profiling/kernels/v3_occupancy2.py](kernels/v3_occupancy2.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -891,7 +891,7 @@ Code diff vs Run 11 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v2_fusedInstructions.py |
+| Kernel file | [profiling/kernels/v2_fusedInstructions.py](kernels/v2_fusedInstructions.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -948,7 +948,7 @@ Code diff vs Run 12 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v2_fusedInstructions.py |
+| Kernel file | [profiling/kernels/v2_fusedInstructions.py](kernels/v2_fusedInstructions.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -1005,7 +1005,7 @@ Code diff vs Run 13 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v2_fusedInstructions.py |
+| Kernel file | [profiling/kernels/v2_fusedInstructions.py](kernels/v2_fusedInstructions.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -1117,7 +1117,7 @@ Code diff vs Run 14 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v0_baseline.py |
+| Kernel file | [profiling/kernels/v0_baseline.py](kernels/v0_baseline.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -1177,7 +1177,7 @@ Code diff vs Run 15 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v0_baseline.py |
+| Kernel file | [profiling/kernels/v0_baseline.py](kernels/v0_baseline.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -1329,7 +1329,7 @@ Code diff vs Run 16 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v7_ksplit.py |
+| Kernel file | [profiling/kernels/rejected_optimization/v7_ksplit.py](kernels/rejected_optimization/v7_ksplit.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -1425,7 +1425,7 @@ Code diff vs Run 20 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v8_vlate.py |
+| Kernel file | [profiling/kernels/rejected_optimization/v8_vlate.py](kernels/rejected_optimization/v8_vlate.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |

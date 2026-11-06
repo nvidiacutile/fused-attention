@@ -68,7 +68,7 @@ Code diff vs Run 2 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | profiling/kernels/v2_fusedInstructions.py |
+| Kernel file | [profiling/kernels/v2_fusedInstructions.py](../../kernels/v2_fusedInstructions.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
