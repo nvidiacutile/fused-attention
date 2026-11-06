@@ -69,7 +69,12 @@ Nsight Compute needs GPU performance counters, which JarvisLabs templates block 
 Use a JarvisLabs **VM** and run with `sudo`.
 
 ```bash
-git clone https://github.com/nvidiacutile/fused-attention.git && cd fused-attention
+sudo apt update && sudo apt install -y python3-venv python3-pip
+git clone https://github.com/nvidiacutile/fused-attention.git      # username: nvidiacutile, password: token
+cd fused-attention
+git config --global user.name "nvidiacutile"
+git config --global user.email "nvidia.cutile@gmail.com"
+git config --global credential.helper store
 bash setup.sh && source .venv/bin/activate
 sudo git config --global --add safe.directory "$PWD"     # lets track_run read the commit under sudo
 ```
