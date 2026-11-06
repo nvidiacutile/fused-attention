@@ -1,1 +1,1 @@
-"""Fused forward kernel versions v0-v3, copied from profiling/kernels/."""
+"""Fused forward kernel versions v0-v3, copied from profiling/1_optimizations/."""

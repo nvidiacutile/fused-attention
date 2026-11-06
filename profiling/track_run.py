@@ -5,14 +5,16 @@ compares against the previous run and the first run on the same GPU, and saves:
 
     profiling/runs.csv          every measurement of every run (machine-readable)
     profiling/RUNS.md           one section per run: heading, environment, results table
-    profiling/runs/run_NNN/     env.json, the run's own table, and Nsight Compute files (--ncu)
+    <kernel folder>/run_NNN/    env.json, the run's own table, and Nsight Compute files (--ncu);
+                                the folder of --kernel (e.g. profiling/2_rejected/v9_x/run_NNN/),
+                                or --out-dir, or profiling/runs/ for the default kernel
 
 Usage (from the repo root, .venv active):
 
     python -m profiling.track_run --note "fused v1, no optimizations"
     python -m profiling.track_run --note "exp2 + scale Q once" --ncu
     python -m profiling.track_run --tiles 64x64,128x128 --note "tile sweep"
-    python -m profiling.track_run --kernel profiling/kernels/v3_occupancy2_heavyfirst.py --ncu \
+    python -m profiling.track_run --kernel profiling/1_optimizations/v3_occupancy2/v3_occupancy2.py --ncu \
         --note "v3: heavy-first" --reason "..." --change "..."
     python -m profiling.track_run --ncu --note "occupancy=2" \
         --reason "Run 2 ncu: 255 registers/thread -> 1 block/SM, 12% occupancy, no warp ready 67% of cycles" \
@@ -21,7 +23,7 @@ Usage (from the repo root, .venv active):
 --kernel picks the file to measure (default attention/fused/fused.py). Before timing, the kernel is
 checked against the FP32 reference (D 64/128, N 512/2048, normal and large scores); a failing
 kernel is not recorded. The diff between the previous run's kernel and this one is added
-automatically, and the measured file is copied to runs/run_NNN/kernel_measured.py.
+automatically; the exact measured file is recoverable with `git show <commit>:<kernel path>`.
 
 Record an earlier benchmark CSV (e.g. results/bench_forward.csv) as a run without re-running:
 
@@ -117,6 +119,17 @@ def read_runs():
         return []
     with open(RUNS_CSV) as f:
         return list(csv.DictReader(f))
+
+
+def run_dir_for(run, kernel=None, out_dir=None):
+    """Folder for a run: --out-dir, else the folder of a kernel inside profiling/, else profiling/runs/."""
+    if out_dir:
+        base = out_dir
+    elif kernel and kernel != DEFAULT_KERNEL and os.path.abspath(kernel).startswith(HERE + os.sep):
+        base = os.path.dirname(os.path.abspath(kernel))
+    else:
+        base = RUNS_DIR
+    return os.path.join(base, f"run_{run:03d}")
 
 
 def next_run_number(rows):
@@ -432,8 +445,8 @@ def build_markdown(run, ts, env, note, rows, history, ncu, reason="", change_txt
     return "\n".join(L)
 
 
-def append_results(run, ts, env, note, rows, history, ncu, reason="", change_txt="", diff=None):
-    run_dir = os.path.join(RUNS_DIR, f"run_{run:03d}")
+def append_results(run, ts, env, note, rows, history, ncu, reason="", change_txt="", diff=None, run_dir=None):
+    run_dir = run_dir or run_dir_for(run)
     os.makedirs(run_dir, exist_ok=True)
     md = build_markdown(run, ts, env, note, rows, history, ncu, reason, change_txt, diff)
     if diff and diff[1]:
@@ -458,9 +471,6 @@ def append_results(run, ts, env, note, rows, history, ncu, reason="", change_txt
         for r in rows:
             w.writerow(dict(run=run, timestamp=ts, gpu=env["gpu"], commit=env.get("commit", ""),
                             kernel=env.get("kernel", ""), note=note, **r))
-    if env.get("kernel") and os.path.exists(env["kernel"]):
-        import shutil
-        shutil.copy(env["kernel"], os.path.join(run_dir, "kernel_measured.py"))
 
     if not os.path.exists(RUNS_MD):
         with open(RUNS_MD, "w") as f:
@@ -484,8 +494,10 @@ def main():
     p.add_argument("--reason", default="", help="why this change was made (cite the profile, e.g. 'Run 2 ncu: 255 regs -> 1 block/SM')")
     p.add_argument("--change", default="", help="what was changed, in words (the code diff is added automatically)")
     p.add_argument("--kernel", default=DEFAULT_KERNEL,
-                   help="kernel file to measure, e.g. profiling/kernels/v3_occupancy2_heavyfirst.py "
+                   help="kernel file to measure, e.g. profiling/2_rejected/v9_x/v9_x.py "
                         "(must define fused_attention(q, k, v, tile_m, tile_n)); default attention/fused/fused.py")
+    p.add_argument("--out-dir", default="",
+                   help="folder to store the run in (default: the kernel's folder), e.g. profiling/3_tile_study")
     p.add_argument("--no-check", action="store_true", help="skip the correctness check before timing")
     p.add_argument("--B", type=int, default=2)
     p.add_argument("--H", type=int, default=8)
@@ -537,13 +549,13 @@ def main():
     print(f"Run {run} — {ts} IST — {env['gpu']} — commit {env['commit']}\n")
     impls = ["fused", "sdpa"] + (["unfused"] if args.with_unfused else [])
     rows = measure(args, impls, parse_tiles(args.tiles))
+    run_dir = run_dir_for(run, args.kernel, args.out_dir)
     ncu = None
     if args.ncu:
-        run_dir = os.path.join(RUNS_DIR, f"run_{run:03d}")
         os.makedirs(run_dir, exist_ok=True)
         ncu = run_ncu(args, run_dir)
     diff = code_diff(history, env["gpu"], run, args.kernel)
-    append_results(run, ts, env, args.note, rows, history, ncu, args.reason, args.change, diff)
+    append_results(run, ts, env, args.note, rows, history, ncu, args.reason, args.change, diff, run_dir)
 
 
 if __name__ == "__main__":

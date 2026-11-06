@@ -10,7 +10,7 @@ One section per run, newest at the bottom. Times are IST. Changes compare the sa
 
 | Environment | |
 |---|---|
-| Kernel file | [profiling/kernels/v0_baseline.py](kernels/v0_baseline.py) |
+| Kernel file | [profiling/1_optimizations/v0_baseline/v0_baseline.py](1_optimizations/v0_baseline/v0_baseline.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -40,7 +40,7 @@ _First run on this GPU: it is the baseline for later runs._
 
 ### Nsight Compute
 
-Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/runs/run_001/fused_d64_n8192_64x64.ncu-rep`
+Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/1_optimizations/v0_baseline/run_001/fused_d64_n8192_64x64.ncu-rep`
 
 | Metric | Value |
 |---|---|
@@ -95,7 +95,7 @@ Code diff vs Run 1 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | [profiling/kernels/v1_heavyfirst.py](kernels/v1_heavyfirst.py) |
+| Kernel file | [profiling/1_optimizations/v1_heavyfirst/v1_heavyfirst.py](1_optimizations/v1_heavyfirst/v1_heavyfirst.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -123,7 +123,7 @@ Code diff vs Run 1 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Nsight Compute
 
-Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/runs/run_002/fused_d64_n8192_64x64.ncu-rep`
+Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/1_optimizations/v1_heavyfirst/run_002/fused_d64_n8192_64x64.ncu-rep`
 
 | Metric | Value |
 |---|---|
@@ -205,7 +205,7 @@ Code diff vs Run 2 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | [profiling/kernels/v2_fusedInstructions.py](kernels/v2_fusedInstructions.py) |
+| Kernel file | [profiling/1_optimizations/v2_fusedInstructions/v2_fusedInstructions.py](1_optimizations/v2_fusedInstructions/v2_fusedInstructions.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -233,7 +233,7 @@ Code diff vs Run 2 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Nsight Compute
 
-Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/runs/run_003/fused_d64_n8192_64x64.ncu-rep`
+Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/1_optimizations/v2_fusedInstructions/run_003/fused_d64_n8192_64x64.ncu-rep`
 
 | Metric | Value |
 |---|---|
@@ -280,7 +280,7 @@ Code diff vs Run 3 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | [profiling/kernels/v3_occupancy2.py](kernels/v3_occupancy2.py) |
+| Kernel file | [profiling/1_optimizations/v3_occupancy2/v3_occupancy2.py](1_optimizations/v3_occupancy2/v3_occupancy2.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -308,7 +308,7 @@ Code diff vs Run 3 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Nsight Compute
 
-Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/runs/run_004/fused_d64_n8192_64x64.ncu-rep`
+Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/1_optimizations/v3_occupancy2/run_004/fused_d64_n8192_64x64.ncu-rep`
 
 | Metric | Value |
 |---|---|
@@ -355,7 +355,7 @@ Code diff vs Run 4 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | [profiling/kernels/rejected_optimization/v4_occupancy3.py](kernels/rejected_optimization/v4_occupancy3.py) |
+| Kernel file | [profiling/2_rejected/v4_occupancy3/v4_occupancy3.py](2_rejected/v4_occupancy3/v4_occupancy3.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -383,7 +383,7 @@ Code diff vs Run 4 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Nsight Compute
 
-Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/runs/run_005/fused_d64_n8192_64x64.ncu-rep`
+Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/2_rejected/v4_occupancy3/run_005/fused_d64_n8192_64x64.ncu-rep`
 
 | Metric | Value |
 |---|---|
@@ -440,7 +440,7 @@ Code diff vs Run 5 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | [profiling/kernels/rejected_optimization/v5_occupancy2latency4.py](kernels/rejected_optimization/v5_occupancy2latency4.py) |
+| Kernel file | [profiling/2_rejected/v5_occupancy2latency4/v5_occupancy2latency4.py](2_rejected/v5_occupancy2latency4/v5_occupancy2latency4.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -468,7 +468,7 @@ Code diff vs Run 5 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Nsight Compute
 
-Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/runs/run_006/fused_d64_n8192_64x64.ncu-rep`
+Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/2_rejected/v5_occupancy2latency4/run_006/fused_d64_n8192_64x64.ncu-rep`
 
 | Metric | Value |
 |---|---|
@@ -518,7 +518,7 @@ Code diff vs Run 6 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | [profiling/kernels/rejected_optimization/v6_occupancy2latency8.py](kernels/rejected_optimization/v6_occupancy2latency8.py) |
+| Kernel file | [profiling/2_rejected/v6_occupancy2latency8/v6_occupancy2latency8.py](2_rejected/v6_occupancy2latency8/v6_occupancy2latency8.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -546,7 +546,7 @@ Code diff vs Run 6 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Nsight Compute
 
-Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/runs/run_007/fused_d64_n8192_64x64.ncu-rep`
+Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/2_rejected/v6_occupancy2latency8/run_007/fused_d64_n8192_64x64.ncu-rep`
 
 | Metric | Value |
 |---|---|
@@ -590,7 +590,7 @@ Code diff vs Run 7 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | [profiling/kernels/v3_occupancy2.py](kernels/v3_occupancy2.py) |
+| Kernel file | [profiling/1_optimizations/v3_occupancy2/v3_occupancy2.py](1_optimizations/v3_occupancy2/v3_occupancy2.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -677,7 +677,7 @@ Code diff vs Run 8 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | [profiling/kernels/v2_fusedInstructions.py](kernels/v2_fusedInstructions.py) |
+| Kernel file | [profiling/1_optimizations/v2_fusedInstructions/v2_fusedInstructions.py](1_optimizations/v2_fusedInstructions/v2_fusedInstructions.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -752,7 +752,7 @@ Code diff vs Run 9 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | [profiling/kernels/rejected_optimization/v4_occupancy3.py](kernels/rejected_optimization/v4_occupancy3.py) |
+| Kernel file | [profiling/2_rejected/v4_occupancy3/v4_occupancy3.py](2_rejected/v4_occupancy3/v4_occupancy3.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -821,7 +821,7 @@ Code diff vs Run 10 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | [profiling/kernels/v3_occupancy2.py](kernels/v3_occupancy2.py) |
+| Kernel file | [profiling/1_optimizations/v3_occupancy2/v3_occupancy2.py](1_optimizations/v3_occupancy2/v3_occupancy2.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -844,7 +844,7 @@ Code diff vs Run 10 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Nsight Compute
 
-Kernel: fused, D=128, N=8192, tile 128x64. Command: `ncu --set full`. Report: `profiling/runs/run_011/fused_d128_n8192_128x64.ncu-rep`
+Kernel: fused, D=128, N=8192, tile 128x64. Command: `ncu --set full`. Report: `profiling/3_tile_study/run_011_v3_128x64_d128/fused_d128_n8192_128x64.ncu-rep`
 
 | Metric | Value |
 |---|---|
@@ -891,7 +891,7 @@ Code diff vs Run 11 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | [profiling/kernels/v2_fusedInstructions.py](kernels/v2_fusedInstructions.py) |
+| Kernel file | [profiling/1_optimizations/v2_fusedInstructions/v2_fusedInstructions.py](1_optimizations/v2_fusedInstructions/v2_fusedInstructions.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -914,7 +914,7 @@ Code diff vs Run 11 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Nsight Compute
 
-Kernel: fused, D=128, N=8192, tile 128x128. Command: `ncu --set full`. Report: `profiling/runs/run_012/fused_d128_n8192_128x128.ncu-rep`
+Kernel: fused, D=128, N=8192, tile 128x128. Command: `ncu --set full`. Report: `profiling/3_tile_study/run_012_v2_128x128_d128/fused_d128_n8192_128x128.ncu-rep`
 
 | Metric | Value |
 |---|---|
@@ -948,7 +948,7 @@ Code diff vs Run 12 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | [profiling/kernels/v2_fusedInstructions.py](kernels/v2_fusedInstructions.py) |
+| Kernel file | [profiling/1_optimizations/v2_fusedInstructions/v2_fusedInstructions.py](1_optimizations/v2_fusedInstructions/v2_fusedInstructions.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -971,7 +971,7 @@ Code diff vs Run 12 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Nsight Compute
 
-Kernel: fused, D=128, N=8192, tile 128x64. Command: `ncu --set full`. Report: `profiling/runs/run_013/fused_d128_n8192_128x64.ncu-rep`
+Kernel: fused, D=128, N=8192, tile 128x64. Command: `ncu --set full`. Report: `profiling/3_tile_study/run_013_v2_128x64_d128/fused_d128_n8192_128x64.ncu-rep`
 
 | Metric | Value |
 |---|---|
@@ -1005,7 +1005,7 @@ Code diff vs Run 13 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | [profiling/kernels/v2_fusedInstructions.py](kernels/v2_fusedInstructions.py) |
+| Kernel file | [profiling/1_optimizations/v2_fusedInstructions/v2_fusedInstructions.py](1_optimizations/v2_fusedInstructions/v2_fusedInstructions.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -1028,7 +1028,7 @@ Code diff vs Run 13 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Nsight Compute
 
-Kernel: fused, D=128, N=8192, tile 64x128. Command: `ncu --set full`. Report: `profiling/runs/run_014/fused_d128_n8192_64x128.ncu-rep`
+Kernel: fused, D=128, N=8192, tile 64x128. Command: `ncu --set full`. Report: `profiling/3_tile_study/run_014_v2_64x128_d128/fused_d128_n8192_64x128.ncu-rep`
 
 | Metric | Value |
 |---|---|
@@ -1117,7 +1117,7 @@ Code diff vs Run 14 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | [profiling/kernels/v0_baseline.py](kernels/v0_baseline.py) |
+| Kernel file | [profiling/1_optimizations/v0_baseline/v0_baseline.py](1_optimizations/v0_baseline/v0_baseline.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -1145,7 +1145,7 @@ Code diff vs Run 14 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Nsight Compute
 
-Kernel: fused, D=64, N=8192, tile 32x64. Command: `ncu --set full`. Report: `profiling/runs/run_015/fused_d64_n8192_32x64.ncu-rep`
+Kernel: fused, D=64, N=8192, tile 32x64. Command: `ncu --set full`. Report: `profiling/3_tile_study/run_015_v0_32x64/fused_d64_n8192_32x64.ncu-rep`
 
 | Metric | Value |
 |---|---|
@@ -1177,7 +1177,7 @@ Code diff vs Run 15 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | [profiling/kernels/v0_baseline.py](kernels/v0_baseline.py) |
+| Kernel file | [profiling/1_optimizations/v0_baseline/v0_baseline.py](1_optimizations/v0_baseline/v0_baseline.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -1205,7 +1205,7 @@ Code diff vs Run 15 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Nsight Compute
 
-Kernel: fused, D=64, N=8192, tile 128x128. Command: `ncu --set full`. Report: `profiling/runs/run_016/fused_d64_n8192_128x128.ncu-rep`
+Kernel: fused, D=64, N=8192, tile 128x128. Command: `ncu --set full`. Report: `profiling/3_tile_study/run_016_v0_128x128/fused_d64_n8192_128x128.ncu-rep`
 
 | Metric | Value |
 |---|---|
@@ -1329,7 +1329,7 @@ Code diff vs Run 16 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | [profiling/kernels/rejected_optimization/v7_ksplit.py](kernels/rejected_optimization/v7_ksplit.py) |
+| Kernel file | [profiling/2_rejected/v7_ksplit/v7_ksplit.py](2_rejected/v7_ksplit/v7_ksplit.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -1357,7 +1357,7 @@ Code diff vs Run 16 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Nsight Compute
 
-Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/runs/run_017/fused_d64_n8192_64x64.ncu-rep`
+Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/2_rejected/v7_ksplit/run_017/fused_d64_n8192_64x64.ncu-rep`
 
 | Metric | Value |
 |---|---|
@@ -1425,7 +1425,7 @@ Code diff vs Run 20 (hunk headers `@@ -old,+new @@` give line numbers):
 
 | Environment | |
 |---|---|
-| Kernel file | [profiling/kernels/rejected_optimization/v8_vlate.py](kernels/rejected_optimization/v8_vlate.py) |
+| Kernel file | [profiling/2_rejected/v8_vlate/v8_vlate.py](2_rejected/v8_vlate/v8_vlate.py) |
 | GPU | NVIDIA RTX PRO 6000 Blackwell Server Edition |
 | Compute capability | 12.0 |
 | GPU memory (GB) | 95.0 |
@@ -1453,7 +1453,7 @@ Code diff vs Run 20 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Nsight Compute
 
-Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/runs/run_021/fused_d64_n8192_64x64.ncu-rep`
+Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/2_rejected/v8_vlate/run_021/fused_d64_n8192_64x64.ncu-rep`
 
 | Metric | Value |
 |---|---|
