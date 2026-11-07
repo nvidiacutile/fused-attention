@@ -21,8 +21,7 @@ The final kernel is **v3** (`1_optimizations/v3_occupancy2/`), which is also the
 - [track_run options](#track_run-options)
 - [What track_run does](#what-track_run-does)
 - [Outputs](#outputs)
-- [Reading an Nsight report](#reading-an-nsight-report)
-- [Troubleshooting](#troubleshooting)
+
 
 ## Contents
 
@@ -257,36 +256,3 @@ now labelled R1–R3. `runs.csv` keeps each kernel path as it was when measured,
 
 The `.ncu-rep` files of Runs 12 and 13 are very large and are excluded in `.gitignore`; their text exports are
 included.
-
-## Reading an Nsight report
-
-Open the `.ncu-rep` file in the Nsight Compute desktop app (free from NVIDIA), or read the `_details.txt` export.
-
-| Section | Look at | Tells you |
-|---|---|---|
-| GPU Speed Of Light | Compute (SM) %, Memory %, Duration | whether the kernel is compute-bound, memory-bound or latency-bound |
-| Launch Statistics | Registers Per Thread, Block Size, Shared Memory | the resources each block uses |
-| Occupancy | Theoretical / Achieved Occupancy, Block Limit Registers / Shared Mem | how many blocks fit per SM, and what limits it (the smallest limit) |
-| Scheduler Statistics | No Eligible %, Active / Eligible Warps | how often no warp is ready to issue |
-| Warp State Statistics | stall reasons (cycles per issued instruction) | why warps are waiting |
-| Compute Workload Analysis | pipe utilization (Tensor, FMA, XU/MUFU) | which unit is the busiest |
-| Memory Workload Analysis | Local Memory Spilling Requests, L1/L2 hit rates | register spills and cache reuse |
-| Source (app only) | SASS with per-instruction stall samples | which instruction the warps stall on |
-
-The `OPT` lines are NVIDIA's suggestions with an estimated speedup. The estimates are upper bounds, and they do
-not add up.
-
-## Troubleshooting
-
-| Problem | Fix |
-|---|---|
-| `setup.sh: .venv/bin/activate: No such file or directory` | `python3-venv` was missing: `rm -rf .venv && sudo apt install -y python3-venv && bash setup.sh` |
-| `git clone` / `git pull` asks for a username | the repo is private: username `nvidiacutile`, password = a GitHub token |
-| `ERR_NVGPUCTRPERM` | run with `sudo env "PATH=$PATH" ...`, on a VM, not a template |
-| `ncu: command not found` under sudo | keep `env "PATH=$PATH"` in the command; check `which ncu` without sudo |
-| `Git commit: unknown` in a run | `sudo git config --global --add safe.directory "$PWD"` |
-| `correctness check FAILED` | the kernel is wrong for some case; fix it before measuring (nothing was recorded) |
-| `No kernels were profiled` | the kernel name did not match `--ncu-kernel` (default `fused`) |
-| git permission errors after a run | `sudo chown -R ubuntu:ubuntu ~/fused-attention` |
-| `git push` rejected | `git pull --rebase`, then `git push` |
-| `cannot pull with rebase: You have unstaged changes` | commit first, or `git stash`, then `git pull --rebase`, then `git stash pop` |
