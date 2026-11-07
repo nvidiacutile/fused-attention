@@ -67,7 +67,7 @@ def main():
     p.add_argument("--tile-n", type=int, default=64)
     p.add_argument("--rtol", type=float, default=2e-2)
     p.add_argument("--no-bench", action="store_true")
-    p.add_argument("--out", default=None, help="CSV (default: temp_results/backward/backward_<tile>.csv)")
+    p.add_argument("--out", default=None, help="CSV (default: results/correctness/backward/backward_<tile>.csv)")
     a = p.parse_args()
     tm, tn = a.tile_m, a.tile_n
     fused = lambda q, k, v: fused_attention_autograd(q, k, v, tm, tn)
@@ -107,7 +107,7 @@ def main():
                              f"{s_ms / f_ms:.3f}"])
                 torch.cuda.empty_cache()
 
-    out = a.out or f"temp_results/backward/backward_{tm}x{tn}.csv"
+    out = a.out or os.path.join(REPO_ROOT, "results", "correctness", "backward", f"backward_{tm}x{tn}.csv")
     os.makedirs(os.path.dirname(out), exist_ok=True)
     with open(out, "w", newline="") as f:
         w = csv.writer(f)

@@ -3,7 +3,7 @@
 --kernel loads fused_attention from any kernel file instead of attention/fused/fused.py,
 e.g. attention/fused/fused_kernels/v3_occupancy2.py; --tag names the outputs
 (default: kernel file name). The per-config CSV, summary CSV and plots carry fused
-speedup vs unfused and vs SDPA. Outputs go to results/benchmark/<tag>/<tile>/ by default.
+speedup vs unfused and vs SDPA. Outputs go to results/benchmarks/fused/<tag>/<tile>/ by default.
 """
 import argparse, csv, importlib.util, os, re, statistics, sys, time
 import torch
@@ -168,7 +168,7 @@ def write_plots(rows, path):
 def main():
     global fused_attention
     p = argparse.ArgumentParser()
-    p.add_argument("--kernel", default="attention/fused/fused.py",
+    p.add_argument("--kernel", default="attention/fused/fused_kernels/v3_occupancy2.py",
                    help="kernel file with fused_attention, e.g. attention/fused/fused_kernels/v3_occupancy2.py")
     p.add_argument("--tag", default=None, help="name used in output paths (default: kernel file name)")
     p.add_argument("--B", type=int, default=2)
@@ -177,19 +177,19 @@ def main():
     p.add_argument("--tile-n", type=int, default=64)
     p.add_argument("--impls", default="fused,unfused,sdpa")
     p.add_argument("--out", default=None,
-                   help="per-config CSV (default: results/benchmark/<tag>/<tile>/bench_forward_sep_<tag>_<tile>.csv)")
+                   help="per-config CSV (default: results/benchmarks/fused/<tag>/<tile>/bench_forward_sep_<tag>_<tile>.csv)")
     p.add_argument("--summary-out", default=None,
                    help="aggregate CSV: averages per N / per D and fused-vs-unfused speedup "
-                        "(default: results/benchmark/<tag>/<tile>/bench_forward_agg_<tag>_<tile>.csv)")
+                        "(default: results/benchmarks/fused/<tag>/<tile>/bench_forward_agg_<tag>_<tile>.csv)")
     p.add_argument("--plot-out", default=None,
                    help="6-panel PNG: latency/throughput/speedup vs N per D "
-                        "(default: results/benchmark/<tag>/<tile>/bench_forward_plots_<tag>_<tile>.png)")
+                        "(default: results/benchmarks/fused/<tag>/<tile>/bench_forward_plots_<tag>_<tile>.png)")
     args = p.parse_args()
 
     fused_attention = load_fused(args.kernel)
     tag = args.tag or os.path.splitext(os.path.basename(args.kernel))[0]
     tile = f"{args.tile_m}x{args.tile_n}"
-    base = f"results/benchmark/{tag}/{tile}"
+    base = f"results/benchmarks/fused/{tag}/{tile}"
     gpu = torch.cuda.get_device_name()
     print(f"kernel={args.kernel}  tag={tag}  tile={tile}  gpu={gpu}")
     args.out = args.out or f"{base}/bench_forward_sep_{tag}_{tile}.csv"

@@ -1,8 +1,8 @@
 """Benchmark the fused cuTile backward pass against naive PyTorch and PyTorch SDPA.
 
 Run from the repo root:
-    python -m temp_results.benchmark_backward                    # tile 64x64, all configs
-    python -m temp_results.benchmark_backward --tile-m 64 --tile-n 128
+    python -m benchmarks.benchmark_backward                    # tile 64x64, all configs
+    python -m benchmarks.benchmark_backward --tile-m 64 --tile-n 128
 
 Implementations (all causal, FP16 inputs, autograd backward):
   fused  attention.backward.fused_backward.fused_attention_autograd (cuTile forward + recompute backward)
@@ -17,13 +17,14 @@ Per config it measures (median of CUDA-event timings):
   peak_mem_mb   peak extra GPU memory during forward + backward, beyond the inputs and dO
   tflops        fwd+bwd TFLOP/s, counting causal FLOPs: fwd = 2 matmuls, bwd = 2.5 x fwd
                 (standard FlashAttention convention; recomputation not counted)
-Writes temp_results/backward/bench_backward_<tile>.csv and .md (tables incl. speedups).
+Writes results/benchmarks/backward/bench_backward_<tile>.csv and .md (tables incl. speedups).
 """
-import argparse, csv, math, os, statistics
+import argparse, csv, math, os, statistics, sys
 
 import torch
 import torch.nn.functional as F
 
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # repo root
 from attention.backward.fused_backward import fused_attention_autograd
 
 
@@ -107,7 +108,7 @@ def main():
     p.add_argument("--impls", default="fused,naive,sdpa")
     p.add_argument("--warmup", type=int, default=5)
     p.add_argument("--reps", type=int, default=20)
-    p.add_argument("--out-dir", default="temp_results/backward")
+    p.add_argument("--out-dir", default="results/benchmarks/backward")
     a = p.parse_args()
 
     tm, tn = a.tile_m, a.tile_n

@@ -45,7 +45,11 @@ def parse_args(argv=None):
     p.add_argument("--block-m", type=int, default=64, help="query tile size (default 64)")
     p.add_argument("--block-n", type=int, default=64, help="key tile size (default 64)")
     p.add_argument("--filter", default="", help="only run cases whose id contains this text")
-    p.add_argument("--csv", default=None, help="results CSV (default results/correctness_<impl>.csv)")
+    p.add_argument("--kernel", default=DEFAULT_KERNEL,
+                   help=f"kernel file for --impl fused (default {DEFAULT_KERNEL})")
+    p.add_argument("--tag", default=None,
+                   help="version name used in the default CSV path (default: kernel file name)")
+    p.add_argument("--csv", default=None, help="results CSV (default results/correctness/<impl>/correctness_<impl>.csv; for --impl fused results/correctness/fused/<tag>/<tile>/correctness_fused_<tag>_<tile>.csv)")
     p.add_argument("--device", default="cuda", help=argparse.SUPPRESS)  # cpu only for harness self-tests
     return p.parse_args(argv)
 
@@ -97,13 +101,45 @@ def run_case(case, kernel_fn, reference_fn, args):
     return compare(out, ref) + (seconds,)
 
 
+DEFAULT_KERNEL = "attention/fused/fused_kernels/v3_occupancy2.py"  # same code as attention/fused/fused.py
+
+
+def load_kernel_file(path, fn_name):
+    """Import fn_name from a kernel file (path relative to the cwd or the repo root)."""
+    import importlib.util
+    if not os.path.isabs(path) and not os.path.exists(path):
+        path = os.path.join(REPO_ROOT, path)
+    if not os.path.exists(path):
+        raise ImportError(f"kernel file not found: {path}")
+    name = "kernel_" + os.path.splitext(os.path.basename(path))[0].replace("-", "_").replace("+", "_")
+    spec = importlib.util.spec_from_file_location(name, path)
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[name] = mod
+    spec.loader.exec_module(mod)
+    fn = getattr(mod, fn_name, None)
+    if fn is None:
+        raise ImportError(f"{path} does not define {fn_name}()")
+    return fn
+
+
+def default_csv_path(args):
+    """results/correctness/<impl>/correctness_<impl>.csv, or for --impl fused
+    results/correctness/fused/<tag>/<tile>/correctness_fused_<tag>_<tile>.csv"""
+    base = os.path.join(REPO_ROOT, "results", "correctness")
+    if args.impl != "fused":
+        return os.path.join(base, args.impl, f"correctness_{args.impl}.csv")
+    tag = args.tag or os.path.splitext(os.path.basename(args.kernel))[0]
+    tile = f"{args.block_m}x{args.block_n}"
+    return os.path.join(base, "fused", tag, tile, f"correctness_fused_{tag}_{tile}.csv")
+
+
 def main(argv=None) -> int:
     args = parse_args(argv)
     if args.device == "cuda" and not torch.cuda.is_available():
         print("error: no CUDA GPU visible to PyTorch", file=sys.stderr)
         return 2
     try:
-        kernel_fn = get_backend(IMPL_TO_BACKEND[args.impl])
+        kernel_fn = (load_kernel_file(args.kernel, "fused_attention") if args.impl == "fused" else get_backend(IMPL_TO_BACKEND[args.impl]))
         reference_backend = get_backend("reference")
         reference_fn = lambda q, k, v: reference_backend(q, k, v, None, None)  # noqa: E731
     except (ImportError, NotImplementedError) as e:
@@ -115,7 +151,7 @@ def main(argv=None) -> int:
         print(f"error: no cases match --filter {args.filter!r}", file=sys.stderr)
         return 2
 
-    csv_path = args.csv or os.path.join(REPO_ROOT, "results", f"correctness_{args.impl}.csv")
+    csv_path = args.csv or default_csv_path(args)
     os.makedirs(os.path.dirname(csv_path), exist_ok=True)
     gpu = torch.cuda.get_device_name() if args.device == "cuda" else "cpu"
     print(f"impl={args.impl}  tiles={args.block_m}x{args.block_n}  device={gpu}  "

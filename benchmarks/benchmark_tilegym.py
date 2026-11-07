@@ -8,10 +8,10 @@ Speedups are latency ratios (>1 = the first-named impl is faster):
     ours vs SDPA    = sdpa_ms / ours_ms
     TileGym vs SDPA = sdpa_ms / tilegym_ms
 Writes a per-config CSV, an aggregate CSV (per N / per D / overall) and a 6-panel plot to --out-dir
-(default: results/benchmark/tilegym_<tag>/64x64/, <tag> = kernel file name).
+(default: results/benchmarks/fused/tilegym/; file names carry <tag> = kernel file name).
 
     python benchmarks/benchmark_tilegym.py
-    python benchmarks/benchmark_tilegym.py --out-dir results/benchmark/my_tilegym_run
+    python benchmarks/benchmark_tilegym.py --out-dir results/benchmarks/my_tilegym_run
     python benchmarks/benchmark_tilegym.py --kernel attention/fused/fused_kernels/v0_baseline.py
 """
 import argparse, csv, importlib.util, math, os, re, statistics, sys, time
@@ -171,7 +171,7 @@ def main():
     p.add_argument("--kernel", default="attention/fused/fused_kernels/v3_occupancy2.py",
                    help="our kernel file with fused_attention (default: v3_occupancy2, the best version)")
     p.add_argument("--tag", default=None, help="name used in output file names (default: kernel file name)")
-    p.add_argument("--out-dir", default=None, help="output folder (default: results/benchmark/tilegym_<tag>/64x64)")
+    p.add_argument("--out-dir", default=None, help="output folder (default: results/benchmarks/fused/tilegym)")
     p.add_argument("--B", type=int, default=2)
     p.add_argument("--H", type=int, default=8)
     args = p.parse_args()
@@ -181,7 +181,7 @@ def main():
     ours = load_fused(args.kernel)
     tag = args.tag or os.path.splitext(os.path.basename(args.kernel))[0]
     tile = f"{TILE_M}x{TILE_N}"
-    out_dir = args.out_dir or f"results/benchmark/tilegym_{tag}/{tile}"
+    out_dir = args.out_dir or "results/benchmarks/fused/tilegym"
     os.makedirs(out_dir, exist_ok=True)
     sep_path = os.path.join(out_dir, f"bench_tilegym_sep_{tag}_{tile}.csv")
     agg_path = os.path.join(out_dir, f"bench_tilegym_agg_{tag}_{tile}.csv")

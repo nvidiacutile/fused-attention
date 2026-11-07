@@ -6,31 +6,31 @@
 Each run times fused (and SDPA, optionally unfused) on a fixed set of sizes,
 compares against the previous run and the first run on the same GPU, and saves:
 
-    profiling/runs.csv          every measurement of every run (machine-readable)
-    profiling/RUNS.md           one section per run: heading, environment, results table
+    gqa_profiling/runs.csv          every measurement of every run (machine-readable)
+    gqa_profiling/RUNS.md           one section per run: heading, environment, results table
     <kernel folder>/run_NNN/    env.json, the run's own table, and Nsight Compute files (--ncu);
                                 the folder of --kernel (e.g. gqa_profiling/2_rejected/v9_x/run_NNN/),
                                 or --out-dir, or gqa_profiling/runs/ for the default kernel
 
 Usage (from the repo root, .venv active):
 
-    python -m profiling.track_run --note "fused v1, no optimizations"
-    python -m profiling.track_run --note "exp2 + scale Q once" --ncu
-    python -m profiling.track_run --tiles 64x64,128x128 --note "tile sweep"
-    python -m profiling.track_run --kernel gqa_profiling/1_optimizations/v0_baseline/v0_baseline.py --ncu \
+    python -m gqa_profiling.track_run --note "fused v1, no optimizations"
+    python -m gqa_profiling.track_run --note "exp2 + scale Q once" --ncu
+    python -m gqa_profiling.track_run --tiles 64x64,128x128 --note "tile sweep"
+    python -m gqa_profiling.track_run --kernel gqa_profiling/1_optimizations/v0_baseline/v0_baseline.py --ncu \
         --note "v3: heavy-first" --reason "..." --change "..."
-    python -m profiling.track_run --ncu --note "occupancy=2" \
+    python -m gqa_profiling.track_run --ncu --note "occupancy=2" \
         --reason "Run 2 ncu: 255 registers/thread -> 1 block/SM, 12% occupancy, no warp ready 67% of cycles" \
         --change "Added occupancy=2 hint to @ct.kernel in attention/fused/fused.py"
 
---kernel picks the file to measure (default attention/fused/fused.py). Before timing, the kernel is
+--kernel picks the file to measure (default attention/gqa/fused_gqa.py). Before timing, the kernel is
 checked against the FP32 reference (D 64/128, N 512/2048, normal and large scores); a failing
 kernel is not recorded. The diff between the previous run's kernel and this one is added
 automatically; the exact measured file is recoverable with `git show <commit>:<kernel path>`.
 
 Record an earlier benchmark CSV (e.g. results/bench_forward.csv) as a run without re-running:
 
-    python -m profiling.track_run --import-csv results/bench_forward.csv \
+    python -m gqa_profiling.track_run --import-csv results/bench_forward.csv \
         --timestamp "2026-10-29 16:30" --gpu "NVIDIA L4" --commit 967838a \
         --note "fused v1 (imported from results/bench_forward.csv)"
 

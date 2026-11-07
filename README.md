@@ -82,7 +82,7 @@ source .venv/bin/activate
 - `benchmark_tilegym.py`: times the fused forward kernel against NVIDIA TileGym's cuTile attention; results in `results/benchmarks/fused/tilegym/`.
 
 **`results/`**: outputs from the correctness and benchmark scripts above
-- `correctness/`: correctness CSVs, in one folder per implementation (`reference/`, `unfused/`, and `fused_<version>/<query tile>x<key tile>/`); the GQA runs use `reference_gqa/`, `unfused_gqa/` and `fused_gqa/`.
+- `correctness/`: correctness CSVs, in one folder per implementation (`reference/`, `unfused/`, and `fused/<version>/<query tile>x<key tile>/`); the GQA runs use `reference_gqa/`, `unfused_gqa/` and `fused_gqa/`.
 - `benchmarks/`: benchmark CSVs and plots: `fused/<version>/<query tile>x<key tile>/` (forward, plus the TileGym comparison in `fused/tilegym/`), `fused_gqa/<version>/<query tile>x<key tile>/Hkv<n>/` (GQA forward, one folder per `H_kv`) and `backward/` (backward timings).
 - `archive/`: older results kept for reference (the L4 runs, the earlier per-version and TileGym timings, and their logs and comparison scripts).
 

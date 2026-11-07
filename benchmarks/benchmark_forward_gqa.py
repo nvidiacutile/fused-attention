@@ -8,7 +8,7 @@ Rows are the benchmark_forward.py columns plus H_kv, then fused speedup vs unfus
 gpu and kernel.
 --kernel loads fused_gqa_attention from any kernel file instead of attention/gqa/fused_gqa.py
 (e.g. attention/gqa/fused_kernels/v0_baseline.py); --tag names the outputs (default: file name).
-Outputs go to results/benchmark/<tag>/<tile>/ by default.
+Outputs go to results/benchmarks/fused_gqa/<tag>/<tile>/Hkv<H_kv>/ by default.
 """
 import argparse, csv, importlib.util, os, re, statistics, sys, time
 import torch
@@ -174,7 +174,7 @@ def write_plots(rows, path):
 def main():
     global fused_gqa_attention
     p = argparse.ArgumentParser()
-    p.add_argument("--kernel", default="attention/gqa/fused_gqa.py",
+    p.add_argument("--kernel", default="attention/gqa/fused_kernels/v0_baseline.py",
                    help="kernel file with fused_gqa_attention, e.g. attention/gqa/fused_kernels/v0_baseline.py")
     p.add_argument("--tag", default=None, help="name used in output paths (default: kernel file name)")
     p.add_argument("--B", type=int, default=2)
@@ -184,13 +184,13 @@ def main():
     p.add_argument("--tile-n", type=int, default=64)
     p.add_argument("--impls", default="fused,unfused,sdpa")
     p.add_argument("--out", default=None,
-                   help="per-config CSV (default: results/benchmark/<tag>/<tile>/bench_forward_gqa_sep_<tag>_<tile>_Hkv<H_kv>.csv)")
+                   help="per-config CSV (default: results/benchmarks/fused_gqa/<tag>/<tile>/Hkv<H_kv>/bench_forward_gqa_sep_<tag>_<tile>_Hkv<H_kv>.csv)")
     p.add_argument("--summary-out", default=None,
                    help="aggregate CSV: averages per N / per D and fused-vs-unfused speedup "
-                        "(default: results/benchmark/<tag>/<tile>/bench_forward_gqa_agg_<tag>_<tile>_Hkv<H_kv>.csv)")
+                        "(default: results/benchmarks/fused_gqa/<tag>/<tile>/Hkv<H_kv>/bench_forward_gqa_agg_<tag>_<tile>_Hkv<H_kv>.csv)")
     p.add_argument("--plot-out", default=None,
                    help="6-panel PNG: latency/throughput/speedup vs N per D "
-                        "(default: results/benchmark/<tag>/<tile>/bench_forward_gqa_plots_<tag>_<tile>_Hkv<H_kv>.png)")
+                        "(default: results/benchmarks/fused_gqa/<tag>/<tile>/Hkv<H_kv>/bench_forward_gqa_plots_<tag>_<tile>_Hkv<H_kv>.png)")
     args = p.parse_args()
     if args.H % args.H_kv != 0:
         p.error(f"--H-kv={args.H_kv} must divide --H={args.H}")
@@ -199,7 +199,7 @@ def main():
     fused_gqa_attention = load_fused(args.kernel)
     tag = args.tag or os.path.splitext(os.path.basename(args.kernel))[0]
     tile = f"{args.tile_m}x{args.tile_n}"
-    base = f"results/benchmark/{tag}/{tile}"
+    base = f"results/benchmarks/fused_gqa/{tag}/{tile}/Hkv{args.H_kv}"
     print(f"kernel={args.kernel}  tag={tag}  tile={tile}  gpu={gpu}")
     args.out = args.out or f"{base}/bench_forward_gqa_sep_{tag}_{tile}_Hkv{args.H_kv}.csv"
     args.summary_out = args.summary_out or f"{base}/bench_forward_gqa_agg_{tag}_{tile}_Hkv{args.H_kv}.csv"
