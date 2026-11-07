@@ -1,18 +1,16 @@
-# Removed experiments (v8, v9, v10)
+# Removed experiments (R1–R3)
 
-Three rejected optimizations of the v3 kernel, taken out of the main profiling log because they are not used
-in the report. Kept here for the record. Times: fused forward, N=8192, B=2, H=8, tile 64x64
+Three rejected optimizations of v3, taken out of the main profiling log because they are not used in the report.
+They are labelled R1–R3 (they were measured as Runs 18–20, before Run 18 was reassigned to v8_vlate).
+Each folder holds the kernel and the run that measured it. Times: fused forward, N=8192, B=2, H=8, 64x64 tiles
 (v3: 0.447 ms at D=64, 0.808 ms at D=128).
 
-| File here | Originally at | What it tried | Result |
+| Folder | Label | What it tried | Result |
 |---|---|---|---|
-| `kernels/v8_pipelined.py` | `profiling/kernels/v8_pipelined.py` (later `kernels/rejected_optimization/`) | software pipelining: load K/V and compute Q·Kᵀ of tile j+1 before the softmax and P·V of tile j | 15% fewer stall cycles but 18% more instructions; 0.452 ms (D=64), 1.164 ms (D=128, 44% slower) |
-| `kernels/v9_lazyrescale.py` | `profiling/kernels/v9_lazyrescale.py` (later `kernels/rejected_optimization/`) | rescale acc and l only when a row max grows by more than 8 (log2 units) | data-dependent branch; 0.471 ms (D=64), 0.826 ms (D=128) |
-| `kernels/v10_exp2fp16.py` | `profiling/kernels/v10_exp2fp16.py` (later `kernels/rejected_optimization/`) | exp2 evaluated in FP16 | 66% more instructions; 0.475 ms (D=64), 1.134 ms (D=128, 40% slower) |
-| `runs/run_018/` | `profiling/runs/run_018/` | Run 18: measurement + Nsight report of v8 | |
-| `runs/run_019/` | `profiling/runs/run_019/` | Run 19: measurement + Nsight report of v9 | |
-| `runs/run_020/` | `profiling/runs/run_020/` | Run 20: measurement + Nsight report of v10 | |
-| `RUNS_18-20.md` | sections "Run 18"–"Run 20" of `profiling/RUNS.md` | the run log entries | |
-| `runs_18-20.csv` | rows of runs 18–20 in `profiling/runs.csv` | the raw timings | |
+| `v8_pipelined/` | R1 | software pipelining: load K/V and compute Q·Kᵀ of tile j+1 before the softmax and P·V of tile j | 15% fewer stall cycles but 18% more instructions; 0.452 ms (D=64), 1.164 ms (D=128, 44% slower) |
+| `v9_lazyrescale/` | R2 | rescale acc and l only when a row max grows by more than 8 (log2 units) | data-dependent branch; 0.471 ms (D=64), 0.826 ms (D=128) |
+| `v10_exp2fp16/` | R3 | exp2 evaluated in FP16 | 66% more instructions; 0.475 ms (D=64), 1.134 ms (D=128, 40% slower) |
 
-Run numbers 18–20 are left unused in the main log, so Run 21 (v8_vlate, formerly v11) keeps its number.
+`RUNS_R1-R3.md` and `runs_R1-R3.csv` are their log sections and raw timings.
+The kernels were measured at `profiling/kernels/v8_pipelined.py` etc. (the path in the logs).
+The names v8–v10 here are earlier experiments; the current `v8` is `../../2_rejected/v8_vlate/`.

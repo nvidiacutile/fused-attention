@@ -1,5 +1,5 @@
---- Run 18: profiling/kernels/v8_pipelined.py
-+++ Run 19: profiling/kernels/v9_lazyrescale.py
+--- R1: profiling/kernels/v8_pipelined.py
++++ R2: profiling/kernels/v9_lazyrescale.py
 @@ -1,3 +1,3 @@
 -# v8: v3 + software-pipelined K/V loop: load K/V and compute S for tile j+1 before the softmax/PV of tile j (independent work in each iteration)
 +# v9: v3 + lazy rescaling: rescale acc and l only when some row max grows by more than 8 (log2 units); otherwise keep the old max

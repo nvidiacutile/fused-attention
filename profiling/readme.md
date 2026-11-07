@@ -39,9 +39,9 @@ Median fused forward time, N = 8192, B = 2, H = 8, causal, FP16, 64x64 tiles. SD
 | v5 `v5_occupancy2latency4` | 6 | `latency=4` on K/V loads | 0.449 | 0.813 | rejected: no effect |
 | v6 `v6_occupancy2latency8` | 7 | `latency=8` on K/V loads | 0.441 | 0.814 | rejected: no effect |
 | v7 `v7_ksplit` | 17 | unmasked and masked key tiles in two loops | 0.447 | 0.813 | rejected: identical |
-| v8 `v8_vlate` | 21 | V loaded just before P·V (TileGym order) | 0.448 | 0.815 | rejected: identical |
+| v8 `v8_vlate` | 18 | V loaded just before P·V (TileGym order) | 0.448 | 0.815 | rejected: identical |
 
-Tile-study runs 8–16 are listed in `3_tile_study/Readme.md`. Run numbers 18–20 belong to removed experiments
+Tile-study runs 8–16 are listed in `3_tile_study/Readme.md`. Removed experiments are labelled R1–R3
 (`archive/removed/`). At N = 512 a call takes ≈20 µs, so differences of a few percent there are noise.
 
 ## Reproducing a run

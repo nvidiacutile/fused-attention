@@ -1,4 +1,4 @@
-## Run 19 — 2026-11-04 17:18 IST
+## R2 — 2026-11-04 17:18 IST
 
 **Note:** v9: v3 + lazy rescaling (rescale acc and l only when a row max grows by > 8 in log2 units)
 
@@ -10,11 +10,11 @@ v3 Warp State: ~3 of 11 cycles per instruction wait on the warp's own previous r
 
 Rescale moved under 'if max(m_cand - m) > 8'; p and l use the stale max otherwise; acc += P.V without the alpha multiply
 
-Code diff vs Run 18 (hunk headers `@@ -old,+new @@` give line numbers):
+Code diff vs R1 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ```diff
---- Run 18: profiling/kernels/v8_pipelined.py
-+++ Run 19: profiling/kernels/v9_lazyrescale.py
+--- R1: profiling/kernels/v8_pipelined.py
++++ R2: profiling/kernels/v9_lazyrescale.py
 @@ -1,3 +1,3 @@
 -# v8: v3 + software-pipelined K/V loop: load K/V and compute S for tile j+1 before the softmax/PV of tile j (independent work in each iteration)
 +# v9: v3 + lazy rescaling: rescale acc and l only when some row max grows by more than 8 (log2 units); otherwise keep the old max
@@ -119,7 +119,7 @@ Code diff vs Run 18 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Result (fused kernel, median of 30 runs)
 
-| D | N | Tile | Fused ms | Fused TFLOP/s | SDPA ms | Fused vs SDPA | vs previous run (Run 18) on this GPU | vs baseline (Run 1) on this GPU |
+| D | N | Tile | Fused ms | Fused TFLOP/s | SDPA ms | Fused vs SDPA | vs previous run (R1) on this GPU | vs baseline (Run 1) on this GPU |
 |---|---|---|---|---|---|---|---|---|
 | 64 | 512 | 64x64 | 0.020 | 27.5 | 0.022 | 1.15× faster | 11.4% slower | 0.5% faster |
 | 64 | 2048 | 64x64 | 0.048 | 177.7 | 0.085 | 1.76× faster | 9.0% slower | 37.1% faster |
@@ -130,7 +130,7 @@ Code diff vs Run 18 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Nsight Compute
 
-Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/runs/run_019/fused_d64_n8192_64x64.ncu-rep`
+Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/run_R2/fused_d64_n8192_64x64.ncu-rep`
 
 | Metric | Value |
 |---|---|

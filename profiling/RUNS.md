@@ -3,9 +3,10 @@
 One section per run, newest at the bottom. Times are IST. Changes compare the same size and tile on the same GPU.
 
 > **Notes on this log**
-> - Runs 18–20 (v8 pipelining, v9 lazy rescaling, v10 FP16 exp2) were removed from this log and are kept in
->   `archive/removed/RUNS_18-20.md`. Run 21's code diff and "vs previous run" column therefore compare against
->   Run 20 (v10); compare it with Run 4 (v3) instead, since v8_vlate is a change on top of v3.
+> - Runs are numbered in the order they were measured. Three experiments measured between Run 17 and Run 18
+>   (v8 pipelining, v9 lazy rescaling, v10 FP16 exp2) were removed from this log; they are labelled R1–R3 and kept
+>   in `archive/removed/`. Run 18's code diff and "vs previous run" column therefore compare against R3 (v10);
+>   compare it with Run 4 (v3) instead, since v8_vlate is a change on top of v3.
 > - Files were reorganised after they were measured: `profiling/kernels/` and `profiling/runs/` became
 >   `1_optimizations/`, `2_rejected/` and `3_tile_study/`, and `v11_vlate.py` was renamed `v8_vlate.py`.
 >   The "Kernel file" links point to the current files; `runs.csv` keeps each path as measured, and
@@ -1378,7 +1379,7 @@ Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `pro
 
 ---
 
-## Run 21 — 2026-11-04 17:19 IST
+## Run 18 — 2026-11-04 17:19 IST
 
 **Note:** v8: v3 + V loaded just before P@V (after the softmax), as in NVIDIA TileGym
 
@@ -1390,11 +1391,11 @@ v3 Source page: Sleeping stalls on both K/V loads and an MMA; V is held through 
 
 V load moved from the top of the loop to just before acc = mma(p, v, acc*alpha)
 
-Code diff vs Run 20 (hunk headers `@@ -old,+new @@` give line numbers):
+Code diff vs R3 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ```diff
---- Run 20: profiling/kernels/v10_exp2fp16.py
-+++ Run 21: profiling/kernels/v8_vlate.py
+--- R3: profiling/kernels/v10_exp2fp16.py
++++ Run 18: profiling/kernels/v8_vlate.py
 @@ -1,3 +1,3 @@
 -# v10: v3 + exp2 computed in FP16 for p (p is cast to FP16 for the P@V multiply anyway); row sum added to l in FP32
 +# v8: v3 + V tile loaded just before the P@V multiply (after the softmax) instead of at the top of the loop, as in NVIDIA TileGym attention.py
@@ -1451,7 +1452,7 @@ Code diff vs Run 20 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Result (fused kernel, median of 30 runs)
 
-| D | N | Tile | Fused ms | Fused TFLOP/s | SDPA ms | Fused vs SDPA | vs previous run (Run 20) on this GPU | vs baseline (Run 1) on this GPU |
+| D | N | Tile | Fused ms | Fused TFLOP/s | SDPA ms | Fused vs SDPA | vs previous run (R3) on this GPU | vs baseline (Run 1) on this GPU |
 |---|---|---|---|---|---|---|---|---|
 | 64 | 512 | 64x64 | 0.018 | 30.3 | 0.022 | 1.24× faster | 0.0% faster | 10.2% faster |
 | 64 | 2048 | 64x64 | 0.044 | 195.0 | 0.085 | 1.92× faster | 5.4% faster | 42.9% faster |
@@ -1462,7 +1463,7 @@ Code diff vs Run 20 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Nsight Compute
 
-Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/2_rejected/v8_vlate/run_021/fused_d64_n8192_64x64.ncu-rep`
+Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/2_rejected/v8_vlate/run_018/fused_d64_n8192_64x64.ncu-rep`
 
 | Metric | Value |
 |---|---|

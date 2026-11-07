@@ -1,4 +1,4 @@
-## Run 18 — 2026-11-03 21:49 IST
+## R1 — 2026-11-03 21:49 IST
 
 **Note:** v8: v3 + software-pipelined K/V loop (load K/V and compute S for tile j+1 before softmax/PV of tile j)
 
@@ -14,7 +14,7 @@ Code diff vs Run 17 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ```diff
 --- Run 17: profiling/kernels/v7_ksplit.py
-+++ Run 18: profiling/kernels/v8_pipelined.py
++++ R1: profiling/kernels/v8_pipelined.py
 @@ -1,3 +1,3 @@
 -# v7: v3 + two-phase K/V loop: unmasked tiles (j < mask_start) with no branch/where, then the diagonal tile(s) with the mask
 +# v8: v3 + software-pipelined K/V loop: load K/V and compute S for tile j+1 before the softmax/PV of tile j (independent work in each iteration)
@@ -122,7 +122,7 @@ Code diff vs Run 17 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Nsight Compute
 
-Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/runs/run_018/fused_d64_n8192_64x64.ncu-rep`
+Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/run_R1/fused_d64_n8192_64x64.ncu-rep`
 
 | Metric | Value |
 |---|---|
@@ -134,7 +134,7 @@ Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `pro
 
 ---
 
-## Run 19 — 2026-11-04 17:18 IST
+## R2 — 2026-11-04 17:18 IST
 
 **Note:** v9: v3 + lazy rescaling (rescale acc and l only when a row max grows by > 8 in log2 units)
 
@@ -146,11 +146,11 @@ v3 Warp State: ~3 of 11 cycles per instruction wait on the warp's own previous r
 
 Rescale moved under 'if max(m_cand - m) > 8'; p and l use the stale max otherwise; acc += P.V without the alpha multiply
 
-Code diff vs Run 18 (hunk headers `@@ -old,+new @@` give line numbers):
+Code diff vs R1 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ```diff
---- Run 18: profiling/kernels/v8_pipelined.py
-+++ Run 19: profiling/kernels/v9_lazyrescale.py
+--- R1: profiling/kernels/v8_pipelined.py
++++ R2: profiling/kernels/v9_lazyrescale.py
 @@ -1,3 +1,3 @@
 -# v8: v3 + software-pipelined K/V loop: load K/V and compute S for tile j+1 before the softmax/PV of tile j (independent work in each iteration)
 +# v9: v3 + lazy rescaling: rescale acc and l only when some row max grows by more than 8 (log2 units); otherwise keep the old max
@@ -255,7 +255,7 @@ Code diff vs Run 18 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Result (fused kernel, median of 30 runs)
 
-| D | N | Tile | Fused ms | Fused TFLOP/s | SDPA ms | Fused vs SDPA | vs previous run (Run 18) on this GPU | vs baseline (Run 1) on this GPU |
+| D | N | Tile | Fused ms | Fused TFLOP/s | SDPA ms | Fused vs SDPA | vs previous run (R1) on this GPU | vs baseline (Run 1) on this GPU |
 |---|---|---|---|---|---|---|---|---|
 | 64 | 512 | 64x64 | 0.020 | 27.5 | 0.022 | 1.15× faster | 11.4% slower | 0.5% faster |
 | 64 | 2048 | 64x64 | 0.048 | 177.7 | 0.085 | 1.76× faster | 9.0% slower | 37.1% faster |
@@ -266,7 +266,7 @@ Code diff vs Run 18 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Nsight Compute
 
-Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/runs/run_019/fused_d64_n8192_64x64.ncu-rep`
+Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/run_R2/fused_d64_n8192_64x64.ncu-rep`
 
 | Metric | Value |
 |---|---|
@@ -278,7 +278,7 @@ Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `pro
 
 ---
 
-## Run 20 — 2026-11-04 17:18 IST
+## R3 — 2026-11-04 17:18 IST
 
 **Note:** v10: v3 + exp2 evaluated in FP16 for p
 
@@ -290,11 +290,11 @@ v3 Warp State: ~2.2 cycles per instruction on Math Pipe Throttle; the exp2 unit 
 
 p = exp2((s*scale - m_new).astype(fp16)); row sums converted to FP32 before adding to l
 
-Code diff vs Run 19 (hunk headers `@@ -old,+new @@` give line numbers):
+Code diff vs R2 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ```diff
---- Run 19: profiling/kernels/v9_lazyrescale.py
-+++ Run 20: profiling/kernels/v10_exp2fp16.py
+--- R2: profiling/kernels/v9_lazyrescale.py
++++ R3: profiling/kernels/v10_exp2fp16.py
 @@ -1,3 +1,3 @@
 -# v9: v3 + lazy rescaling: rescale acc and l only when some row max grows by more than 8 (log2 units); otherwise keep the old max
 +# v10: v3 + exp2 computed in FP16 for p (p is cast to FP16 for the P@V multiply anyway); row sum added to l in FP32
@@ -364,7 +364,7 @@ Code diff vs Run 19 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Result (fused kernel, median of 30 runs)
 
-| D | N | Tile | Fused ms | Fused TFLOP/s | SDPA ms | Fused vs SDPA | vs previous run (Run 19) on this GPU | vs baseline (Run 1) on this GPU |
+| D | N | Tile | Fused ms | Fused TFLOP/s | SDPA ms | Fused vs SDPA | vs previous run (R2) on this GPU | vs baseline (Run 1) on this GPU |
 |---|---|---|---|---|---|---|---|---|
 | 64 | 512 | 64x64 | 0.018 | 30.3 | 0.022 | 1.27× faster | 9.7% faster | 10.2% faster |
 | 64 | 2048 | 64x64 | 0.046 | 184.9 | 0.086 | 1.85× faster | 3.9% faster | 39.6% faster |
@@ -375,7 +375,7 @@ Code diff vs Run 19 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Nsight Compute
 
-Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/runs/run_020/fused_d64_n8192_64x64.ncu-rep`
+Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/run_R3/fused_d64_n8192_64x64.ncu-rep`
 
 | Metric | Value |
 |---|---|

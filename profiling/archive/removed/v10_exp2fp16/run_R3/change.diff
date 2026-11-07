@@ -1,5 +1,5 @@
---- Run 19: profiling/kernels/v9_lazyrescale.py
-+++ Run 20: profiling/kernels/v10_exp2fp16.py
+--- R2: profiling/kernels/v9_lazyrescale.py
++++ R3: profiling/kernels/v10_exp2fp16.py
 @@ -1,3 +1,3 @@
 -# v9: v3 + lazy rescaling: rescale acc and l only when some row max grows by more than 8 (log2 units); otherwise keep the old max
 +# v10: v3 + exp2 computed in FP16 for p (p is cast to FP16 for the P@V multiply anyway); row sum added to l in FP32

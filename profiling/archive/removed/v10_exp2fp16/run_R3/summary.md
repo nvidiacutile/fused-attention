@@ -1,4 +1,4 @@
-## Run 20 — 2026-11-04 17:18 IST
+## R3 — 2026-11-04 17:18 IST
 
 **Note:** v10: v3 + exp2 evaluated in FP16 for p
 
@@ -10,11 +10,11 @@ v3 Warp State: ~2.2 cycles per instruction on Math Pipe Throttle; the exp2 unit 
 
 p = exp2((s*scale - m_new).astype(fp16)); row sums converted to FP32 before adding to l
 
-Code diff vs Run 19 (hunk headers `@@ -old,+new @@` give line numbers):
+Code diff vs R2 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ```diff
---- Run 19: profiling/kernels/v9_lazyrescale.py
-+++ Run 20: profiling/kernels/v10_exp2fp16.py
+--- R2: profiling/kernels/v9_lazyrescale.py
++++ R3: profiling/kernels/v10_exp2fp16.py
 @@ -1,3 +1,3 @@
 -# v9: v3 + lazy rescaling: rescale acc and l only when some row max grows by more than 8 (log2 units); otherwise keep the old max
 +# v10: v3 + exp2 computed in FP16 for p (p is cast to FP16 for the P@V multiply anyway); row sum added to l in FP32
@@ -84,7 +84,7 @@ Code diff vs Run 19 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Result (fused kernel, median of 30 runs)
 
-| D | N | Tile | Fused ms | Fused TFLOP/s | SDPA ms | Fused vs SDPA | vs previous run (Run 19) on this GPU | vs baseline (Run 1) on this GPU |
+| D | N | Tile | Fused ms | Fused TFLOP/s | SDPA ms | Fused vs SDPA | vs previous run (R2) on this GPU | vs baseline (Run 1) on this GPU |
 |---|---|---|---|---|---|---|---|---|
 | 64 | 512 | 64x64 | 0.018 | 30.3 | 0.022 | 1.27× faster | 9.7% faster | 10.2% faster |
 | 64 | 2048 | 64x64 | 0.046 | 184.9 | 0.086 | 1.85× faster | 3.9% faster | 39.6% faster |
@@ -95,7 +95,7 @@ Code diff vs Run 19 (hunk headers `@@ -old,+new @@` give line numbers):
 
 ### Nsight Compute
 
-Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/runs/run_020/fused_d64_n8192_64x64.ncu-rep`
+Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `profiling/run_R3/fused_d64_n8192_64x64.ncu-rep`
 
 | Metric | Value |
 |---|---|
