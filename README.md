@@ -2,6 +2,10 @@
 
 Causal scaled dot-product attention in NVIDIA cuTile: a fused FlashAttention-style forward kernel with online softmax, extended to grouped-query attention (GQA/MQA) and a recompute-based backward pass with PyTorch autograd support, tested and benchmarked against an unfused cuTile baseline and PyTorch SDPA.
 
+## Report
+
+The full write-up is in [`NVIDIA_cuTile_report.pdf`](NVIDIA_cuTile_report.pdf). It covers the tiled online-softmax algorithm, correctness testing, benchmarks against the unfused baseline, PyTorch SDPA and TileGym, the profiler-guided optimizations (v0 to v3), grouped-query attention and the backward pass. The numbers in the report come from `results/`.
+
 ## Setup
 
 **Python version:** the pinned packages in `requirements.txt` (e.g. `filelock==4.2.9`) need Python >= 3.11. If the system `python3` is older (e.g. 3.10 on Ubuntu 22.04), `pip` fails with "No matching distribution found". Point `setup.sh` at a newer Python via the `PYTHON` variable, e.g. with `uv` (step 3).
@@ -78,6 +82,7 @@ python -m benchmarks.benchmark_backward
 ## File structure
 
 **Top level**
+- `NVIDIA_cuTile_report.pdf`: project report with the method, results and profiling analysis.
 - `run_attention.py`: command-line tool that reads Q, K, V from a `.npz` file, runs causal attention with the chosen backend and writes the output to `.npy`.
 - `run_attention_gqa.py`: same command-line tool for grouped-query attention: K and V have `H_kv` heads (`H_kv` divides `H`; `H_kv == 1` is MQA, `H_kv == H` is plain multi-head), and the cuTile backend is the GQA kernel.
 - `setup.sh`: one-command environment setup (creates `.venv`, installs requirements, writes `env.txt`).
