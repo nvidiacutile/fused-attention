@@ -96,4 +96,46 @@ All 6 tiles measured in one session (`profiling/3_tile_study/run_008_*`), median
 | 128 | 2048 | 0.1527 | 0.0809 | **0.0743** | 0.0968 | 0.4235 | 0.6056 | 0.1172 | 64×64 | 1.58× |
 | 128 | 8192 | 1.9280 | 0.8654 | **0.7721** | 0.9436 | 5.6460 | 10.9929 | 1.0298 | 64×64 | 1.33× |
 | **mean** | | 0.4995 | 0.2560 | 0.2301 | 0.2799 | 1.1239 | 2.2737 | 0.3071 | | |
- 
+
+### Speedup of v2 over v0 at every tile and configuration
+
+Fused forward, B = 2, H = 8, causal, FP16. Each cell is v0 time / v2 time (> 1 means v2 is faster),
+from the forward benchmarks in `results/benchmarks/fused/v0_baseline/` and `results/benchmarks/fused/v2_fusedInstructions/`.
+v2 = v0 + heavy-first block order (v1) + exp2 with a folded scale and fast math; no occupancy hint.
+
+| D | N | 64×64 | 64×128 | 128×64 | 128×128 |
+|---|---|---|---|---|---|
+| 64 | 128 | 1.14× | 1.16× | 1.14× | 1.20× |
+| 64 | 512 | 1.11× | 1.00× | 1.18× | 1.20× |
+| 64 | 2048 | 1.43× | 1.35× | 1.65× | 1.36× |
+| 64 | 8192 | 1.26× | 1.17× | 1.55× | 1.20× |
+| 128 | 128 | 1.14× | 1.13× | 1.67× | **1.74×** |
+| 128 | 512 | 1.10× | 1.09× | 1.11× | 1.15× |
+| 128 | 2048 | 1.32× | 1.36× | 1.14× | 1.05× |
+| 128 | 8192 | 1.16× | 1.19× | 0.88× | 0.86× |
+| **geomean** | | 1.20× | 1.18× | 1.26× | 1.20× |
+
+The v1 and v2 changes do not depend on the tile size, so v2 is faster than v0 at every tile (1.18–1.26× on
+average). The only regressions are the 128-row tiles at D = 128, N = 8192 (0.86–0.88×), where those tiles
+already spill registers in both versions.
+
+
+
+ ### Speedup of v3 over v0 at every tile and configuration
+
+Fused forward, B = 2, H = 8, causal, FP16. Each cell is v0 time / v3 time (> 1 means v3 is faster),
+from the forward benchmarks in `results/benchmarks/fused/v0_baseline/` and `results/benchmarks/fused/v3_occupancy2/`.
+
+| D | N | 64×64 | 64×128 | 128×64 | 128×128 |
+|---|---|---|---|---|---|
+| 64 | 128 | 1.18× | 1.14× | 1.14× | 1.10× |
+| 64 | 512 | 1.11× | 1.01× | 1.08× | 1.04× |
+| 64 | 2048 | **1.82×** | 1.54× | 1.32× | 1.12× |
+| 64 | 8192 | 1.56× | 1.60× | 1.65× | 1.10× |
+| 128 | 128 | 1.12× | 1.01× | 1.67× | 1.59× |
+| 128 | 512 | 1.09× | 0.86× | 1.06× | 1.06× |
+| 128 | 2048 | 1.54× | 1.22× | 1.00× | 0.90× |
+| 128 | 8192 | 1.34× | 1.10× | 0.69× | 0.56× |
+| **geomean** | | **1.32×** | 1.16× | 1.16× | 1.02× |
+
+There is improvement across all tile configs, mostly across 64 x 64 when occupancy = 2
