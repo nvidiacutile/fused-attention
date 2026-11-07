@@ -45,6 +45,36 @@ If `uv` is not installed, get it with `curl -LsSf https://astral.sh/uv/install.s
 source .venv/bin/activate
 ```
 
+## Reproducing the results
+
+The `Makefile` re-runs every correctness check and benchmark behind `results/correctness/` and `results/benchmarks/` and writes them to `results_replicate/`, with the same folder layout and file names, so each file can be compared with its counterpart in `results/`. `results/` itself is not modified, and the folders are created as needed. Run it from the repo root on a CUDA GPU with `.venv` set up and activated (steps 3 and 4). The committed results were measured on an NVIDIA RTX PRO 6000 Blackwell Server Edition.
+
+```bash
+make                 # everything: correctness, then benchmarks (61 runs)
+make correctness     # results_replicate/correctness/
+make benchmarks      # results_replicate/benchmarks/
+make list            # print every command without running it
+make compare         # after a run: list files present in only one of results/ and results_replicate/
+```
+
+- Smaller groups: `correct-reference`, `correct-unfused`, `correct-fused`, `correct-gqa`, `correct-backward`, `bench-fused`, `bench-gqa`, `bench-backward`, `bench-tilegym`.
+- Single runs: `make correct-fused/v3_occupancy2/64x128`, `make bench-fused/v0_baseline/32x64`, `make bench-gqa/v0_baseline/64x64/Hkv2`.
+- `make -k` keeps going after a failed run (a correctness run with any FAIL exits non-zero).
+- `make OUT=<dir>` writes to another folder; `make OUT=results` regenerates the committed results in place.
+- `bench-tilegym` needs NVIDIA TileGym installed and fails without it; it runs last.
+- Runs are sequential on purpose, since parallel jobs on one GPU would distort the timings. Timings also vary between runs and GPUs, so compare benchmark numbers with a tolerance rather than expecting identical files.
+
+The scripts can also be run on their own from the repo root; without output options they write into `results/`, e.g.:
+
+```bash
+python tests/fused/run_correctness.py --impl fused --kernel attention/fused/fused_kernels/v3_occupancy2.py --block-m 64 --block-n 64
+python tests/gqa/run_correctness_gqa.py --impl fused --block-m 64 --block-n 64
+python -m tests.backward.run_correctness_backward
+python benchmarks/benchmark_forward.py --kernel attention/fused/fused_kernels/v3_occupancy2.py --tile-m 64 --tile-n 64
+python benchmarks/benchmark_forward_gqa.py --H-kv 2
+python -m benchmarks.benchmark_backward
+```
+
 ## File structure
 
 **Top level**
@@ -52,6 +82,7 @@ source .venv/bin/activate
 - `run_attention_gqa.py`: same command-line tool for grouped-query attention: K and V have `H_kv` heads (`H_kv` divides `H`; `H_kv == 1` is MQA, `H_kv == H` is plain multi-head), and the cuTile backend is the GQA kernel.
 - `setup.sh`: one-command environment setup (creates `.venv`, installs requirements, writes `env.txt`).
 - `requirements.txt`: pinned Python packages.
+- `Makefile`: re-runs every correctness check and benchmark into `results_replicate/` (see [Reproducing the results](#reproducing-the-results)).
 - `env.txt` (written by `setup.sh`, not committed): GPU, driver, Python, PyTorch and CUDA versions recorded by `setup.sh`.
 
 **`attention/`**: the attention implementations
@@ -85,6 +116,8 @@ source .venv/bin/activate
 - `correctness/`: correctness CSVs, in one folder per implementation (`reference/`, `unfused/`, and `fused/<version>/<query tile>x<key tile>/`); the GQA runs use `reference_gqa/`, `unfused_gqa/` and `fused_gqa/`.
 - `benchmarks/`: benchmark CSVs and plots: `fused/<version>/<query tile>x<key tile>/` (forward, plus the TileGym comparison in `fused/tilegym/`), `fused_gqa/<version>/<query tile>x<key tile>/Hkv<n>/` (GQA forward, one folder per `H_kv`) and `backward/` (backward timings).
 - `archive/`: older results kept for reference (the L4 runs, the earlier per-version and TileGym timings, and their logs and comparison scripts).
+
+**`results_replicate/`** (written by `make`): the same `correctness/` and `benchmarks/` layout as `results/`, produced by the `Makefile` for comparison with the committed results.
 
 **`profiling/`**: a record of each optimization step of the fused kernel, with the reasoning, code changes, timings and Nsight Compute metrics for every run.
 - `README.md`: how to set up a VM, measure a kernel with `track_run`, add a new version and reproduce a run, plus a results summary.
