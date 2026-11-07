@@ -8,3 +8,4 @@ __pycache__/
 env.txt
 profiling/3_tile_study/run_012_v2_128x128_d128/fused_d128_n8192_128x128.ncu-rep
 profiling/3_tile_study/run_013_v2_128x64_d128/fused_d128_n8192_128x64.ncu-rep
+results_replicate/
