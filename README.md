@@ -15,6 +15,14 @@ source .venv/bin/activate
 
 `setup.sh` creates `.venv`, installs the pinned packages from `requirements.txt`, and records the GPU and software versions in `env.txt`.
 
+**Python version:** the pinned packages in `requirements.txt` (e.g. `filelock==4.2.9`) need Python >= 3.11. If the system `python3` is older (e.g. 3.10 on Ubuntu 22.04), `pip` fails with "No matching distribution found". Point `setup.sh` at a newer Python via the `PYTHON` variable, e.g. with `uv`:
+
+```bash
+uv python install 3.12
+rm -rf .venv
+PYTHON=$(uv python find 3.12) bash setup.sh
+```
+
 ## File structure
 
 **Top level**
