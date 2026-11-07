@@ -37,7 +37,7 @@ _First run on this GPU: it is the baseline for later runs._
 
 ### Nsight Compute
 
-Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `gqa_profiling/runs/run_001/fused_d64_n8192_64x64.ncu-rep`
+Kernel: fused, D=64, N=8192, tile 64x64. Command: `ncu --set full`. Report: `gqa_profiling/1_optimizations/v0_baseline/run_001/fused_d64_n8192_64x64.ncu-rep`
 
 | Metric | Value |
 |---|---|
