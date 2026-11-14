@@ -24,6 +24,7 @@ except Exception:                                  # TileGym not installed: skip
 
 p = argparse.ArgumentParser()
 p.add_argument("--hkv", type=int, default=None, help="K/V heads for GQA (omit for plain multi-head attention)")
+p.add_argument("--summary", default=None, help="write the average speedups to this JSON file")
 args = p.parse_args()
 GQA = args.hkv is not None
 
@@ -99,6 +100,7 @@ print(hdr)
 print("-" * len(hdr))
 
 sp = {"unfused": [], "SDPA": [], "TileGym": []}
+max_err = 0.0
 for D in DS:
     for N in NS:
         q = torch.randn(B, H, N, D, device="cuda", dtype=torch.float16)
@@ -117,12 +119,21 @@ for D in DS:
             if name in t:
                 sp[name].append(t[name] / t["fused"])
         err = (fused(q, k, v, TILE_M, TILE_N).float() - reference(q, k, v)).abs().max().item()
+        max_err = max(max_err, err)
         tg_ms = f"{t['TileGym']:10.3f}" if "TileGym" in t else f"{'-':>10}"
         tg_x = f"{t['TileGym'] / t['fused']:9.2f}x" if "TileGym" in t else f"{'-':>10}"
         print(f"{D:>4} {N:>5} | {t['fused']:8.3f} {t['unfused']:10.3f} {t['SDPA']:8.3f} {tg_ms} | "
               f"{t['unfused'] / t['fused']:9.2f}x {t['SDPA'] / t['fused']:7.2f}x {tg_x} | {err:8.1e}")
         del q, k, v
 
+avg = {n: geo(x) for n, x in sp.items() if len(x) == len(DS) * len(NS)}
 print("-" * len(hdr))
 print("Average speedup (geometric mean over all configs):  "
-      + "   ".join(f"vs {n}: {geo(x):.2f}x" for n, x in sp.items() if len(x) == len(DS) * len(NS)))
+      + "   ".join(f"vs {n}: {s:.2f}x" for n, s in avg.items()))
+
+if args.summary:
+    import json
+    with open(args.summary, "w") as f:
+        json.dump({"vs_baseline": avg.get("unfused"), "vs_sdpa": avg.get("SDPA"),
+                   "vs_tilegym": avg.get("TileGym"), "max_err": max_err,
+                   "min_vs_sdpa": min(sp["SDPA"]), "max_vs_sdpa": max(sp["SDPA"])}, f)
