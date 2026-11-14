@@ -1,10 +1,13 @@
-"""Demo step 2: forward benchmark of the fused kernel (v3, 64x64 tiles).
-Run from the repo root:  python demo_forward.py
+"""Demo: forward benchmark of the fused kernel (v3, 64x64 tiles), for MHA or GQA.
+Run from the repo root:
+    python demo_forward.py              # multi-head attention: Q, K, V all have H heads
+    python demo_forward.py --hkv 2      # grouped-query attention: K, V have H_kv = 2 heads
 
 Columns: time (ms) of ours, the unfused cuTile baseline, PyTorch SDPA and NVIDIA TileGym,
 our speedup over each (other_ms / ours_ms, > 1 means ours is faster), and the max absolute
 error of our output vs the FP32 PyTorch reference. The last line gives geometric-mean speedups.
 """
+import argparse
 import contextlib
 import math
 import os
@@ -14,19 +17,33 @@ import sys
 import torch
 import torch.nn.functional as F
 
-from attention.fused.fused import fused_attention
-from attention.fused.unfused import unfused_attention
-from attention.fused.reference import reference_attention
-
 try:
     from tilegym.ops.cutile.attention import tile_fmha
 except Exception:                                  # TileGym not installed: skip that column
     tile_fmha = None
 
-KERNEL_FILE = "attention/fused/fused.py (same code as attention/fused/fused_kernels/v3_occupancy2.py)"
+p = argparse.ArgumentParser()
+p.add_argument("--hkv", type=int, default=None, help="K/V heads for GQA (omit for plain multi-head attention)")
+args = p.parse_args()
+GQA = args.hkv is not None
+
 B, H, TILE_M, TILE_N = 2, 8, 64, 64
+H_KV = args.hkv if GQA else H
 DS, NS = (64, 128), (128, 512, 2048, 8192)
 WARMUP, REPS = 10, 30
+
+if GQA:
+    from attention.gqa.fused_gqa import fused_gqa_attention as fused
+    from attention.gqa.unfused_gqa import unfused_gqa_attention as unfused
+    from attention.gqa.reference_gqa import reference_gqa_attention as reference
+    KERNEL_FILE = "attention/gqa/fused_gqa.py (same code as attention/gqa/fused_kernels/v0_baseline.py, built on forward v3)"
+    sdpa = lambda q, k, v: F.scaled_dot_product_attention(q, k, v, is_causal=True, enable_gqa=True)
+else:
+    from attention.fused.fused import fused_attention as fused
+    from attention.fused.unfused import unfused_attention as unfused
+    from attention.fused.reference import reference_attention as reference
+    KERNEL_FILE = "attention/fused/fused.py (same code as attention/fused/fused_kernels/v3_occupancy2.py)"
+    sdpa = lambda q, k, v: F.scaled_dot_product_attention(q, k, v, is_causal=True)
 
 
 @contextlib.contextmanager
@@ -66,10 +83,13 @@ torch.manual_seed(0)
 print(f"GPU:     {torch.cuda.get_device_name()}")
 print(f"Kernel:  {KERNEL_FILE}")
 print(f"Tile:    {TILE_M} x {TILE_N}  (query tile x key tile)")
-print(f"Configs: B = {B}, H = {H}, D in {list(DS)}, N in {list(NS)}  ->  {len(DS) * len(NS)} configs, "
+heads = (f"H = {H} query heads sharing H_kv = {H_KV} K/V heads ({H // H_KV} query heads per K/V head)"
+         if GQA else f"H = {H}")
+print(f"Configs: B = {B}, {heads}, D in {list(DS)}, N in {list(NS)}  ->  {len(DS) * len(NS)} configs, "
       f"FP16, causal")
 print(f"Timing:  median of {REPS} runs after {WARMUP} warm-up runs (CUDA events)")
-if tile_fmha is None:
+use_tilegym = tile_fmha is not None
+if not use_tilegym:
     print("(TileGym not installed: TileGym columns skipped)")
 print()
 
@@ -81,17 +101,22 @@ print("-" * len(hdr))
 sp = {"unfused": [], "SDPA": [], "TileGym": []}
 for D in DS:
     for N in NS:
-        q, k, v = (torch.randn(B, H, N, D, device="cuda", dtype=torch.float16) for _ in range(3))
-        t = {"fused": time_ms(lambda: fused_attention(q, k, v, TILE_M, TILE_N)),
-             "unfused": time_ms(lambda: unfused_attention(q, k, v, TILE_M, TILE_N)),
-             "SDPA": time_ms(lambda: F.scaled_dot_product_attention(q, k, v, is_causal=True))}
-        if tile_fmha is not None:
-            with quiet():
-                t["TileGym"] = time_ms(lambda: tile_fmha(q, k, v, scaling=1.0 / math.sqrt(D), is_causal=True))
+        q = torch.randn(B, H, N, D, device="cuda", dtype=torch.float16)
+        k, v = (torch.randn(B, H_KV, N, D, device="cuda", dtype=torch.float16) for _ in range(2))
+        t = {"fused": time_ms(lambda: fused(q, k, v, TILE_M, TILE_N)),
+             "unfused": time_ms(lambda: unfused(q, k, v, TILE_M, TILE_N)),
+             "SDPA": time_ms(lambda: sdpa(q, k, v))}
+        if use_tilegym:
+            try:
+                with quiet():
+                    t["TileGym"] = time_ms(lambda: tile_fmha(q, k, v, scaling=1.0 / math.sqrt(D), is_causal=True))
+            except Exception as e:                  # e.g. this TileGym build does not take GQA shapes
+                use_tilegym = False
+                print(f"(TileGym failed on this input, column skipped: {type(e).__name__})")
         for name in sp:
             if name in t:
                 sp[name].append(t[name] / t["fused"])
-        err = (fused_attention(q, k, v, TILE_M, TILE_N).float() - reference_attention(q, k, v)).abs().max().item()
+        err = (fused(q, k, v, TILE_M, TILE_N).float() - reference(q, k, v)).abs().max().item()
         tg_ms = f"{t['TileGym']:10.3f}" if "TileGym" in t else f"{'-':>10}"
         tg_x = f"{t['TileGym'] / t['fused']:9.2f}x" if "TileGym" in t else f"{'-':>10}"
         print(f"{D:>4} {N:>5} | {t['fused']:8.3f} {t['unfused']:10.3f} {t['SDPA']:8.3f} {tg_ms} | "
@@ -100,4 +125,4 @@ for D in DS:
 
 print("-" * len(hdr))
 print("Average speedup (geometric mean over all configs):  "
-      + "   ".join(f"vs {n}: {geo(x):.2f}x" for n, x in sp.items() if x))
+      + "   ".join(f"vs {n}: {geo(x):.2f}x" for n, x in sp.items() if len(x) == len(DS) * len(NS)))
