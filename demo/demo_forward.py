@@ -1,7 +1,7 @@
 """Demo: forward benchmark of the fused kernel (v3, 64x64 tiles), for MHA or GQA.
-Run from the repo root:
-    python demo_forward.py              # multi-head attention: Q, K, V all have H heads
-    python demo_forward.py --hkv 2      # grouped-query attention: K, V have H_kv = 2 heads
+Run from the repo root (or anywhere):
+    python demo/demo_forward.py              # multi-head attention: Q, K, V all have H heads
+    python demo/demo_forward.py --hkv 2      # grouped-query attention: K, V have H_kv = 2 heads
 
 Columns: time (ms) of ours, the unfused cuTile baseline, PyTorch SDPA and NVIDIA TileGym,
 our speedup over each (other_ms / ours_ms, > 1 means ours is faster), and the max absolute
@@ -13,6 +13,7 @@ import math
 import os
 import statistics
 import sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # repo root, for attention/ and tests/
 
 import torch
 import torch.nn.functional as F

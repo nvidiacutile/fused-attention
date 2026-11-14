@@ -1,5 +1,5 @@
 """Demo: forward + backward benchmark of the fused kernel (v3 forward + recompute backward, 64x64 tiles).
-Run from the repo root:  python demo_backward.py
+Run from the repo root (or anywhere):  python demo/demo_backward.py
 
 Each implementation runs its own forward and its own backward (one training step for attention):
   fused  attention/backward/fused_backward.py: fused_attention_autograd
@@ -16,6 +16,10 @@ import statistics
 
 import torch
 import torch.nn.functional as F
+
+import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # repo root, for attention/ and tests/
 
 from attention.backward.fused_backward import fused_attention_autograd
 from attention.fused.reference import reference_attention

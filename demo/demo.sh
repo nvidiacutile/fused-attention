@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Demo: correctness and benchmark for the fused forward kernel, GQA and the backward pass,
-# then a summary table. Run from the repo root, with demo_forward.py, demo_backward.py and
-# demo_summary.py next to it:   bash demo.sh
-cd "$(dirname "$0")"
+# then a summary table. Run from the repo root (or anywhere), with demo_forward.py, demo_backward.py and
+# demo_summary.py next to it:   bash demo/demo.sh
+cd "$(dirname "$0")/.."          # demo/ -> repo root
 source .venv/bin/activate 2>/dev/null
 
 KERNEL=attention/fused/fused_kernels/v3_occupancy2.py
@@ -45,7 +45,7 @@ verdict $? "FUSED CORRECTNESS" FWD_OK
 
 # ------------------------------------------------------------------ 2. fused benchmark
 banner "2. Forward benchmark: fused vs unfused, SDPA and TileGym"
-python demo_forward.py --summary /tmp/demo_fwd.json
+python demo/demo_forward.py --summary /tmp/demo_fwd.json
 
 # ------------------------------------------------------------------ 3. GQA correctness
 banner "3. Correctness: GQA kernel vs FP32 PyTorch reference"
@@ -72,7 +72,7 @@ verdict $? "GQA CORRECTNESS" GQA_OK
 
 # ------------------------------------------------------------------ 4. GQA benchmark
 banner "4. GQA forward benchmark: fused vs unfused, SDPA and TileGym (H_kv = $GQA_HKV)"
-python demo_forward.py --hkv "$GQA_HKV" --summary /tmp/demo_gqa.json
+python demo/demo_forward.py --hkv "$GQA_HKV" --summary /tmp/demo_gqa.json
 
 # ------------------------------------------------------------------ 5. backward correctness
 banner "5. Correctness: backward (dQ, dK, dV) vs FP32 PyTorch reference"
@@ -94,9 +94,9 @@ verdict $? "BACKWARD CORRECTNESS" BWD_OK
 
 # ------------------------------------------------------------------ 6. backward benchmark
 banner "6. Backward benchmark: forward + backward, fused vs naive PyTorch and SDPA"
-python demo_backward.py --summary /tmp/demo_bwd.json
+python demo/demo_backward.py --summary /tmp/demo_bwd.json
 
 # ------------------------------------------------------------------ 7. summary
 banner "7. Summary"
-python demo_summary.py /tmp/demo_fwd.json /tmp/demo_gqa.json /tmp/demo_bwd.json \
+python demo/demo_summary.py /tmp/demo_fwd.json /tmp/demo_gqa.json /tmp/demo_bwd.json \
     "$FWD_OK" "$GQA_OK" "$BWD_OK" "$GQA_HKV"

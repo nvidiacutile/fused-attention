@@ -1,5 +1,5 @@
-"""Demo: summary table of the forward, GQA and backward benchmarks (written by demo.sh).
-    python demo_summary.py FWD.json GQA.json BWD.json FWD_OK GQA_OK BWD_OK [H_KV]
+"""Demo: summary table of the forward, GQA and backward benchmarks (written by demo/demo.sh).
+    python demo/demo_summary.py FWD.json GQA.json BWD.json FWD_OK GQA_OK BWD_OK [H_KV]
 FWD_OK etc. are "PASS" or "FAIL" from the correctness steps.
 """
 import json
