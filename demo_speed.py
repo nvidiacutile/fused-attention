@@ -1,11 +1,15 @@
-"""Live demo: fused cuTile attention (v3, 64x64 tiles) forward and backward.
+"""Live demo: fused cuTile attention (v3, 64x64 tiles): forward, GQA and backward.
 Run from the repo root:  python demo_speed.py
 
 Part 1, forward, all 8 configs (D in {64,128} x N in {128,512,2048,8192}, B=2, H=8):
-    our time vs PyTorch SDPA, speedup, and max error vs the FP32 reference.
-Part 2, backward:
+    time of ours, the unfused cuTile baseline, PyTorch SDPA and NVIDIA TileGym (if installed),
+    our speedup over each, and max error vs the FP32 reference.
+Part 2, grouped-query attention (H=8 query heads, H_kv=2 K/V heads):
+    ours vs unfused GQA and SDPA(enable_gqa=True), plus max error vs the FP32 reference.
+Part 3, backward:
     dQ, dK, dV vs an FP32 PyTorch reference (relative error, PASS if <= 2e-2, as in the tests),
-    and forward+backward time and peak memory vs naive PyTorch (autograd through QK^T, softmax, PV).
+    and forward+backward time and peak memory vs naive PyTorch.
+Speedups are other_ms / ours_ms (> 1 means ours is faster); averages are geometric means.
 """
 import math
 import statistics
@@ -14,14 +18,24 @@ import torch
 import torch.nn.functional as F
 
 from attention.fused.fused import fused_attention
+from attention.fused.unfused import unfused_attention
 from attention.fused.reference import reference_attention
+from attention.gqa.fused_gqa import fused_gqa_attention
+from attention.gqa.unfused_gqa import unfused_gqa_attention
+from attention.gqa.reference_gqa import reference_gqa_attention
 from attention.backward.fused_backward import fused_attention_autograd
 
-B, H, RTOL = 2, 8, 2e-2
+try:
+    from tilegym.ops.cutile.attention import tile_fmha
+except Exception:                                  # TileGym not installed: skip that column
+    tile_fmha = None
+
+B, H, H_KV, RTOL = 2, 8, 2, 2e-2
+CONFIGS = [(D, N) for D in (64, 128) for N in (128, 512, 2048, 8192)]
 
 
 def time_ms(fn, warmup=10, reps=30):
-    for _ in range(warmup):                       # warm-up (also compiles the kernels)
+    for _ in range(warmup):                        # warm-up (also compiles the kernels)
         fn()
     torch.cuda.synchronize()
     ts = []
@@ -33,8 +47,12 @@ def time_ms(fn, warmup=10, reps=30):
     return statistics.median(ts)
 
 
-def rand(N, D, grad=False):
-    return [torch.randn(B, H, N, D, device="cuda", dtype=torch.float16, requires_grad=grad) for _ in range(3)]
+def geo(xs):
+    return math.exp(sum(map(math.log, xs)) / len(xs))
+
+
+def randn(*shape):
+    return torch.randn(*shape, device="cuda", dtype=torch.float16)
 
 
 def naive_attention(q, k, v):
@@ -72,33 +90,56 @@ def fwd_bwd_ms_and_mb(fn, q, k, v, do):
 
 
 torch.manual_seed(0)
-print(f"GPU: {torch.cuda.get_device_name()}   B={B} H={H}  FP16  causal  tile 64x64\n")
+print(f"GPU: {torch.cuda.get_device_name()}   B={B} H={H}  FP16  causal  tile 64x64")
+if tile_fmha is None:
+    print("(TileGym not installed: TileGym column skipped)")
 
 # ---------------------------------------------------------------- part 1: forward
-print("== Forward: ours vs PyTorch SDPA")
-print(f"{'D':>4} {'N':>5} | {'ours ms':>8} {'SDPA ms':>8} | {'speedup':>7} | {'max err vs FP32':>15}")
-speedups = []
-for D in (64, 128):
-    for N in (128, 512, 2048, 8192):
-        q, k, v = rand(N, D)
-        ours = time_ms(lambda: fused_attention(q, k, v))
-        sdpa = time_ms(lambda: F.scaled_dot_product_attention(q, k, v, is_causal=True))
-        err = (fused_attention(q, k, v).float() - reference_attention(q, k, v)).abs().max().item()
-        speedups.append(sdpa / ours)
-        print(f"{D:>4} {N:>5} | {ours:8.3f} {sdpa:8.3f} | {sdpa / ours:6.2f}x | {err:15.2e}")
-geo = math.exp(sum(map(math.log, speedups)) / len(speedups))
-print(f"geometric-mean speedup over SDPA: {geo:.2f}x\n")
+print("\n== 1. Forward: ours vs unfused, SDPA and TileGym (times in ms)")
+print(f"{'D':>4} {'N':>5} | {'ours':>7} {'unfused':>8} {'SDPA':>7} {'TileGym':>8} | "
+      f"{'vs unfused':>10} {'vs SDPA':>8} {'vs TileGym':>10} | {'max err':>8}")
+sp = {"unfused": [], "sdpa": [], "tilegym": []}
+for D, N in CONFIGS:
+    q, k, v = randn(B, H, N, D), randn(B, H, N, D), randn(B, H, N, D)
+    t = {"ours": time_ms(lambda: fused_attention(q, k, v)),
+         "unfused": time_ms(lambda: unfused_attention(q, k, v)),
+         "sdpa": time_ms(lambda: F.scaled_dot_product_attention(q, k, v, is_causal=True))}
+    if tile_fmha is not None:
+        t["tilegym"] = time_ms(lambda: tile_fmha(q, k, v, scaling=1.0 / math.sqrt(D), is_causal=True))
+    for name in sp:
+        if name in t:
+            sp[name].append(t[name] / t["ours"])
+    err = (fused_attention(q, k, v).float() - reference_attention(q, k, v)).abs().max().item()
+    tg_ms = f"{t['tilegym']:8.3f}" if "tilegym" in t else f"{'-':>8}"
+    tg_x = f"{t['tilegym'] / t['ours']:9.2f}x" if "tilegym" in t else f"{'-':>10}"
+    print(f"{D:>4} {N:>5} | {t['ours']:7.3f} {t['unfused']:8.3f} {t['sdpa']:7.3f} {tg_ms} | "
+          f"{t['unfused'] / t['ours']:9.2f}x {t['sdpa'] / t['ours']:7.2f}x {tg_x} | {err:8.1e}")
+print("average speedup:  " + "   ".join(f"vs {n}: {geo(x):.2f}x" for n, x in sp.items() if x))
 
-# ---------------------------------------------------------------- part 2: backward
+# ---------------------------------------------------------------- part 2: GQA
+print(f"\n== 2. Grouped-query attention ({H} query heads share {H_KV} K/V heads)")
+print(f"{'D':>4} {'N':>5} | {'ours':>7} {'unfused':>8} {'SDPA':>7} | {'vs unfused':>10} {'vs SDPA':>8} | {'max err':>8}")
+gsp = {"unfused": [], "sdpa": []}
+for D, N in CONFIGS:
+    q, k, v = randn(B, H, N, D), randn(B, H_KV, N, D), randn(B, H_KV, N, D)
+    ours = time_ms(lambda: fused_gqa_attention(q, k, v))
+    unf = time_ms(lambda: unfused_gqa_attention(q, k, v))
+    sdpa = time_ms(lambda: F.scaled_dot_product_attention(q, k, v, is_causal=True, enable_gqa=True))
+    gsp["unfused"].append(unf / ours); gsp["sdpa"].append(sdpa / ours)
+    err = (fused_gqa_attention(q, k, v).float() - reference_gqa_attention(q, k, v)).abs().max().item()
+    print(f"{D:>4} {N:>5} | {ours:7.3f} {unf:8.3f} {sdpa:7.3f} | {unf / ours:9.2f}x {sdpa / ours:7.2f}x | {err:8.1e}")
+print("average speedup:  " + "   ".join(f"vs {n}: {geo(x):.2f}x" for n, x in gsp.items()))
+
+# ---------------------------------------------------------------- part 3: backward
 fused = lambda q, k, v: fused_attention_autograd(q, k, v)
-ref32 = lambda q, k, v: reference_attention(q, k, v)          # FP32 maths, autograd
+ref32 = lambda q, k, v: reference_attention(q, k, v)            # FP32 maths, autograd
 
-print("== Backward: gradients vs FP32 reference, and fwd+bwd vs naive PyTorch")
+print("\n== 3. Backward: gradients vs FP32 reference, and fwd+bwd vs naive PyTorch")
 print(f"{'D':>4} {'N':>5} | {'dQ err':>8} {'dK err':>8} {'dV err':>8} | {'result':>6} | "
       f"{'ours ms':>8} {'naive ms':>9} {'speedup':>7} | {'ours MB':>8} {'naive MB':>9} {'less mem':>8}")
 all_pass = True
 for D, N in [(64, 2048), (128, 2048), (64, 8192)]:
-    q, k, v = rand(N, D)
+    q, k, v = randn(B, H, N, D), randn(B, H, N, D), randn(B, H, N, D)
     do = torch.randn_like(q)
     errs = [rel_err(a, b) for a, b in zip(grads(fused, q, k, v, do), grads(ref32, q, k, v, do))]
     ok = max(errs) <= RTOL
