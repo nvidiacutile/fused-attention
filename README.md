@@ -2,7 +2,7 @@
 
 Causal scaled dot-product attention in NVIDIA cuTile: a fused FlashAttention-style forward kernel with online softmax, extended to grouped-query attention (GQA/MQA) and a recompute-based backward pass with PyTorch autograd support, tested and benchmarked against an unfused cuTile baseline and PyTorch SDPA.
 
-**Our presentation** https://docs.google.com/presentation/d/1sEqebwCKoDGQOidaQsgKaJSBJg1HMddBo_hjQ0oRGCs/edit?usp=sharing
+[**Our presentation**] (https://docs.google.com/presentation/d/1sEqebwCKoDGQOidaQsgKaJSBJg1HMddBo_hjQ0oRGCs/edit?usp=sharing)
 ## Report
 
 The full write-up is in [`NVIDIA_cuTile_report.pdf`](NVIDIA_cuTile_report.pdf). It covers the tiled online-softmax algorithm, correctness testing, benchmarks against the unfused baseline, PyTorch SDPA and TileGym, the profiler-guided optimizations (v0 to v3), grouped-query attention and the backward pass. The numbers in the report come from `results/`.
